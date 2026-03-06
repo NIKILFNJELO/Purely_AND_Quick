@@ -1,6 +1,11 @@
 from django.urls import path
 from . import views
 from .views import HomePageView, ProposalsView
+from django.conf import settings
+from django.contrib import admin
+from django.urls import path, include
+from django.views.static import serve
+from django.urls import re_path
 
 urlpatterns = [
     path('', HomePageView.as_view(), name='home'),
@@ -19,4 +24,9 @@ urlpatterns = [
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     path('order/<int:order_id>/pay/', views.pay_order, name='pay_order'),
     path('order/<int:order_id>/delete/', views.delete_order, name='delete_order'),
+
+    path('admin/', admin.site.urls),
+    path('', include('main.urls')),
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
