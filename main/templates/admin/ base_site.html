@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% block extrahead %}
+{{ block.super }}
+<style>
+#header { 
+    background: #1a1a2e !important; 
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important; 
+}
+
+#branding h1 a:link, #branding h1 a:visited { 
+    color: #a8d8ff !important; 
+}
+
+div#content { 
+    background: #1a1a2e !important; 
+}
+
+.module h2, .module caption { 
+    background: #2c3e6b !important; 
+}
+
+#nav-sidebar { 
+    background: #12122a !important; 
+}
+
+a { 
+    color: #a8d8ff !important; 
+}
+
+.button, input[type=submit] { 
+    background: #4f63ff !important; 
+    border-radius: 8px !important; 
+    border: none !important; 
+}
+
+#changelist-filter { 
+    background: rgba(255,255,255,0.05) !important; 
+    border-radius: 12px !important; 
+}
+
+tr.odd { 
+    background: rgba(255,255,255,0.03) !important; 
+}
+
+tr.even { 
+    background: rgba(255,255,255,0.06) !important; 
+}
+
+.paginator { 
+    color: #e5e5e5 !important; 
+}
+
+body { 
+    background: #1a1a2e !important; 
+    color: #e5e5e5 !important; 
+}
+
+select, input, textarea { 
+    background: #2a2a45 !important; 
+    color: white !important; 
+    border-color: rgba(255,255,255,0.2) !important; 
+    border-radius: 8px !important; 
+}
+
+</style>
+{% endblock %}

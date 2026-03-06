@@ -1,0 +1,176 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Про нас{% endblock %}
+
+{% block content %}
+
+<style>
+
+.about-wrapper {
+    display: flex;
+    max-width: 1200px;
+    margin: 10px auto;
+    flex-direction: column;
+    padding: 0 15px;
+}
+
+.about-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.about-row .glass-card {
+    width: 700px;
+    margin-bottom: 0;
+}
+
+.about-center {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.glass-card.center {
+    width: 100%;
+}
+
+.glass-card {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    padding: 28px 30px;
+    border-radius: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.section-title {
+    background: #e5e5e5;
+    color: #222;
+    padding: 18px 30px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 25px;
+    width: 100%;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.glass-card p {
+    color: #ffffff;
+    font-size: 20px;
+    line-height: 1.9;
+}
+
+@media (max-width: 1100px) {
+    .about-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .about-row .glass-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .glass-card p { font-size: 16px !important; }
+    .section-title { font-size: 18px !important; padding: 12px !important; }
+}
+</style>
+
+
+<div class="about-wrapper">
+
+    <!-- два поруч -->
+    <div class="about-row">
+
+        <div class="glass-card">
+            <div class="section-title">Наша мета</div>
+            <p>
+                Ми тут, щоб зняти з вас турботи
+                про складний догляд: від 
+                делікатних тканин до повсякденних речей - кожен 
+                виріб отримує індивідуальний підхід 
+                і максимум уваги. Довіряючи нам, ви 
+                обираєте спокій, комфорт і сервіс, 
+                який відчувається з першого дотику.
+            </p>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title">Про нас — Хімчистка “Purely&Quick”</div>
+            <p>
+                Чистота - це не просто результат, це відчуття впевненості, 
+                з якого починається ваш день. Ми створюємо простір, 
+                де про речі піклуються так само уважно, як і про людей, 
+                поєднуючи майстерність, відповідальність і 
+                справжню любов до своєї справи.
+            </p>
+        </div>
+
+    </div>
+
+<!-- центральний  --> 
+    <div class="about-center">
+        <div class="glass-card center">
+            <div class="section-title">Що ми можемо ВАМ дати?</div>
+            <p>
+                1. Зручний каталог книг та авторів <br>  
+                2. Реальні відгуки користувачів<br>  
+                3. Можливість ділитися рекомендаціями<br>  
+                4. Інтуїтивний інтерфейс<br>  
+                5. Швидкий пошук інформації<br>
+                Даруємо бездоганну чистоту, дбайливий догляд та оновлений 
+                вигляд Ваших речей. Економимо Ваш час і гарантуємо 
+                якісний результат.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block footer %}
+<div class="footer-title">Прямі контакти з компанією</div>
+
+<div class="contact-cards">
+    <div class="contact-card">
+    <img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Gmail">
+    <a href="#" onclick="copyToClipboard(event, 'bumnikzz@gmail.com')">
+        Пошта
+    </a>
+</div>
+    <div class="contact-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968804.png" alt="Telegram">
+        <a href="https://t.me/purelyandquick">Telegram</a>
+    </div>
+    <div class="contact-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub">
+        <a href="https://github.com/NIKILFNJELO">GitHub</a>
+    </div>
+    <div class="contact-card">
+    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+    <a href="#" onclick="copyToClipboard(event, '+380123456789')">
+        WhatsApp
+    </a>
+</div>
+    <div class="contact-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
+        <a href="https://www.instagram.com/purly_and_quick/">Instagram</a>
+    </div>
+</div>
+<script>
+
+    
+function copyToClipboard(event, text) {
+    event.preventDefault(); 
+    
+    navigator.clipboard.writeText(text).then(function() {
+        alert("Скопійовано: " + text);
+    }).catch(function(err) {
+        console.error("Помилка копіювання: ", err);
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "main/base.html" %}
+{% load i18n %}
+{% block title %}Замовлення #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;margin:40px auto;">
+    <div style="background:rgba(255,255,255,0.9);border-radius:24px;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+        <h2 style="margin-bottom:25px;">Замовлення <strong>#{{ order.id }}</strong></h2>
+        <p><strong>Філія:</strong> {{ order.branch }}</p>
+        <p><strong>Клієнт:</strong> {{ order.client_name }}</p>
+        <p><strong>Назва речі:</strong> {{ order.item_name }}</p>
+        <p><strong>Вид послуги:</strong> {{ order.service_type }}</p>
+        <p><strong>Опис дефектів:</strong> {{ order.defect_description }}</p>
+        <p><strong>Бажана дата:</strong> {{ order.desired_date }}</p>
+        <p><strong>Терміновість:</strong> {% if order.urgent %}Так{% else %}Ні{% endif %}</p>
+        <p><strong>Сума:</strong> {{ order.total_price }} грн</p>
+        <p><strong>Статус:</strong>
+            {% if order.is_paid %}
+                <span style="color:#198754;font-weight:700;"> Сплачено</span>
+            {% else %}
+                <span style="color:#856404;font-weight:700;"> Очікує оплати</span>
+            {% endif %}
+        </p>
+        <a href="{% url 'profile' %}" style="display:inline-block;margin-top:20px;background:linear-gradient(135deg,#6d8eff,#4f63ff);color:white;padding:12px 28px;border-radius:15px;text-decoration:none;font-size:17px;">
+            ← Назад до кабінету
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+
+

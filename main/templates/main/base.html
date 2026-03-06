@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+{% load i18n static %}
+<head>
+{% block extra_head %}{% endblock %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{% trans "Purely&Quick" %}{% endblock %}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+Mono+TC&family=Dancing+Script:wght@400..700&family=Montserrat+Alternates:wght@400;600;700&family=Amatic+SC:wght@400;700&display=swap"><style>
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden
+}
+
+body {
+    font-family: 'LXGW WenKai Mono TC', italic, monospace;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(90deg, #b8a9a9 0%, #938b8b 35%, #7d7979 55%, #1a1a1a 100%);
+    min-height: 100vh;
+}
+.container {
+    flex: 1; 
+}
+
+.logo {
+    font-size: 44px;
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+}
+
+
+/* про нас */
+.about-wrapper {
+    display: grid;
+    grid-template-columns: 0.9fr 1.2fr;
+    gap: 60px;
+    align-items: center;
+    margin-top: 60px;
+}
+
+.about-image-box {
+    text-align: center;
+}
+
+.about-image-box img {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+}
+
+
+.glass-card {
+    background: rgba(0, 0, 0, 0.35);
+    padding: 40px;
+    border-radius: 40px;
+    color: #f1f1f1;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    line-height: 1.7;
+}
+
+/* заголовки в стилі мокапу */
+
+.section-title {
+    background: #e5e5e5;
+    color: #222;
+    padding: 14px 35px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 22px;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+.nav-btn {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    transition: 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: #6f6f6f;
+    color: white;
+}
+
+/* навдення поточна сторінка */
+.nav-btn.active {
+    background: #6f6f6f;
+    color: white;
+}
+
+/* вхід */
+.nav-login {
+    background: #bfbfbf;
+    color: white;
+    border-radius: 40px;
+    padding: 8px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.nav-login:hover {
+    background: #8e8e8e;
+    color: white;
+}
+
+/* реєстрація*/
+.nav-register {
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    color: white;
+    border-radius: 40px;
+    padding: 8px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.nav-register:hover {
+    background: #5a73ff;
+    color: white;
+}
+
+@media(max-width: 992px) {
+    .about-wrapper {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .glass-card {
+        padding: 30px;
+    }
+}
+/* повідомлення */
+
+.popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    display: none;
+}
+.navbar {
+    background: rgba(55, 57, 58, 0.35);
+    backdrop-filter: blur(10px);
+    padding: 15px 30px;
+}
+.nav-register {
+    background: linear-gradient(135deg, #4f63ff);
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    transition: 0.3s ease;
+}
+
+.footer-title {
+    background: #e5e5e5;
+    padding: 10px;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    height: 60px;
+}
+/* контакти */
+
+.contact-section {
+    margin-top: 80px;
+}
+
+.contact-title {
+    background: #aa0c0c;
+    padding: 18px;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+
+.contact-cards {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+/* кнопки */
+
+.contact-card {
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    padding: 20px 45px;
+    border-radius: 60px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+
+.contact-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+}
+
+.contact-card img {
+    width: 45px;
+    height: 45px;
+}
+
+.contact-card a {
+    color: white;          
+    text-decoration: none; 
+    font-weight: 500;
+}
+
+.contact-card a:hover {
+    color: white;         
+    text-decoration: none;
+}
+
+/* футер */
+
+footer {
+    margin-top: auto;
+    padding-bottom: 40px;
+    background: transparent;
+}
+
+/* планшет */
+@media (max-width: 1100px) {
+    .navbar .container-fluid {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .navbar .d-flex.ms-auto {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 8px;
+    }
+    .navbar-nav {
+        flex-direction: column !important;
+        gap: 6px !important;
+        width: 100%;
+    }
+    .navbar-nav a, .nav-btn, .nav-login, .nav-register {
+        width: 100%;
+        display: block;
+        text-align: center;
+        font-size: 17px !important;
+    }
+    .navbar .d-flex.gap-3 {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px !important;
+    }
+
+    /* каталог */
+    .catalog-wrapper {
+        flex-wrap: wrap !important;
+        flex-direction: row !important;
+    }
+    .catalog-wrapper .glass-card {
+        flex: 1 1 calc(50% - 15px) !important;
+        min-width: 280px;
+    }
+
+    /* пропозиції */
+    .proposals-wrapper {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .card-4 {
+        grid-column: 1 !important;
+        grid-row: auto !important;
+    }
+    .card-5 {
+        grid-column: 1 / 3 !important;
+        grid-row: auto !important;
+    }
+    .proposal-card {
+        width: 100% !important;
+    }
+
+    /* про нас */
+    .about-row {
+        flex-direction: column !important;
+        height: auto !important;
+        gap: 20px !important;
+    }
+    .about-row .glass-card {
+        width: 100% !important;
+    }
+    .about-center {
+        height: auto !important;
+    }
+    .glass-card.center {
+        width: 100% !important;
+    }
+
+    .dashboard-grid { 
+        flex-direction: column !important; 
+        height: auto !important; 
+    }
+
+    .contact-cards { 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 15px; 
+    }
+
+    .contact-card { 
+        width: 90%; 
+        justify-content: 
+        center; 
+    }
+
+    .order-row { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+    }
+}
+
+/* мобільний */
+@media (max-width: 600px) {
+    .logo { 
+        font-size: 28px !important; 
+    }
+
+    .nav-btn, .nav-login, .nav-register { 
+        font-size: 15px !important; 
+        padding: 8px 14px !important; 
+    }
+
+    .services-grid { 
+        grid-template-columns: 1fr !important; 
+    }
+
+    .section-title { 
+        font-size: 18px !important; 
+        padding: 10px !important; 
+    }
+
+    .loyalty-card { 
+        flex-direction: column !important; 
+        gap: 15px; text-align: 
+        center; 
+    }
+
+    .order-card { 
+        flex-direction: column !important; 
+    }
+
+    .pay-btn, .delete-btn { 
+        width: 100%; 
+    }
+
+    .proposal-body { 
+        font-size: 16px !important; 
+        height: auto !important; 
+    }
+
+    .footer-title { 
+        font-size: 18px !important; 
+        height: auto !important; 
+        padding: 15px !important; 
+    }
+
+    .detail-row { 
+        flex-direction: column !important; 
+    }
+
+    .card-row { 
+        flex-direction: column !important; 
+    }
+
+    .payment-modal { 
+        padding: 25px 20px !important; 
+        margin: 10px; 
+    }
+
+    .dashboard-grid { 
+        gap: 15px !important; 
+    }
+
+    .dashboard-card { 
+        padding: 20px !important; 
+    }
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+        <div class="container-fluid">
+            <a class="logo" href="{% url 'home' %}">{% trans "P&amp;Q" %}</a>
+
+            <div class="d-flex ms-auto align-items-center">
+
+<ul class="navbar-nav me-3 gap-3 align-items-center" style="font-size: 20px;">
+
+   <a class="nav-btn {% if request.resolver_match.url_name == 'catalog' %}active{% endif %}"
+   href="{% url 'catalog' %}">
+    Каталог
+</a>
+
+    <a class="nav-btn {% if request.resolver_match.url_name == 'reviews' %}active{% endif %}"
+   href="{% url 'reviews' %}">
+    Відгуки
+</a>
+
+    <a class="nav-btn {% if request.resolver_match.url_name == 'proposals' %}active{% endif %}"
+   href="{% url 'proposals' %}">
+    Пропозиції
+</a>
+
+    <a class="nav-btn {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+   href="{% url 'home' %}">
+    Про нас
+</a>
+
+</ul>
+
+<div class="d-flex gap-3 align-items-center" style="font-size: 20px;">
+
+    {% if user.is_authenticated %}
+
+    <a class="nav-register"
+       href="{% url 'profile' %}">
+        {{ user.username }}
+    </a>
+        <a class="nav-btn nav-login"
+   href="{% url 'logout' %}">
+    Вийти
+</a>
+
+{% else %}
+
+    <a class="nav-btn nav-login"
+       href="{% url 'login' %}">
+        Увійти
+    </a>
+
+    <a class="nav-register"
+       href="{% url 'register' %}">
+        Реєстрація
+    </a>
+
+{% endif %}
+
+
+</div>
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- повідомлення -->
+    <div id="popup-message" class="popup"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        function showPopup(message, level = 'info') {
+            const popup = document.getElementById('popup-message');
+            popup.textContent = message;
+
+            const colorMap = {
+                'success': '#198754',
+                'error': '#dc3545',
+                'warning': '#ffc107',
+                'info': '#0d6efd'
+            };
+            popup.style.backgroundColor = colorMap[level] || '#0d6efd';
+            popup.style.display = 'block';
+
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+
+    {% if messages %}
+        {% for message in messages %}
+            <script>
+                showPopup("{{ message|escapejs }}", "{{ message.tags }}");
+            </script>
+        {% endfor %}
+    {% endif %}
+<footer>
+    {% block footer %}{% endblock %}
+</footer>
+</body>
+</html>

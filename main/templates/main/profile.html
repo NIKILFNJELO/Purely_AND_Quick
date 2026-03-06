@@ -1,0 +1,500 @@
+{% extends "main/base.html" %}
+{% load i18n %}
+
+{% block title %}Особистий кабінет{% endblock %}
+
+{% block extra_head %}
+<style>
+body { overflow-x: hidden; }
+
+.form-title {
+    background: #e5e5e5; color: #222;
+    padding: 20px 40px; font-size: 28px; font-weight: 600;
+    text-align: center; margin-bottom: 40px;
+    width: 100vw; margin-left: calc(-50vw + 50%);
+    border-radius: 0 0 20px 20px;
+}
+.profile-card {
+    background: rgba(255,255,255,0.8); backdrop-filter: blur(8px);
+    border-radius: 30px; padding: 40px;
+    max-width: 1200px; margin: 0 auto 50px auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 100%;
+}
+.profile-info { 
+    font-size: 22px; 
+    line-height: 1.8; 
+}
+
+.loyalty-card {
+    margin-top: 30px; background: #f0f0f0;
+    border-radius: 20px; padding: 25px 30px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.loyalty-text { 
+    font-size: 20px; 
+}
+
+.loyalty-btn {
+    background: #8e8e8e; color: white;
+    padding: 12px 25px; border-radius: 15px;
+    border: none; font-size: 18px; cursor: pointer; transition: 0.3s;
+}
+.loyalty-btn:hover { background: #6f6f6f; }
+
+.dashboard-grid {
+    max-width: 1300px; margin: 0 auto 80px auto;
+    display: flex; justify-content: space-between;
+    gap: 40px; height: 290px;
+}
+.dashboard-card {
+    flex: 1; background: rgb(255,255,255);
+    border-radius: 25px; padding: 30px; text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    transition: 0.3s ease; cursor: pointer;
+}
+.dashboard-card:hover { 
+    transform: translateY(-10px); 
+}
+
+.section-title { 
+    font-size: 24px; 
+    font-weight: 600; 
+    margin-bottom: 20px; 
+}
+
+.item-header img { 
+    max-width: 100%; 
+    height: 150px; 
+    object-fit: 
+    contain; 
+}
+
+/* неоплачені замовлення */
+.orders-section { 
+    max-width: 1200px; 
+    margin: 0 auto 60px auto; 
+}
+
+.orders-section-title { 
+    font-size: 26px; 
+    font-weight: 600; 
+    color: #f1f1f1; 
+    margin-bottom: 25px; 
+}
+
+.order-card {
+    background: rgba(255,255,255,0.9); border-radius: 20px;
+    padding: 25px 35px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15); gap: 20px; flex-wrap: wrap;
+}
+.order-info { 
+    font-size: 18px; 
+    color: #222; 
+    line-height: 1.7; 
+}
+
+.order-info span { 
+    font-weight: 600; 
+}
+
+.pay-btn {
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    color: white; border: none; padding: 12px 28px;
+    border-radius: 15px; font-size: 18px; cursor: pointer;
+    transition: 0.3s; font-family: inherit;
+}
+.pay-btn:hover { 
+    background: linear-gradient(135deg, #4f63ff, #3a50e0); 
+    transform: translateY(-2px); 
+}
+
+/* форма оплати */
+.modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65); z-index: 9000;
+    justify-content: center; align-items: center;
+}
+.modal-overlay.active { 
+    display: flex; 
+}
+
+.payment-modal {
+    background: #1a1a1a; border-radius: 24px; padding: 40px;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    position: relative; color: #f1f1f1;
+}
+.modal-close {
+    position: absolute; top: 18px; right: 22px;
+    background: none; border: none; color: #aaa;
+    font-size: 24px; cursor: pointer; transition: 0.2s;
+}
+.modal-close:hover { 
+    color: white; 
+}
+
+.modal-title { 
+    font-size: 25px; 
+    font-weight: 600; 
+    margin-bottom: 28px; 
+    text-align: center; 
+}
+
+.amount-display {
+    border: 1.5px solid #ffffff; border-radius: 14px;
+    padding: 18px 22px; font-size: 20px; font-weight: 600;
+    color: #ffffff; margin-bottom: 8px;
+}
+.amount-label { 
+    font-size: 22px; 
+    color: #ffffff; 
+    margin-bottom: 24px; 
+    padding-left: 4px; 
+}
+
+.card-input-group {
+    background: #2a2a2a; border-radius: 14px;
+    padding: 16px 20px; margin-bottom: 14px;
+}
+
+.card-input-label { 
+    font-size: 22px; 
+    color: #888; 
+    margin-bottom: 6px; 
+}
+
+.card-input {
+    background: none; border: none; outline: none;
+    color: #f1f1f1; font-size: 18px; font-family: inherit;
+    width: 100%; letter-spacing: 2px;
+}
+
+.card-input::placeholder { 
+    color: #555; 
+    letter-spacing: 2px; 
+}
+
+.card-row { 
+    display: flex; 
+    gap: 14px; 
+    margin-bottom: 14px; 
+}
+
+.card-row .card-input-group { 
+    flex: 1; margin-bottom: 0; 
+}
+
+.cvv-wrapper { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+.submit-pay-btn {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    color: white; border: none; border-radius: 14px;
+    font-size: 20px; font-weight: 600; cursor: pointer;
+    margin-top: 10px; font-family: inherit; transition: 0.3s;
+}
+.submit-pay-btn:hover { 
+    background: linear-gradient(135deg, #4f63ff, #3a50e0); 
+}
+
+/* анімація успішної оплати*/
+.success-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); z-index: 9999;
+    justify-content: center; align-items: center;
+}
+.success-overlay.active { 
+    display: flex; 
+}
+.success-box {
+    background: #1a1a1a; border-radius: 28px; padding: 60px 50px;
+    text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    animation: popIn 0.4s ease;
+}
+@keyframes popIn {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.checkmark-circle {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: #198754; display: flex;
+    align-items: center; justify-content: center;
+    margin: 0 auto 25px auto; animation: scaleIn 0.5s ease 0.1s both;
+}
+@keyframes scaleIn {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+.checkmark-circle i { 
+    color: white; 
+    font-size: 50px; 
+}
+.success-title { font-size: 26px; 
+    font-weight: 700; 
+    color: #f1f1f1; 
+    margin-bottom: 10px; 
+}
+.success-subtitle { 
+    font-size: 18px; 
+    color: #aaa; 
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #ff4f4f, #cc0000);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #cc0000, #990000);
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-title">{% trans "Особистий кабінет клієнта" %}</div>
+
+<div class="profile-card">
+    <div class="profile-info">
+        <p><strong>ПІБ:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Телефон:</strong> {{ user.profile.phone }}</p>
+    </div>
+    <div class="loyalty-card">
+        <div class="loyalty-text">
+        <strong>Loyalty Card</strong><br>
+        Ваш статус: <strong>{{ user.profile.loyalty_status }}</strong><br>
+
+        {% if user.profile.paid_orders_count < 3 %}
+            <span style="font-size:16px; color:#555;">
+                До знижки 3%: ще
+                <strong>
+                    {{ orders_until_discount }}
+                    {% if orders_until_discount == 1 %}замовлення{% else %}замовлення{% endif %}
+                </strong>
+            </span>
+        {% else %}
+            <span style="font-size:16px; color:#28b463; font-weight:600;">
+                 Ваша знижка: 3% на кожне замовлення
+            </span>
+        {% endif %}
+    </div>
+    {% if request.user.is_staff %}
+<a href="/admin/main/order/branch-report/" 
+    style="
+    display: inline-block;
+    background: linear-gradient(135deg, #5278ff);
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 18px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 10px;">Універсальний доступ</a>
+{% endif %}
+</div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <a href="{% url 'proposals' %}" class="section-title" style="width:100%;text-decoration:none;">Мої бонуси</a>
+        <div class="item-header"><img src="https://wishspaceapp.com/images/gifts.png" alt="Бонуси"></div>
+    </div>
+    <div class="dashboard-card">
+        <a href="{% url 'order_list' %}" class="section-title" style="width:100%;text-decoration:none;">Мої замовлення</a>
+        <div class="item-header"><img src="https://www.decopack.com.ua/img/article/0/86_main.jpg" alt="Замовлення"></div>
+    </div>
+    <div class="dashboard-card">
+        <a href="{% url 'reviews' %}" class="section-title" style="width:100%;text-decoration:none;">Мої відгуки</a>
+        <div class="item-header"><img src="https://img.freepik.com/premium-vector/best-estimate-performance-score-five-points-flat-modern-design-illustration_566886-774.jpg" alt="Відгуки"></div>
+    </div>
+</div>
+
+{% if orders %}
+<div class="orders-section">
+    <div class="orders-section-title">Очікують оплати:</div>
+    {% for order in orders %}
+        {% if not order.is_paid %}
+        <div class="order-card">
+            <div class="order-info">
+                <div>Замовлення <span>#{{ order.user_number }}</span></div>
+                <div>Послуга: <span>{{ order.service_type }}</span></div>
+                <div>Річ: <span>{{ order.item_name }}</span></div>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <button class="pay-btn" onclick="openPayModal('{{ order.id }}', '{{ order.total_price }}', '{{ order.user_number }}')">Сплатити</button>
+                <button class="delete-btn" onclick="deleteOrder('{{ order.id }}')">Видалити</button>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block footer %}
+
+<!-- форма оплати -->
+<div class="modal-overlay" id="payModal">
+    <div class="payment-modal">
+        <button class="modal-close" onclick="closePayModal()">&#10005;</button>
+        <div class="modal-title">Оплата замовлення <span id="modalOrderId"></span></div>
+
+        <div class="amount-display" id="modalAmount">0 UAH</div>
+        <div class="amount-label">Сума до сплати</div>
+
+        <div class="card-input-group">
+            <div class="card-input-label">Номер карти</div>
+            <input class="card-input" id="cardNumber" type="text"
+                   placeholder="XXXX XXXX XXXX XXXX" maxlength="19"
+                   oninput="formatCardNumber(this)">
+        </div>
+
+        <div class="card-row">
+            <div class="card-input-group">
+                <div class="card-input-label">Термін дії</div>
+                <input class="card-input" id="cardExpiry" type="text" placeholder="ММ/РР" maxlength="5" oninput="formatExpiry(this)">
+            </div>
+            <div class="card-input-group">
+                <div class="card-input-label">CVV</div>
+                <div class="cvv-wrapper">
+                    <input class="card-input" id="cardCvv" type="password"
+                           placeholder="CVV" maxlength="3">
+                </div>
+            </div>
+        </div>
+
+        <button class="submit-pay-btn" onclick="submitPayment()">Сплатити</button>
+    </div>
+</div>
+
+<!-- успішна оплата -->
+<div class="success-overlay" id="successOverlay">
+    <div class="success-box">
+        <div class="checkmark-circle">
+            <i class="fa fa-check"></i>
+        </div>
+        <div class="success-title">Оплата успішна!</div>
+    </div>
+</div>
+
+<script>
+let currentOrderId = null;
+
+function openPayModal(orderId, amount, userNumber) {
+    currentOrderId = orderId;
+    document.getElementById('modalOrderId').textContent = '#' + userNumber;
+    document.getElementById('modalAmount').textContent = amount + ' UAH';
+    document.getElementById('payModal').classList.add('active');
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('cardExpiry').value = '';
+    document.getElementById('cardCvv').value = '';
+}
+
+function closePayModal() {
+    document.getElementById('payModal').classList.remove('active');
+    currentOrderId = null;
+}
+
+function formatCardNumber(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 16);
+    input.value = val.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function formatExpiry(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 4);
+
+    // Обмеження місяця до 12
+    if (val.length >= 2) {
+        let month = parseInt(val.substring(0, 2));
+        if (month > 12) month = 12;
+        if (month < 1 && val.length === 2) month = 1;
+        val = String(month).padStart(2, '0') + val.substring(2);
+    }
+
+    // Обмеження року від 2026 до 2036
+    if (val.length === 4) {
+        let year = parseInt(val.substring(2, 4));
+        if (year < 26) year = 26;
+        if (year > 36) year = 36;
+        val = val.substring(0, 2) + String(year).padStart(2, '0');
+    }
+
+    input.value = val.length >= 3 ? val.substring(0, 2) + '/' + val.substring(2) : val;
+}
+
+function getCookie(name) {
+    let val = null;
+    if (document.cookie) {
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
+        });
+    }
+    return val;
+}
+
+function submitPayment() {
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const expiry = document.getElementById('cardExpiry').value;
+    const cvv = document.getElementById('cardCvv').value;
+
+    if (cardNumber.length < 16 || expiry.length < 5 || cvv.length < 3) {
+        alert('Будь ласка, заповніть всі поля форми коректно.');
+        return;
+    }
+
+    document.getElementById('payModal').classList.remove('active');
+    document.getElementById('successOverlay').classList.add('active');
+
+    fetch(`/order/${currentOrderId}/pay/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' },
+    }).finally(() => {
+        setTimeout(() => {
+            document.getElementById('successOverlay').classList.remove('active');
+            window.location.reload();
+        }, 2500);
+    });
+}
+
+document.getElementById('payModal').addEventListener('click', function(e) {
+    if (e.target === this) closePayModal();
+});
+
+function deleteOrder(orderId) {
+    if (!confirm('Ви впевнені що хочете видалити замовлення?')) return;
+
+    fetch(`/order/${orderId}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' },
+    }).then(() => {
+        window.location.reload();
+    });
+}
+
+const discountRow = form.querySelector(".pd-discount");
+const finalRow = form.querySelector(".pd-final");
+if (discountRow && finalRow) {
+    const discount = Math.round(total * 0.03);
+    const finalPrice = total - discount;
+    discountRow.textContent = "-" + discount + " грн";
+    finalRow.textContent = finalPrice + " грн";
+    form.querySelector(".total-price-input").value = finalPrice;
+}
+</script>
+{% endblock %}

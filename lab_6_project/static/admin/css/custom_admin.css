@@ -1,0 +1,52 @@
+:root {
+    --primary: #2c3e6b;
+    --secondary: #1a1a2e;
+    --accent: #a8d8ff;
+}
+body, #header { 
+    background: #1a1a2e !important; 
+}
+
+#header { 
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important; 
+}
+
+#branding h1 a { 
+    color: #a8d8ff !important; 
+    font-size: 18px !important; 
+}
+
+#nav-sidebar, .module { 
+    background: rgba(255,255,255,0.05) !important; 
+    border-radius: 12px !important; 
+}
+
+.module h2, .module caption { 
+    background: #2c3e6b !important; 
+    border-radius: 10px 10px 0 0 !important; 
+}
+
+a { 
+    color: #a8d8ff !important; 
+}
+
+.button, input[type=submit], input[type=button] { 
+    background: #2c3e6b !important; 
+    border-radius: 8px !important; 
+}
+
+#content { background: #1a1a2e !important; 
+    color: #e5e5e5 !important; 
+}
+
+.colMS #content { 
+    color: #e5e5e5 !important; 
+}
+
+tr.odd { 
+    background: rgba(255,255,255,0.03) !important; 
+}
+
+tr.even { 
+    background: rgba(255,255,255,0.06) !important; 
+}

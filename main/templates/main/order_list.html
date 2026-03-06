@@ -1,0 +1,83 @@
+{% extends 'main/base.html' %}
+{% load i18n %}
+{% block title %}Мої замовлення{% endblock %}
+
+{% block extra_head %}
+<style>
+body { overflow-x: hidden; }
+.form-title {
+    background: #e5e5e5; color: #222;
+    padding: 20px 40px; font-size: 28px; font-weight: 600;
+    text-align: center; margin-bottom: 40px;
+    width: 100vw; margin-left: calc(-50vw + 50%);
+    border-radius: 0 0 20px 20px;
+}
+.orders-list { 
+    max-width: 1000px; 
+    margin: 0 auto; 
+}
+
+.order-row {
+    background: rgba(255,255,255,0.9); border-radius: 20px;
+    padding: 25px 35px; margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15); flex-wrap: wrap; gap: 15px;
+}
+.order-row-info { 
+    font-size: 18px; 
+    color: #222; 
+    line-height: 1.8; 
+}
+
+.order-row-info span { 
+    font-weight: 700; 
+}
+
+.badge-paid {
+    background: #d4edda; color: #155724;
+    padding: 8px 20px; border-radius: 30px;
+    font-size: 16px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+}
+.badge-unpaid {
+    background: #fff3cd; color: #856404;
+    padding: 8px 20px; border-radius: 30px;
+    font-size: 16px; font-weight: 600;
+}
+.empty-msg { 
+    color: #f1f1f1; 
+    font-size: 20px; 
+    text-align: center; 
+    margin-top: 40px; 
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-title">{% trans "Мої замовлення" %}</div>
+
+<div class="orders-list">
+    {% for order in orders %}
+    <div class="order-row">
+        <div class="order-row-info">
+            <div>Замовлення <span>#{{ order.user_number }}</span></div>
+            <div>Філія: <span>{{  order.branch }}</span></div>
+            <div>Послуга: <span>{{ order.service_type }}</span></div>
+            <div>Річ: <span>{{ order.item_name }}</span></div>
+            <div>Дата: <span>{{ order.order_date }}</span></div>
+            <div>Сума: <span>{{ order.total_price }} грн</span></div>
+        </div>
+        <div>
+            {% if order.is_paid %}
+                <div class="badge-paid"><i class="fa fa-check-circle"></i> Сплачено</div>
+            {% else %}
+                <div class="badge-unpaid"><i class="fa fa-clock"></i> Очікує оплати</div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-msg">У вас ще немає замовлень.</div>
+    {% endfor %}
+</div>
+{% endblock %}

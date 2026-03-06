@@ -1,0 +1,92 @@
+{% extends 'main/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Вхід" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-title {
+      background: #e5e5e5;
+      color: #222;
+      padding: 20px 40px;
+      font-size: 26px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 40px;
+
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-title">
+    {% trans "Вхід до облікового запису" %}
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+
+        {% if form_errors and form_errors.all %}
+        <div class="alert alert-danger">
+          {{ form_errors.all }}
+        </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="username" class="form-label fs-5">
+              {% trans "Ім'я користувача" %}
+            </label>
+            <input type="text"
+                   class="form-control {% if form_errors.username %}is-invalid{% endif %} fs-5"
+                   id="username"
+                   name="username"
+                   value="{{ username|default:'' }}"
+                   required>
+            {% if form_errors.username %}
+            <div class="invalid-feedback">
+              {{ form_errors.username }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label fs-5">
+              {% trans "Пароль" %}
+            </label>
+            <input type="password"
+                   class="form-control {% if form_errors.password %}is-invalid{% endif %} fs-5"
+                   id="password"
+                   name="password" required>
+{% if error %}
+    <div style="color:#dc3545; font-size:20px; margin-top:8px;">{{ error }}</div>
+{% endif %}
+          </div>
+
+          <div class="d-grid">
+            <button type="submit"
+                    class="btn btn-primary fs-4"
+                    style="background-color: #6A89EA;">
+              {% trans "Увійти" %}
+            </button>
+          </div>
+        </form>
+
+        <p class="mt-3 text-center fs-5">
+          {% trans "Ще не маєте облікового запису?" %}
+          <a href="{% url 'register' %}">
+            {% trans "Зареєструйтесь" %}
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

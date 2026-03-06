@@ -1,0 +1,175 @@
+{% extends 'main/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Реєстрація' %}{% endblock %}
+
+{% block extra_head %}
+<style>
+
+body {
+    overflow-x: hidden;
+}
+
+.form-title {
+    background: #e5e5e5;
+    color: #222;
+    padding: 20px 40px;
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 40px;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+}
+
+.form-control {
+    font-size: 18px;
+    border-radius: 12px;
+    padding: 10px 14px;
+    border: 2px solid #ccc;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: #6A89EA;
+    box-shadow: none;
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: none;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 15px;
+    margin-top: 5px;
+    display: block;
+}
+
+.form-label {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.card-body {
+    padding: 35px 40px;
+}
+
+.btn-register {
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 20px;
+    font-family: inherit;
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.btn-register:hover {
+    background: linear-gradient(135deg, #4f63ff, #3a50e0);
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-title">{% trans 'Реєстрація облікового запису' %}</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <!-- ПІБ -->
+                    <div class="mb-3">
+                        <label for="username" class="form-label fs-5">{% trans "ПІБ" %}</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="{{ username|default:'' }}"
+                            placeholder="Іваненко Іван Іванович"
+                            class="form-control {% if errors.username_error %}is-invalid{% endif %}"
+                            required
+                        >
+                        {% if errors.username_error %}
+                            <div class="invalid-feedback">{{ errors.username_error }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- пошта -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label fs-5">{% trans "Електронна пошта" %}</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ email|default:'' }}"
+                            placeholder="example@gmail.com"
+                            class="form-control {% if errors.email_error %}is-invalid{% endif %}"
+                            required
+                        >
+                        {% if errors.email_error %}
+                            <div class="invalid-feedback">{{ errors.email_error }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- телефон -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label fs-5">{% trans "Номер телефону" %}</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value="{{ phone|default:'' }}"
+                            placeholder="+380XXXXXXXXX"
+                            class="form-control {% if errors.phone_error %}is-invalid{% endif %}"
+                            required
+                        >
+                        {% if errors.phone_error %}
+                            <div class="invalid-feedback">{{ errors.phone_error }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- пароль -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label fs-5">{% trans "Пароль" %}</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Мінімум 8 символів"
+                            class="form-control {% if errors.password_error %}is-invalid{% endif %}"
+                            required
+                        >
+                        {% if errors.password_error %}
+                            <div class="invalid-feedback">{{ errors.password_error }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn-register">{% trans "Зареєструватися" %}</button>
+                </form>
+
+                <p class="mt-3 text-center fs-5">
+                    {% trans "Уже маєте обліковий запис?" %}
+                    <a href="{% url 'login' %}">{% trans "Увійти" %}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

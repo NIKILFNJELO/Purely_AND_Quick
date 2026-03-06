@@ -1,0 +1,590 @@
+{% extends 'main/base.html' %}
+{% block title %}Відгуки{% endblock %}
+
+{% block extra_head %}
+<style>
+/* сторінка коментарів */
+
+.reviews-page {
+    padding-bottom: 80px;
+}
+
+/* хедер */
+.section-header {
+    background: #e5e5e5;
+    color: #222;
+    padding: 14px 35px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 22px;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+/* коментарі від компаній */
+.company-reviews-section {
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.carousel-track-outer {
+    overflow: hidden;
+    flex: 1;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.4s ease;
+}
+
+.company-card {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 20px;
+    padding: 25px 28px;
+    min-width: calc(25% - 15px);
+    max-width: calc(25% - 15px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+}
+
+.stars {
+    color: #f5a623;
+    font-size: 18px;
+    margin-bottom: 14px;
+    letter-spacing: 2px;
+}
+
+.company-card .review-text {
+    font-size: 15px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    min-height: 100px;
+}
+
+.company-card .reviewer-name {
+    font-weight: 600;
+    color: #111;
+    font-size: 15px;
+}
+
+.company-card .reviewer-role {
+    color: #888;
+    font-size: 13px;
+}
+
+.carousel-btn {
+    background: rgba(255,255,255,0.85);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+/* користувацькі коментарі */
+.user-reviews-section {
+    margin-top: 10px;
+}
+
+.user-reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.user-card {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 20px;
+    padding: 28px 30px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.user-card .review-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 10px;
+}
+
+.user-card .stars {
+    margin-bottom: 12px;
+}
+
+.user-card .stars .half {
+    color: #ccc;
+    position: relative;
+    display: inline-block;
+}
+
+.user-card .review-text {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.65;
+    margin-bottom: 20px;
+}
+
+.user-card .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 16px;
+}
+
+.user-card .avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.user-card .avatar-placeholder {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.user-card .user-meta .name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #111;
+}
+
+.user-card .user-meta .date {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* кнопка для додавання коментаря */
+.write-review-btn {
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    color: white;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.3s;
+    margin-top: 40px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.write-review-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(79, 99, 255, 0.4);
+    color: white;
+}
+
+/* блок коментарів */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9000;
+    justify-content: center;
+    align-items: center;
+}
+.modal-overlay.active { 
+    display: flex; 
+}
+
+.review-modal {
+    background: #1a1a1a;
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    position: relative;
+    color: #f1f1f1;
+}
+
+.modal-close {
+    position: absolute; top: 18px; right: 22px;
+    background: none; border: none; color: #aaa;
+    font-size: 24px; cursor: pointer; transition: 0.2s;
+}
+.modal-close:hover { 
+    color: white; 
+}
+
+.modal-title {
+    font-size: 22px; font-weight: 600;
+    margin-bottom: 28px; text-align: center;
+}
+
+.modal-input, .modal-textarea {
+    background: #2a2a2a;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: #f1f1f1;
+    font-size: 16px;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 14px;
+    outline: none;
+    resize: none;
+}
+
+.modal-input::placeholder, .modal-textarea::placeholder { 
+    color: #555; 
+}
+
+.star-select {
+    display: flex;
+    gap: 8px;
+    font-size: 28px;
+    margin-bottom: 18px;
+    cursor: pointer;
+}
+
+.star-select .s {
+    color: #444;
+    transition: 0.15s;
+    cursor: pointer;
+}
+.star-select .s.active { 
+    color: #f5a623; 
+}
+
+.modal-submit {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #6d8eff, #4f63ff);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.3s;
+}
+.modal-submit:hover { 
+    background: linear-gradient(135deg, #4f63ff, #3a50e0); 
+}
+
+@media (max-width: 992px) {
+    .user-reviews-grid { 
+        grid-template-columns: 1fr 1fr; 
+    }
+
+    .company-card { 
+        min-width: calc(50% - 10px); 
+        max-width: calc(50% - 10px); 
+    }
+}
+
+@media (max-width: 600px) {
+    .user-reviews-grid { 
+        grid-template-columns: 1fr; 
+    }
+
+    .company-card { 
+        min-width: 100%; 
+        max-width: 100%; 
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reviews-page">
+
+    <!-- коментарі компаній -->
+    <div class="company-reviews-section">
+        <div class="section-header">Що компанії кажуть про нас</div>
+
+        <div class="carousel-wrapper">
+            <button class="carousel-btn" id="prevBtn" onclick="slideCarousel(-1)">&#8592;</button>
+
+            <div class="carousel-track-outer">
+                <div class="carousel-track" id="carouselTrack">
+
+                    {% for review in company_reviews %}
+                    <div class="company-card">
+                        <div class="stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="review-text">{{ review.text }}</div>
+                        <div class="reviewer-name">{{ review.author }}</div>
+                        <div class="reviewer-role">{{ review.company }}</div>
+                    </div>
+                    {% empty %}
+                    <!-- стандартні картки коментарів, якщо немає записів у БД -->
+                    <div class="company-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text"> Сервіс Purely&Quick, де не треба "висіти" на телефоні, щоб дізнатися довго сушила одяг. З особистим кабінетом P&Q Вашу послугу відстеження статусу: від прийому до готовності. Дуже зручно, що все прозоро і справді швидко!</div>
+                        <div class="reviewer-name">Олексій Марченко</div>
+                        <div class="reviewer-role">2025</div>
+                    </div>
+                    <div class="company-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text">Користуємося послугами цієї мережі вже пів року. Минулого тижня автоматично отримала статус "постійний клієнт" та свою знижку 3%. Приємно, що система сама все рахує.</div>
+                        <div class="reviewer-name">Марина Ковальчук</div>
+                        <div class="reviewer-role">2025</div>
+                    </div>
+                    <div class="company-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text">Здаємо складні речі і в купу плям. Адміністратор одразу зафіксував усі деталі з автоматичним складанням. Ціна чесна, а результат перевершив очікування. Найкраща хімчистка за місто!</div>
+                        <div class="reviewer-name">Ігор Степанович</div>
+                        <div class="reviewer-role">2025</div>
+                    </div>
+                    <div class="company-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text">Purely&Quick ідеально справляється зі координацією. Веб-інтерфейс зтіш, а автоматизація обліку по філіях робить її сервіс на голову вищим за конкурентів.</div>
+                        <div class="reviewer-name">Тетяна Резяк</div>
+                        <div class="reviewer-role">2025</div>
+                    </div>
+                    <div class="company-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text">Дуже задоволені рівнем сервісу. Речі повертають у ідеальному стані, терміни дотримуються точно. Менеджери уважні і завжди готові допомогти.</div>
+                        <div class="reviewer-name">Оксана Литвин</div>
+                        <div class="reviewer-role">2025</div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <button class="carousel-btn" id="nextBtn" onclick="slideCarousel(1)">&#8594;</button>
+        </div>
+    </div>
+
+    <!-- користувацькі коментарі  -->
+    <div class="user-reviews-section">
+        <div class="section-header">Що користувачі кажуть про нас</div>
+
+        <div class="user-reviews-grid">
+            {% for review in user_reviews %}
+            <div class="user-card">
+                <div class="review-title">{{ review.title }}</div>
+                <div class="stars">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="review-text">{{ review.text }}</div>
+                <div class="user-info">
+                    <div class="avatar-placeholder">{{ review.author|slice:":1"|upper }}</div>
+                    <div class="user-meta">
+                        <div class="name">{{ review.author }}</div>
+                        <div class="date">{{ review.created_at }}</div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- стандартні коментарі -->
+            <div class="user-card">
+                <div class="review-title">Сучасний та прозорий сервіс</div>
+                <div class="stars">★★★★★</div>
+                <div class="review-text">Користуюся Purely&Quick вже кілька місяців. Найбільше подобається можливість дистанційно відстежувати статус через веб-інтерфейс — тепер не треба телефонувати, щоб дізнатися, чи готова сукня. Робота виконується професійно і завжди вчасно. Дуже рекомендую!</div>
+                <div class="user-info">
+                    <div class="avatar-placeholder">Ш</div>
+                    <div class="user-meta">
+                        <div class="name">Швейкер</div>
+                        <div class="date">5 січня 2025 року</div>
+                    </div>
+                </div>
+            </div>
+            <div class="user-card">
+                <div class="review-title">Вражаючий досвід</div>
+                <div class="stars">★★★★<span style="color:#ccc">★</span></div>
+                <div class="review-text">Приємний сервіс хімчистки. Після третього звернення система автоматично надала мені статус "постійний клієнт" і знижку 3%. Ціна розраховується чесно, з урахуванням складності роботи, а підтвердження приходить миттєво. Обов'язково скористаюся ще раз!</div>
+                <div class="user-info">
+                    <div class="avatar-placeholder">С</div>
+                    <div class="user-meta">
+                        <div class="name">Світлана Яковенко</div>
+                        <div class="date">24 квітня 2025 року</div>
+                    </div>
+                </div>
+            </div>
+            <div class="user-card">
+                <div class="review-title">Purely&Quick надає відмінний сервіс</div>
+                <div class="stars">★★★★★</div>
+                <div class="review-text">Purely&Quick — це сервіс, який реально економить час. Окремий плюс за можливість здавати речі у різних філіях мережі — обліс чіткий і централізований. Ідеально для зайнятих людей.</div>
+                <div class="user-info">
+                    <div class="avatar-placeholder">Д</div>
+                    <div class="user-meta">
+                        <div class="name">Дмитро Ігнатов</div>
+                        <div class="date">7 лютого 2025 року</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <button class="write-review-btn" onclick="openReviewModal()">Залишити відгук</button>
+        {% else %}
+        <a href="{% url 'login' %}" class="write-review-btn">Увійдіть, щоб залишити відгук</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+
+<!-- блок коментарів -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="review-modal">
+        <button class="modal-close" onclick="closeReviewModal()">&#10005;</button>
+        <div class="modal-title">Ваш відгук</div>
+
+        <input class="modal-input" type="text" id="reviewTitle" placeholder="Заголовок відгуку">
+
+        <div class="star-select" id="starSelect">
+            <span class="s" data-val="1">★</span>
+            <span class="s" data-val="2">★</span>
+            <span class="s" data-val="3">★</span>
+            <span class="s" data-val="4">★</span>
+            <span class="s" data-val="5">★</span>
+        </div>
+
+        <textarea class="modal-textarea" id="reviewText" rows="5" placeholder="Розкажіть про ваш досвід..."></textarea>
+
+        <button class="modal-submit" onclick="submitReview()">Надіслати</button>
+    </div>
+</div>
+
+<script>
+// ===== перемикання коментарів =====
+let carouselIndex = 0;
+
+function getVisibleCount() {
+    if (window.innerWidth <= 600) return 1;
+    if (window.innerWidth <= 992) return 2;
+    return 4;
+}
+
+function slideCarousel(dir) {
+    const track = document.getElementById('carouselTrack');
+    const cards = track.querySelectorAll('.company-card');
+    const visible = getVisibleCount();
+    const max = Math.max(0, cards.length - visible);
+
+    carouselIndex = Math.min(Math.max(carouselIndex + dir, 0), max);
+
+    const cardWidth = cards[0].offsetWidth + 20; 
+    track.style.transform = `translateX(-${carouselIndex * cardWidth}px)`;
+}
+
+window.addEventListener('resize', () => slideCarousel(0));
+
+
+let selectedRating = 5;
+
+document.querySelectorAll('#starSelect .s').forEach(star => {
+    star.addEventListener('mouseenter', () => {
+        const val = parseInt(star.dataset.val);
+        document.querySelectorAll('#starSelect .s').forEach(s => {
+            s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+        });
+    });
+    star.addEventListener('mouseleave', () => {
+        document.querySelectorAll('#starSelect .s').forEach(s => {
+            s.classList.toggle('active', parseInt(s.dataset.val) <= selectedRating);
+        });
+    });
+    star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.val);
+    });
+});
+
+
+document.querySelectorAll('#starSelect .s').forEach(s => s.classList.add('active'));
+
+
+function openReviewModal() {
+    document.getElementById('reviewModal').classList.add('active');
+}
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('active');
+}
+document.getElementById('reviewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReviewModal();
+});
+
+function getCookie(name) {
+    let val = null;
+    if (document.cookie) {
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
+        });
+    }
+    return val;
+}
+
+function submitReview() {
+    const title = document.getElementById('reviewTitle').value.trim();
+    const text = document.getElementById('reviewText').value.trim();
+
+    if (!title || !text) {
+        alert('Будь ласка, заповніть усі поля.');
+        return;
+    }
+
+    fetch("{% url 'reviews' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, text, rating: selectedRating })
+    }).then(res => {
+        if (res.ok) {
+            closeReviewModal();
+            window.location.reload();
+        } else {
+            alert('Помилка при надсиланні відгуку.');
+        }
+    });
+}
+</script>
+{% endblock %}
