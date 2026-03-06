@@ -235,7 +235,7 @@
     font-family: inherit;
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     outline: none;
     resize: none;
     transition: border-color 0.2s;
@@ -246,7 +246,7 @@
 .modal-field-error {
     color: #ff6b6b;
     font-size: 13px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     display: none;
 }
 
@@ -254,10 +254,11 @@
     text-align: right;
     font-size: 12px;
     color: #666;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
+.char-counter.ok   { color: #28b463; }
 .char-counter.warn { color: #ffb347; }
-.char-counter.ok { color: #28b463; }
+.char-counter.over { color: #ff6b6b; font-weight: 600; }
 
 .star-select {
     display: flex;
@@ -439,10 +440,6 @@
         <button class="modal-close" onclick="closeReviewModal()">&#10005;</button>
         <div class="modal-title">Ваш відгук</div>
 
-        <input class="modal-input" type="text" id="reviewTitle"
-               placeholder="Заголовок відгуку (від 5 до 100 символів)" maxlength="100">
-        <div class="modal-field-error" id="titleError"></div>
-
         <div class="star-select" id="starSelect">
             <span class="s" data-val="1">★</span>
             <span class="s" data-val="2">★</span>
@@ -451,10 +448,15 @@
             <span class="s" data-val="5">★</span>
         </div>
 
+        <input class="modal-input" type="text" id="reviewTitle"
+               placeholder="Заголовок відгуку (до 20 символів)" maxlength="20">
+        <div class="char-counter" id="titleCounter">0 / 20 символів</div>
+        <div class="modal-field-error" id="titleError"></div>
+
         <textarea class="modal-textarea" id="reviewText" rows="5"
-                  placeholder="Розкажіть про ваш досвід... (від 20 до 1000 символів)"
-                  maxlength="1000"></textarea>
-        <div class="char-counter" id="charCounter">0 / 1000</div>
+                  placeholder="Розкажіть про ваш досвід... (до 100 символів)"
+                  maxlength="100"></textarea>
+        <div class="char-counter" id="charCounter">0 / 100 символів</div>
         <div class="modal-field-error" id="textError"></div>
 
         <button class="modal-submit" onclick="submitReview()">Надіслати</button>
@@ -507,14 +509,29 @@ document.querySelectorAll('#starSelect .s').forEach(star => {
 document.querySelectorAll('#starSelect .s').forEach(s => s.classList.add('active'));
 
 
-// ===== ЛІЧИЛЬНИК СИМВОЛІВ =====
+// ===== ЛІЧИЛЬНИК — ЗАГОЛОВОК =====
+document.getElementById('reviewTitle').addEventListener('input', function() {
+    const len = this.value.length;
+    const counter = document.getElementById('titleCounter');
+    counter.textContent = len + ' / 20 символів';
+    counter.className = 'char-counter';
+    if (len > 20) counter.classList.add('over');
+    else if (len >= 3) counter.classList.add('ok');
+    document.getElementById('titleError').style.display = 'none';
+    this.classList.remove('error');
+});
+
+// ===== ЛІЧИЛЬНИК — ТЕКСТ =====
 document.getElementById('reviewText').addEventListener('input', function() {
     const len = this.value.length;
     const counter = document.getElementById('charCounter');
-    counter.textContent = len + ' / 1000';
+    counter.textContent = len + ' / 100 символів';
     counter.className = 'char-counter';
-    if (len >= 20) counter.classList.add('ok');
+    if (len > 100) counter.classList.add('over');
+    else if (len >= 10) counter.classList.add('ok');
     else if (len > 0) counter.classList.add('warn');
+    document.getElementById('textError').style.display = 'none';
+    this.classList.remove('error');
 });
 
 
@@ -527,7 +544,9 @@ function closeReviewModal() {
     document.getElementById('reviewModal').classList.remove('active');
     document.getElementById('reviewTitle').value = '';
     document.getElementById('reviewText').value = '';
-    document.getElementById('charCounter').textContent = '0 / 1000';
+    document.getElementById('titleCounter').textContent = '0 / 20 символів';
+    document.getElementById('titleCounter').className = 'char-counter';
+    document.getElementById('charCounter').textContent = '0 / 100 символів';
     document.getElementById('charCounter').className = 'char-counter';
     ['titleError', 'textError'].forEach(id => {
         document.getElementById(id).style.display = 'none';
@@ -569,13 +588,13 @@ function submitReview() {
     let hasError = false;
 
     // Валідація заголовку
-    if (title.length < 5) {
-        titleError.textContent = 'Заголовок має містити щонайменше 5 символів';
+    if (title.length < 3) {
+        titleError.textContent = 'Заголовок занадто короткий';
         titleError.style.display = 'block';
         titleEl.classList.add('error');
         hasError = true;
-    } else if (title.length > 100) {
-        titleError.textContent = 'Заголовок не може перевищувати 100 символів';
+    } else if (title.length > 20) {
+        titleError.textContent = 'Заголовок не може перевищувати 20 символів';
         titleError.style.display = 'block';
         titleEl.classList.add('error');
         hasError = true;
@@ -585,13 +604,13 @@ function submitReview() {
     }
 
     // Валідація тексту
-    if (text.length < 20) {
-        textError.textContent = 'Відгук має містити щонайменше 20 символів';
+    if (text.length < 10) {
+        textError.textContent = 'Відгук занадто короткий';
         textError.style.display = 'block';
         textEl.classList.add('error');
         hasError = true;
-    } else if (text.length > 1000) {
-        textError.textContent = 'Відгук не може перевищувати 1000 символів';
+    } else if (text.length > 100) {
+        textError.textContent = 'Відгук не може перевищувати 100 символів';
         textError.style.display = 'block';
         textEl.classList.add('error');
         hasError = true;
@@ -619,15 +638,5 @@ function submitReview() {
         }
     });
 }
-
-// Прибираємо помилку при введенні
-document.getElementById('reviewTitle').addEventListener('input', function() {
-    document.getElementById('titleError').style.display = 'none';
-    this.classList.remove('error');
-});
-document.getElementById('reviewText').addEventListener('input', function() {
-    document.getElementById('textError').style.display = 'none';
-    this.classList.remove('error');
-});
 </script>
 {% endblock %}
