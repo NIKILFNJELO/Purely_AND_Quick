@@ -24,29 +24,6 @@ class ProposalsView(TemplateView):
     template_name = 'main/proposals.html'
 
 
-@login_required
-def show_more(request):
-    profile = request.user.profile
-    has_discount = profile.paid_orders_count >= 3
-    orders_until_discount = max(0, 3 - profile.paid_orders_count)
-    paid = profile.paid_orders_count
-    progress_width = min(100, int((paid / 3) * 100))
-
-    all_orders = Order.objects.filter(user=request.user)
-    total_orders = all_orders.count()
-    total_spent = sum(o.total_price for o in all_orders if o.is_paid)
-    recent_orders = all_orders.order_by('-id')[:5]
-
-    return render(request, "main/show_more.html", {
-        "has_discount": has_discount,
-        "orders_until_discount": orders_until_discount,
-        "total_orders": total_orders,
-        "total_spent": total_spent,
-        "recent_orders": recent_orders,
-        "progress_width": progress_width,
-        "paid": paid,
-    })
-
 
 def catalog(request):
     has_discount = False
@@ -159,10 +136,14 @@ def register(request):
 
         if len(username.split()) < 3:
             errors["username_error"] = "Введіть ПІБ у форматі: Імʼя Прізвище По-батькові"
+        elif not re.fullmatch(r"[А-ЯІЇЄҐа-яіїєґ'\-]+ [А-ЯІЇЄҐа-яіїєґ'\-]+ [А-ЯІЇЄҐа-яіїєґ'\-]+", username):
+            errors["username_error"] = "ПІБ може містити лише літери українського алфавіту"
 
         if not re.fullmatch(r'\+380\d{9}', phone):
-            errors["phone_error"] = "Телефон має бути у форматі +380XXXXXXXXX"
-
+         errors["phone_error"] = "Телефон має бути у форматі +380XXXXXXXXX"
+        elif Profile.objects.filter(phone=phone).exists():
+            errors["phone_error"] = "Користувач з таким номером телефону вже існує"
+            
         if len(password) < 8:
             errors["password_error"] = "Пароль має містити щонайменше 8 символів"
 
