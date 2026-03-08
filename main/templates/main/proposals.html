@@ -1,229 +1,216 @@
 {% extends 'main/base.html' %}
-
-{% block title %}Пропозиції{% endblock %}
+{% block title %}Пропозиції — Purely&Quick{% endblock %}
 
 {% block content %}
-
 <style>
-
-/* пропозиції обгортка */
-.proposals-wrapper {
-    max-width: 1300px;
-    margin: 40px auto;
+.proposals-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    width: 100%;
-    padding: 0 40px;
+    gap: 20px;
 }
 
-.card-1 { 
-    grid-column: 1; 
-    grid-row: 1; 
-}
-
-.card-2 { 
-    grid-column: 2; 
-    grid-row: 1; 
-}
-
-.card-3 { 
-    grid-column: 1; 
-    grid-row: 2; 
-}
-
-.card-4 { 
-    grid-column: 2; 
-    grid-row: 2; 
-}
-
-.card-5 { 
-    grid-column: 1 / 3; 
-    grid-row: 3; 
-}
-
-.proposal-card {
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(12px);
-    border-radius: 40px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-    width: 100%;
+.promo-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    transition: border-color .2s, transform .2s;
 }
 
-.proposal-title {
-    background: #6A89EA;
-    color: white;
-    padding: 20px;
-    font-size: 25px;
-    font-weight: 600;
-    text-align: center;
-    width: 100%;
-    flex-shrink: 0; 
+.promo-card:hover {
+    border-color: rgba(212,165,116,0.25);
+    transform: translateY(-3px);
 }
 
-.proposal-body {
-    padding: 25px;
-    font-size: 20px;
-    color: rgb(255, 255, 255);
-    line-height: 1.6;
+.promo-card.featured {
+    grid-column: 1 / 3;
+    border-color: rgba(212,165,116,0.2);
+    background: linear-gradient(135deg, rgba(212,165,116,0.07) 0%, var(--card) 60%);
+}
+
+.promo-header {
+    border-color: rgba(212,165,116,0.2);
+    padding: 24px 28px 0;
     display: flex;
-    justify-content: center;
     align-items: center;
-    text-align: center;
-    flex: 1; 
-    height: auto; 
+    gap: 14px;
 }
 
-.proposal-btn {
-    font-family: "LXGW WenKai Mono TC", monospace;
-    background: linear-gradient(135deg, #8c8f8d90);
-    padding: 16px;
-    font-size: 20px;
-    cursor: pointer;
-    text-align: center;
-    width: 100%;
-    border: none;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: block;
-    text-decoration: none;
-    color: rgb(255, 255, 255);
+.promo-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(212,165,116,0.12);
+    border: 1px solid rgba(212,165,116,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 18px;
     flex-shrink: 0;
-    margin-top: auto; 
 }
 
-.proposal-btn:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+.promo-icon.red {
+    background: rgba(220,53,69,0.12);
+    border-color: rgba(220,53,69,0.2);
+    color: #dc3545;
 }
 
-/* закриття замовлення */
-.highlight-title {
-    background: #e45c5c;
+.promo-category {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
 }
 
-.proposal-btn {
-    display: block;
-    text-decoration: none;
-    color: rgb(255, 255, 255);
+.promo-body {
+    padding: 16px 28px 24px;
+    color: #999;
+    font-size: 14px;
+    line-height: 1.8;
+    flex: 1;
 }
 
-@media (max-width: 1100px) {
-    .proposals-wrapper {
-        grid-template-columns: 1fr 1fr !important;
-        max-width: 100%;
-        padding: 0 15px;
-    }
-    .proposal-card {
-        width: 100% !important;
-    }
-    .card-5 {
-        grid-column: 1 / 3 !important;
-        grid-row: auto !important;
-    }
-    .card-4 {
-        grid-column: 1 !important;
-        grid-row: auto !important;
-    }
-    .proposal-body {
-        height: auto !important;
-    }
+.promo-body li {
+    margin-bottom: 4px;
+    padding-left: 4px;
 }
 
-@media (max-width: 600px) {
-    .proposals-wrapper {
-        grid-template-columns: 1fr !important;
-        padding: 0 15px;
-    }
-    .card-1, .card-2, .card-3, .card-4, .card-5 {
-        grid-column: 1 !important;
-        grid-row: auto !important;
-        width: 100% !important;
-    }
-    .proposal-body {
-        font-size: 16px !important;
-        padding: 15px !important;
-        height: auto !important;
-    }
+.promo-body li::marker { color: var(--accent); }
+
+.promo-body ul { padding-left: 18px; margin: 10px 0 0; }
+
+.promo-footer {
+    padding: 0 28px 24px;
 }
 
-@media (min-width: 1600px) {
-    .proposals-wrapper {
-        max-width: 1800px;
-        padding: 0 60px;
-    }
-    .proposal-title {
-        font-size: 30px !important;
-    }
-    .proposal-body {
-        font-size: 24px !important;
-    }
-    .proposal-btn {
-        font-size: 24px !important;
-    }
+.featured .promo-category {
+    font-size: 26px;
+    color: var(--accent);
 }
 
+.featured .promo-body {
+    font-size: 15px;
+    color: #bbb;
+}
+
+.highlight-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+@media (max-width: 700px) {
+    .proposals-grid { grid-template-columns: 1fr; }
+    .promo-card.featured { grid-column: 1; }
+}
 </style>
 
-<div class="proposals-wrapper">
+<div class="page-header">
+    <h1>Пропозиції</h1>
+    <p>Спеціальні умови та знижки для наших клієнтів</p>
+</div>
 
-    <!-- Побутовий -->
-    <div class="proposal-card card-1">
-        <div class="proposal-title">Побутовий одяг</div>
-        <div class="proposal-body">
-            Принесли 5 і більше речей одночасно? – Знижка 10% на все замовлення.<br>
-            Сезонна пропозиція: чистка куртки + светра — друга річ -20%.
+<div class="proposals-grid">
+
+    <div class="promo-card">
+        <div class="promo-header">
+            <div class="promo-icon"><i class="fas fa-tshirt"></i></div>
+            <div class="promo-category">Побутовий одяг</div>
         </div>
-        <a href="{% url 'catalog' %}" class="proposal-btn"> СКОРИСТАТИСЯ ПРОПОЗИЦІЄЮ</a>
+        <div class="promo-body">
+            <ul>
+                <li>Принесли 5+ речей одночасно — знижка <strong style="color:var(--accent)">10%</strong> на все замовлення</li>
+                <li>Сезонна пропозиція: чистка куртки + светра — друга річ <strong style="color:var(--accent)">–20%</strong></li>
+            </ul>
+        </div>
+        <div class="promo-footer">
+            <a href="{% url 'catalog' %}" class="btn-pq btn-pq-outline" style="width:100%;justify-content:center;">
+                Скористатись <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
 
-    <!-- Спортивний -->
-    <div class="proposal-card card-2">
-        <div class="proposal-title">Спортивний одяг</div>
-        <div class="proposal-body">
-            Повний спортивний комплект (куртка + штани) — вигідна фіксована ціна.<br>
-            З 6 одиниць — знижка 15%. <br>
-            Безкоштовна обробка від запахів при замовленні від 1000 грн.
+    <div class="promo-card">
+        <div class="promo-header">
+            <div class="promo-icon"><i class="fas fa-running"></i></div>
+            <div class="promo-category">Спортивний одяг</div>
         </div>
-        <a href="{% url 'catalog' %}" class="proposal-btn"> СКОРИСТАТИСЯ ПРОПОЗИЦІЄЮ</a>
+        <div class="promo-body">
+            <ul>
+                <li>Повний комплект (куртка + штани) — вигідна фіксована ціна</li>
+                <li>Від 6 одиниць — знижка <strong style="color:var(--accent)">15%</strong></li>
+                <li>Безкоштовна обробка від запахів при замовленні від 1000 грн</li>
+            </ul>
+        </div>
+        <div class="promo-footer">
+            <a href="{% url 'catalog' %}" class="btn-pq btn-pq-outline" style="width:100%;justify-content:center;">
+                Скористатись <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
 
-    <!-- Робочий -->
-    <div class="proposal-card card-3">
-        <div class="proposal-title">Робочий одяг</div>
-        <div class="proposal-body">
-            Від 5 кг спецодягу — оптова ціна.<br>
-            Корпоративним клієнтам — індивідуальний тариф та безкоштовна доставка.<br>
-            Постійним замовникам — накопичувальна знижка до 20%.
+    <div class="promo-card">
+        <div class="promo-header">
+            <div class="promo-icon"><i class="fas fa-hard-hat"></i></div>
+            <div class="promo-category">Робочий одяг</div>
         </div>
-        <a href="{% url 'catalog' %}" class="proposal-btn"> СКОРИСТАТИСЯ ПРОПОЗИЦІЄЮ</a>
+        <div class="promo-body">
+            <ul>
+                <li>Від 5 кг спецодягу — оптова ціна</li>
+                <li>Корпоративним клієнтам — індивідуальний тариф та безкоштовна доставка</li>
+                <li>Постійним замовникам — накопичувальна знижка до <strong style="color:var(--accent)">20%</strong></li>
+            </ul>
+        </div>
+        <div class="promo-footer">
+            <a href="{% url 'catalog' %}" class="btn-pq btn-pq-outline" style="width:100%;justify-content:center;">
+                Скористатись <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
 
-    <!-- Брендований -->
-    <div class="proposal-card card-4">
-        <div class="proposal-title">Брендований одяг</div>
-        <div class="proposal-body">
-            Чистка костюма + сорочки — знижка 15%. <br>
-            Два і більше брендових речей — преміум-обробка без доплати.<br>
-            Перед святами — експрес-чистка без націнки.
+    <div class="promo-card">
+        <div class="promo-header">
+            <div class="promo-icon"><i class="fas fa-crown"></i></div>
+            <div class="promo-category">Брендований одяг</div>
         </div>
-        <a href="{% url 'catalog' %}" class="proposal-btn"> СКОРИСТАТИСЯ ПРОПОЗИЦІЄЮ</a>
+        <div class="promo-body">
+            <ul>
+                <li>Чистка костюма + сорочки — знижка <strong style="color:var(--accent)">15%</strong></li>
+                <li>Два і більше брендових речей — преміум-обробка без доплати</li>
+                <li>Перед святами — експрес-чистка без націнки</li>
+            </ul>
+        </div>
+        <div class="promo-footer">
+            <a href="{% url 'catalog' %}" class="btn-pq btn-pq-outline" style="width:100%;justify-content:center;">
+                Скористатись <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
 
-    <!-- Загальна -->
-    <div class="proposal-card card-5" style="width:100%;">
-        <div class="proposal-title highlight-title">
-            ДЛЯ ВСІХ ВИДІВ ЗАМОВЛЕНЬ!!!
+    <div class="promo-card featured">
+        <div class="promo-header">
+            <div class="promo-icon red"><i class="fas fa-gift"></i></div>
+            <div class="promo-category">Для всіх клієнтів</div>
         </div>
-        <div class="proposal-body" style="color: rgb(255,215,0); font-size: 28px;">
-            ПОЧИНАЮЧИ З 3-ГО ЗВЕРНЕННЯ, КЛІЄНТ ПЕРЕХОДИТЬ У КАТЕГОРІЮ ПОСТІЙНИХ
-            КЛІЄНТІВ І ОТРИМУЄ ЗНИЖКУ 3% ПРИ ЧИЩЕННІ КОЖНОЇ НАСТУПНОЇ РЕЧІ
+        <div class="promo-body">
+            <p>Спеціальна програма лояльності для постійних клієнтів:</p>
+            <div class="highlight-text">
+                Починаючи з 3-го звернення — знижка <span style="font-size:28px;">3%</span> на кожне наступне замовлення. Автоматично!
+            </div>
         </div>
-        <a href="{% url 'catalog' %}" class="proposal-btn"> СКОРИСТАТИСЯ ПРОПОЗИЦІЄЮ</a>
+        <div class="promo-footer">
+            <a href="{% url 'catalog' %}" class="btn-pq btn-pq-gold" style="width:100%;justify-content:center;padding:13px;">
+                Зробити замовлення <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
 
 </div>
-
 {% endblock %}

@@ -1,174 +1,220 @@
 {% extends 'main/base.html' %}
-
-{% block title %}Про нас{% endblock %}
+{% block title %}Про нас — Purely&Quick{% endblock %}
 
 {% block content %}
-
 <style>
-
-.about-wrapper {
-    display: flex;
-    max-width: 1200px;
-    margin: 10px auto;
-    flex-direction: column;
-    padding: 0 15px;
+.hero-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
 }
 
-.about-row {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin-bottom: 20px;
+.hero-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
 }
 
-.about-row .glass-card {
-    width: 700px;
-    margin-bottom: 0;
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(212,165,116,0.08) 0%, transparent 70%);
+    pointer-events: none;
 }
 
-.about-center {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-}
-
-.glass-card.center {
-    width: 100%;
-}
-
-.glass-card {
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(12px);
-    padding: 28px 30px;
-    border-radius: 40px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-}
-
-.section-title {
-    background: #e5e5e5;
-    color: #222;
-    padding: 18px 30px;
-    border-radius: 30px;
+.hero-eyebrow {
+    font-size: 11px;
     font-weight: 700;
-    font-size: 25px;
-    width: 100%;
-    margin-bottom: 25px;
-    text-align: center;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    margin-bottom: 16px;
 }
 
-.glass-card p {
-    color: #ffffff;
-    font-size: 20px;
-    line-height: 1.9;
+.hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 16px;
 }
 
-@media (max-width: 1100px) {
-    .about-row {
-        flex-direction: column;
-        gap: 20px;
-    }
-    .about-row .glass-card {
-        width: 100%;
-    }
+.hero-text {
+    color: #999;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.about-full-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 40px;
+    margin-bottom: 24px;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+}
+
+.service-item {
+    background: rgba(212,165,116,0.05);
+    border: 1px solid rgba(212,165,116,0.15);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.service-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(212,165,116,0.12);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.service-text {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.5;
+}
+
+.service-text strong {
+    color: var(--text);
+    display: block;
+    margin-bottom: 3px;
+    font-size: 15px;
+}
+
+@media (max-width: 900px) {
+    .hero-section { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 600px) {
-    .glass-card p { font-size: 16px !important; }
-    .section-title { font-size: 18px !important; padding: 12px !important; }
+    .services-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 28px; }
 }
 </style>
 
+<div class="page-header">
+    <h1>Про нас</h1>
+    <p>Хімчистка Purely&Quick — сервіс, якому довіряють</p>
+</div>
 
-<div class="about-wrapper">
-
-    <!-- два поруч -->
-    <div class="about-row">
-
-        <div class="glass-card">
-            <div class="section-title">Наша мета</div>
-            <p>
-                Ми тут, щоб зняти з вас турботи
-                про складний догляд: від 
-                делікатних тканин до повсякденних речей - кожен 
-                виріб отримує індивідуальний підхід 
-                і максимум уваги. Довіряючи нам, ви 
-                обираєте спокій, комфорт і сервіс, 
-                який відчувається з першого дотику.
-            </p>
-        </div>
-
-        <div class="glass-card">
-            <div class="section-title">Про нас — Хімчистка “Purely&Quick”</div>
-            <p>
-                Чистота - це не просто результат, це відчуття впевненості, 
-                з якого починається ваш день. Ми створюємо простір, 
-                де про речі піклуються так само уважно, як і про людей, 
-                поєднуючи майстерність, відповідальність і 
-                справжню любов до своєї справи.
-            </p>
-        </div>
-
+<div class="hero-section">
+    <div class="hero-card">
+        <div class="hero-eyebrow">Наша мета</div>
+        <div class="hero-title">Піклуємось про ваші речі так само, як про людей</div>
+        <p class="hero-text">Ми тут, щоб зняти з вас турботи про складний догляд: від делікатних тканин до повсякденних речей — кожен виріб отримує індивідуальний підхід і максимум уваги.</p>
     </div>
 
-<!-- центральний  --> 
-    <div class="about-center">
-    <div class="glass-card center">
-        <div class="section-title">Що ми можемо ВАМ дати?</div>
-        <p>
-            1. Професійна хімчистка будь-якого одягу<br>
-            2. Виведення складних плям та забруднень<br>
-            3. Делікатний догляд за преміум речами<br>
-            4. Зручне онлайн-замовлення та відстеження<br>
-            5. Швидке виконання — терміново до 24 годин<br>
-            Даруємо бездоганну чистоту, дбайливий догляд та оновлений
-            вигляд Ваших речей. Економимо Ваш час і гарантуємо
-            якісний результат.
-        </p>
+    <div class="hero-card">
+        <div class="hero-eyebrow">Purely&Quick</div>
+        <div class="hero-title">Чистота — це відчуття впевненості</div>
+        <p class="hero-text">Ми створюємо простір, де про речі піклуються так само уважно, як і про людей, поєднуючи майстерність, відповідальність і справжню любов до своєї справи.</p>
     </div>
 </div>
 
+<div class="about-full-card">
+    <div class="section-label">Що ми пропонуємо</div>
+    <div class="hero-title" style="font-size:28px;margin-bottom:6px;">Повний спектр послуг догляду за одягом</div>
+    <p class="hero-text">Даруємо бездоганну чистоту, дбайливий догляд та оновлений вигляд ваших речей. Економимо ваш час і гарантуємо якісний результат.</p>
+
+    <div class="services-grid">
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-tshirt"></i></div>
+            <div class="service-text">
+                <strong>Хімчистка будь-якого одягу</strong>
+                Професійна обробка від повсякденних до преміум речей
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-magic"></i></div>
+            <div class="service-text">
+                <strong>Виведення складних плям</strong>
+                Навіть найважчі забруднення не є проблемою
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-gem"></i></div>
+            <div class="service-text">
+                <strong>Делікатний догляд за преміум речами</strong>
+                Шовк, кашемір, дизайнерський одяг — з особливою увагою
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-mobile-alt"></i></div>
+            <div class="service-text">
+                <strong>Онлайн-замовлення</strong>
+                Зручне оформлення та відстеження замовлення
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-bolt"></i></div>
+            <div class="service-text">
+                <strong>Терміново до 24 годин</strong>
+                Швидке виконання для термінових замовлень
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-star"></i></div>
+            <div class="service-text">
+                <strong>Програма лояльності</strong>
+                Знижка 3% для постійних клієнтів з 3-го замовлення
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block footer %}
-<div class="footer-title">Прямі контакти з компанією</div>
-
+<div class="footer-title">Зв'яжіться з нами</div>
 <div class="contact-cards">
-    <div class="contact-card">
-    <img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Gmail">
-    <a href="#" onclick="copyToClipboard(event, 'bumnikzz@gmail.com')">
-        Пошта
+    <a class="contact-card" href="#" onclick="copyToClipboard(event,'bumnikzz@gmail.com')">
+        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Gmail">
+        <span>bumnikzz@gmail.com</span>
     </a>
-</div>
-    <div class="contact-card">
+    <a class="contact-card" href="https://t.me/purelyandquick" target="_blank">
         <img src="https://cdn-icons-png.flaticon.com/512/5968/5968804.png" alt="Telegram">
-        <a href="https://t.me/purelyandquick">Telegram</a>
-    </div>
-    <div class="contact-card">
-        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub">
-        <a href="https://github.com/NIKILFNJELO">GitHub</a>
-    </div>
-    <div class="contact-card">
-    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
-    <a href="#" onclick="copyToClipboard(event, '+380123456789')">
-        WhatsApp
+        <span>Telegram</span>
     </a>
-</div>
-    <div class="contact-card">
+    <a class="contact-card" href="https://github.com/NIKILFNJELO" target="_blank">
+        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub">
+        <span>GitHub</span>
+    </a>
+    <a class="contact-card" href="#" onclick="copyToClipboard(event,'+380123456789')">
+        <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+        <span>WhatsApp</span>
+    </a>
+    <a class="contact-card" href="https://www.instagram.com/purly_and_quick/" target="_blank">
         <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
-        <a href="https://www.instagram.com/purly_and_quick/">Instagram</a>
-    </div>
+        <span>Instagram</span>
+    </a>
 </div>
 <script>
-
-    
-function copyToClipboard(event, text) {
-    event.preventDefault(); 
-    
-    navigator.clipboard.writeText(text).then(function() {
-        alert("Скопійовано: " + text);
-    }).catch(function(err) {
-        console.error("Помилка копіювання: ", err);
-    });
+function copyToClipboard(e, text) {
+    e.preventDefault();
+    navigator.clipboard.writeText(text).then(() => showPopup('Скопійовано: ' + text, 'success'));
 }
 </script>
 {% endblock %}

@@ -1,633 +1,1017 @@
 {% extends 'main/base.html' %}
-{% block title %}Каталог{% endblock %}
+{% block title %}Каталог — Purely&Quick{% endblock %}
 
 {% block content %}
 <input type="hidden" id="user-auth" value="{{ user_authenticated|yesno:'true,false' }}">
+<input type="hidden" id="is-manager" value="{{ request.user.is_staff|yesno:'true,false' }}">
+
 <style>
-.catalog-wrapper {
-    max-width: 2200px;
-    margin: 40px auto;
-    display: flex;
-    justify-content: space-between;
-    gap: 30px;
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
 }
-.glass-card {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(12px);
-    padding: 25px;
-    border-radius: 40px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+
+.cat-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-self: flex-start;
+    position: relative;
 }
-.section-title {
-    background: #e5e5e5;
-    color: #222;
-    padding: 15px;
-    border-radius: 25px;
-    font-weight: 700;
-    font-size: 25px;
-    text-align: center;
-    margin-bottom: 20px;
-}
-.item-header img {
+
+.cat-img {
     width: 100%;
-    height: 180px;
+    height: 160px;
     object-fit: cover;
-    border-radius: 20px;
-    margin-bottom: 15px;
+    display: block;
 }
-.item-description {
-    color: white;
-    font-size: 17px;
-    line-height: 1.7;
-    margin-bottom: 20px;
-    flex-grow: 1;
+
+.cat-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
-.price-row {
+
+.cat-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 14px;
+}
+
+.price-table {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.price-row-new {
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    padding: 4px 0;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(139,90,43,0.05);
+    font-size: 13px;
 }
-.price-row span:last-child {
+
+.price-row-new:last-child { border-bottom: none; }
+.price-row-new span:first-child { color: #999; }
+.price-row-new span:last-child { color: var(--accent); font-weight: 600; }
+
+.btn-order-toggle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
     font-weight: 600;
-    color: #a8d8ff;
-}
-.start5lab {
-    font-family: "LXGW WenKai Mono TC", monospace;
-    background: linear-gradient(135deg, #dbe9ff, #f8faff);
-    padding: 12px;
-    font-size: 20px;
+    background: rgba(212,165,116,0.1);
+    border: 1px solid rgba(212,165,116,0.25);
+    color: var(--accent);
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
     cursor: pointer;
-    border-radius: 18px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    text-align: center;
+    transition: all .2s;
+    letter-spacing: 0.3px;
+    margin-top: auto;
+}
+.btn-order-toggle:hover { background: rgba(212,165,116,0.18); transform: translateY(-1px); }
+
+/* Manager edit button */
+.btn-manager-edit {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(202, 202, 202, 0.75);
+    border: 1px solid rgba(212,165,116,0.4);
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    backdrop-filter: blur(8px);
+    transition: all .2s;
+    z-index: 10;
+}
+.btn-manager-edit:hover { background: rgba(212,165,116,0.2); transform: translateY(-1px); }
+.btn-manager-edit svg { width: 13px; height: 13px; }
+
+/* ===== ORDER MODAL ===== */
+#orderModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+#orderModal.open { display: flex; }
+
+.order-modal-box {
+    background: #fdfaf5;
+    border-radius: 20px;
     width: 100%;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: none;
-    margin-bottom: 15px;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: mIn .22s ease;
+    position: relative;
 }
-.start5lab:hover {
-    transform: translateY(-5px) scale(1.03);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+@keyframes mIn {
+    from { transform: translateY(16px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
 }
-.order-form {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.30s ease;
+
+.order-modal-header {
+    padding: 24px 24px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
 }
-.order-form > label {
-    color: white;
-    display: block;
-    margin-top: 10px;
-    font-size: 18px;
+.order-modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #3b2a1a;
 }
-.order-form input[type="text"],
-.order-form input[type="date"],
-.order-form select,
-.order-form textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border-radius: 12px;
-    border: none;
-    outline: none;
+.order-modal-cat {
+    font-size: 12px;
+    color: #8b6a50;
+    margin-top: 3px;
+}
+.order-modal-close {
+    background: rgba(139,90,43,0.08);
+    border: 1px solid rgba(139,90,43,0.2);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
     font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8b5a2b;
+    flex-shrink: 0;
+    transition: all .2s;
+}
+.order-modal-close:hover { background: rgba(220,53,69,0.1); color: #c0392b; }
+
+.order-modal-body {
+    padding: 20px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #8b6a50;
+    margin-bottom: 6px;
+}
+
+.field-select, .field-date, .field-textarea {
+    width: 100%;
+    background: #fff;
+    border: 1.5px solid #d4b896;
+    border-radius: 10px;
+    padding: 9px 13px;
+    color: #1a1510;
     font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+    appearance: auto;
     box-sizing: border-box;
 }
-.services-grid {
+.field-select:focus, .field-date:focus, .field-textarea:focus { border-color: #8b5a2b; }
+.field-select option { background: #fff; color: #1a1510; }
+.field-textarea { resize: vertical; min-height: 70px; }
+.field-textarea::placeholder { color: #aaa; }
+
+.svc-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 8px;
+    gap: 6px;
 }
-.service-option {
+.svc-opt {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 10px;
+    background: #fdf6ee;
+    border: 1.5px solid rgba(212,165,116,0.3);
+    border-radius: 8px;
     padding: 8px 10px;
     cursor: pointer;
-    transition: background 0.2s;
-    margin: 0;
+    transition: border-color .15s, background .15s;
+    user-select: none;
 }
-.service-option:hover { background: rgba(255,255,255,0.22); }
-.service-option input[type="checkbox"] {
-    width: 18px; height: 18px;
-    margin-top: 2px; cursor: pointer;
-    accent-color: #4f63ff; flex-shrink: 0;
-}
-.service-option .svc-text { 
-    color: white; 
-    font-size: 14px; 
-    line-height: 1.3; 
-}
+.svc-opt:hover   { background: rgba(212,165,116,0.1); border-color: rgba(139,90,43,0.3); }
+.svc-opt.checked { background: rgba(139,90,43,0.08); border-color: #8b5a2b; }
+.svc-opt input   { width: 14px; height: 14px; margin-top: 2px; accent-color: #8b5a2b; flex-shrink: 0; cursor: pointer; }
+.svc-name  { font-size: 12px; color: #3b2a1a; line-height: 1.3; }
+.svc-price { font-size: 11px; font-weight: 700; color: #8b5a2b; display: block; margin-top: 2px; }
 
-.service-price { 
-    color: #a8d8ff; 
-    font-size: 12px; 
-    font-weight: 600; 
-    display: block; 
+.price-summary {
+    background: rgba(139,90,43,0.05);
+    border: 1px solid rgba(212,165,116,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    display: none;
 }
+.ps-row { display: flex; justify-content: space-between; padding: 4px 0; color: #7a6d64; border-bottom: 1px solid rgba(139,90,43,0.06); }
+.ps-row:last-child { border-bottom: none; }
+.ps-row.weekend { color: #8b5a2b; }
+.ps-row.urgent  { color: #b07030; }
+.ps-total { display: flex; justify-content: space-between; padding-top: 10px; margin-top: 4px; font-size: 17px; font-weight: 700; color: #6b4423; border-top: 1px solid rgba(139,90,43,0.15); }
 
-.price-display {
-    margin-top: 14px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 14px;
-    padding: 14px 18px;
-    color: white;
-    font-size: 16px;
-    line-height: 1.8;
-    border: 1px solid rgba(255,255,255,0.2);
+.form-hint {
+    display: none;
+    gap: 7px;
+    align-items: flex-start;
+    background: rgba(220,53,69,0.06);
+    border: 1px solid rgba(220,53,69,0.22);
+    border-radius: 10px;
+    padding: 10px 13px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #c0392b;
+    line-height: 1.5;
 }
-.price-display .price-line {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 3px 0;
-}
-.price-display .price-total {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 6px;
-    font-size: 19px;
-    font-weight: 700;
-    color: #a8d8ff;
-}
-.price-display .price-urgent {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 0;
-    color: #ffb347;
-}
-.price-display .price-weekend {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 0;
-    color: #ff9f9f;
-}
+.form-hint.show { display: flex; }
+
 .confirm-btn {
-    margin-top: 15px;
-    background: #28b463;
-    color: white;
-    font-size: 20px;
-    padding: 10px;
-    border-radius: 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    background: #27ae60;
+    color: #fff;
     border: none;
+    border-radius: 10px;
+    padding: 13px;
     width: 100%;
     cursor: pointer;
-    font-family: inherit;
+    transition: all .2s;
 }
-.confirm-btn:hover { opacity: 0.9; }
+.confirm-btn:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+.confirm-btn:disabled {
+    background: rgba(139,90,43,0.1);
+    color: rgba(90,60,30,0.35);
+    cursor: not-allowed;
+    transform: none;
+    border: 1.5px solid rgba(139,90,43,0.15);
+}
+
+/* ===== DISCOUNT ROW (if has_discount) ===== */
+.ps-row.discount { color: #2d7a4f; }
+
+@media (max-width: 1100px) { .catalog-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px)  { .catalog-grid { grid-template-columns: 1fr; } .svc-grid { grid-template-columns: 1fr; } }
+
+/* ===== MANAGER MODAL ===== */
+.mgr-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+.mgr-overlay.open { opacity: 1; pointer-events: all; }
+
+.mgr-modal {
+    background: linear-gradient(145deg, rgba(200, 200, 199, 0.97), rgba(243, 243, 243, 0.97));
+    border: 1.5px solid rgba(250, 249, 248, 0.54);
+    border-radius: 20px;
+    padding: 32px;
+    width: 680px;
+    max-width: 95vw;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(206, 206, 206, 0.6), inset 0 1px 0 rgba(212,165,116,0.1);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.25s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(253, 253, 253, 0.3) transparent;
+}
+.mgr-overlay.open .mgr-modal { transform: translateY(0) scale(1); }
+
+.mgr-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.mgr-modal-title  { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--accent); }
+.mgr-modal-subtitle { font-size: 13px; color: #888; margin-top: 3px; }
+.mgr-close-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #aaa; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; font-size: 18px; flex-shrink: 0; }
+.mgr-close-btn:hover { background: rgba(220,53,69,0.15); border-color: rgba(220,53,69,0.3); color: var(--danger); }
+
+.mgr-tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0; }
+.mgr-tab  { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; background: transparent; border: none; border-bottom: 2px solid transparent; color: #777; padding: 8px 16px; cursor: pointer; transition: all .2s; margin-bottom: -1px; }
+.mgr-tab:hover { color: var(--accent); }
+.mgr-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.mgr-section { display: none; }
+.mgr-section.active { display: block; }
+
+.mgr-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 240px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(212,165,116,0.2) transparent; }
+.mgr-list-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px; transition: border-color .2s; }
+.mgr-list-item:hover { border-color: rgba(237, 236, 236, 0.637); }
+.mgr-item-info { flex: 1; min-width: 0; }
+.mgr-item-name  { font-size: 14px; color: var(--text); font-weight: 500; }
+.mgr-item-price { font-size: 12px; color: var(--accent); margin-top: 2px; }
+.mgr-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.mgr-btn-icon   { width: 30px; height: 30px; border-radius: 7px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; font-size: 13px; }
+.mgr-btn-edit   { background: rgba(217, 216, 214, 0.64); color: var(--accent); }
+.mgr-btn-edit:hover   { background: rgba(239, 198, 154, 0.25); }
+.mgr-btn-delete { background: rgba(220,53,69,0.08); color: #dc3545; }
+.mgr-btn-delete:hover { background: rgba(220,53,69,0.2); }
+
+.mgr-add-form  { background: rgba(255,255,255,0.02); border: 1px solid rgba(212,165,116,0.15); border-radius: 12px; padding: 16px; }
+.mgr-add-title { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 12px; font-family: 'DM Sans', sans-serif; }
+.mgr-input-row { display: flex; gap: 10px; align-items: flex-end; }
+.mgr-input-group { flex: 1; }
+.mgr-input-group label { font-size: 11px; color: #888; margin-bottom: 4px; display: block; }
+.mgr-input { width: 100%; background: rgba(139,90,43,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color .2s; box-sizing: border-box; }
+.mgr-input:focus { border-color: var(--accent); }
+.mgr-btn-add { background: rgba(212,165,116,0.15); border: 1px solid rgba(212,165,116,0.3); border-radius: 8px; color: var(--accent); font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; padding: 8px 16px; cursor: pointer; transition: all .2s; white-space: nowrap; flex-shrink: 0; }
+.mgr-btn-add:hover { background: rgba(212,165,116,0.28); transform: translateY(-1px); }
+.mgr-empty { text-align: center; padding: 20px; color: #666; font-size: 13px; }
+.mgr-edit-inline { flex: 1; display: flex; gap: 8px; align-items: center; }
+.mgr-edit-inline input { flex: 1; background: rgba(139,90,43,0.08); border: 1.5px solid var(--accent); border-radius: 7px; padding: 5px 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; min-width: 0; }
+.mgr-edit-inline input.price-field { width: 80px; flex: none; }
+.mgr-btn-save   { background: rgba(40,167,69,0.2); border: 1px solid rgba(40,167,69,0.4); border-radius: 7px; color: #28a745; font-size: 12px; font-family: 'DM Sans',sans-serif; font-weight:600; padding: 5px 10px; cursor: pointer; transition: all .2s; }
+.mgr-btn-save:hover { background: rgba(40,167,69,0.35); }
+.mgr-btn-cancel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #888; font-size: 12px; font-family: 'DM Sans',sans-serif; padding: 5px 10px; cursor: pointer; transition: all .2s; }
+.mgr-btn-cancel:hover { background: rgba(255,255,255,0.1); }
+.mgr-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 20px 0; }
+
+/* ===== BUBBLE CANVAS ===== */
+#bubble-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
 </style>
 
-<div class="catalog-wrapper">
+<!-- Bubble canvas -->
+<canvas id="bubble-canvas"></canvas>
+
+<div class="page-header" style="position:relative;z-index:1;">
+    <h1>Каталог послуг</h1>
+    <p>Оберіть категорію та оформіть замовлення онлайн</p>
+</div>
+
+<div class="catalog-grid" style="position:relative;z-index:1;">
 
     <!-- Побутовий одяг -->
-    <div class="glass-card">
-        <div class="section-title">Побутовий одяг</div>
-        <div class="item-header"><img src="https://organic-store.in.ua/images/beauty/beauty-1458.jpg" alt=""></div>
-        <div class="item-description">
-            <div class="price-row"><span>Куртка / пальто</span><span>280 грн</span></div>
-            <div class="price-row"><span>Светр / кофта</span><span>150 грн</span></div>
-            <div class="price-row"><span>Штани / джинси</span><span>130 грн</span></div>
-            <div class="price-row"><span>Сукня / спідниця</span><span>160 грн</span></div>
-            <div class="price-row"><span>Сорочка / блуза</span><span>100 грн</span></div>
+    <div class="cat-card"
+        data-category="Побутовий одяг"
+        data-items='[{"name":"Куртка / пальто","price":280},{"name":"Светр / кофта","price":150},{"name":"Штани / джинси","price":130},{"name":"Сукня / спідниця","price":160},{"name":"Сорочка / блуза","price":100}]'
+        data-services='[{"name":"Хімчистка","price":150},{"name":"Прасування","price":60},{"name":"Виведення плям","price":80},{"name":"Ремонт тканини","price":120},{"name":"Водовідштовх. просочення","price":100},{"name":"Антистат. обробка","price":70}]'>
+        {% if request.user.is_staff %}
+        <button class="btn-manager-edit" onclick="openManagerModal(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Редагувати
+        </button>
+        {% endif %}
+        <img class="cat-img" src="https://organic-store.in.ua/images/beauty/beauty-1458.jpg" alt="Побутовий одяг">
+        <div class="cat-body">
+            <div class="cat-title">Побутовий одяг</div>
+            <div class="price-table" data-price-table>
+                <div class="price-row-new"><span>Куртка / пальто</span><span>280 грн</span></div>
+                <div class="price-row-new"><span>Светр / кофта</span><span>150 грн</span></div>
+                <div class="price-row-new"><span>Штани / джинси</span><span>130 грн</span></div>
+                <div class="price-row-new"><span>Сукня / спідниця</span><span>160 грн</span></div>
+                <div class="price-row-new"><span>Сорочка / блуза</span><span>100 грн</span></div>
+            </div>
+            <button class="btn-order-toggle" type="button">Зробити замовлення</button>
         </div>
-        <button class="start5lab" type="button">Зробити замовлення</button>
-        <form method="POST" class="order-form" action="{% url 'create_order' %}" novalidate>
-            {% csrf_token %}
-            <label>Філія:</label>
-            <select name="branch">
-                <option value="Нові будинки">Нові будинки</option>
-                <option value="Центр">Центр</option>
-                <option value="Салтівка">Салтівка</option>
-                <option value="Мотель">Мотель</option>
-                <option value="П'ятихатки">П'ятихатки</option>
-                <option value="ХТЗ">ХТЗ</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву філії</div>
-            <label>Назва речі:</label>
-            <select name="item_name" class="item-select">
-                <option value="">Оберіть річ</option>
-                <option value="Куртка / пальто" data-price="280">Куртка / пальто</option>
-                <option value="Светр / кофта" data-price="150">Светр / кофта</option>
-                <option value="Штани / джинси" data-price="130">Штани / джинси</option>
-                <option value="Сукня / спідниця" data-price="160">Сукня / спідниця</option>
-                <option value="Сорочка / блуза" data-price="100">Сорочка / блуза</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву речі</div>
-            <label>Вид послуги:</label>
-            <div class="services-grid">
-                <label class="service-option"><input type="checkbox" name="service_type" value="Хімчистка" data-price="150"><span class="svc-text">Хімчистка<span class="service-price">150 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Прасування" data-price="60"><span class="svc-text">Прасування<span class="service-price">60 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Виведення плям" data-price="80"><span class="svc-text">Виведення плям<span class="service-price">80 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Ремонт тканини" data-price="120"><span class="svc-text">Ремонт тканини<span class="service-price">120 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Водовідштовхувальне просочення" data-price="100"><span class="svc-text">Водовідштовх. просочення<span class="service-price">100 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Антистатична обробка" data-price="70"><span class="svc-text">Антистатична обробка<span class="service-price">70 грн</span></span></label>
-            </div>
-            <div class="service-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть хоча б одну послугу</div>
-            <label>Опис дефектів:</label>
-            <textarea name="defect_description" placeholder="Опишіть плями або пошкодження..."></textarea>
-            <label>Бажана дата:</label>
-            <input type="date" name="desired_date" class="date-input">
-            <div class="date-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Вкажіть бажану дату</div>
-            <label>Терміновість:</label>
-            <select name="urgent" class="urgent-select">
-                <option value="False">Ні</option>
-                <option value="True">Так (+50%)</option>
-            </select>
-            <div class="price-display" style="display:none;">
-                <div class="price-line"><span>Річ:</span><span class="pd-item">0 грн</span></div>
-                <div class="price-line"><span>Послуги:</span><span class="pd-services">0 грн</span></div>
-                <div class="price-weekend" style="display:none;"><span>Вихідний день (+20%):</span><span class="pd-weekend">0 грн</span></div>
-                <div class="price-urgent" style="display:none;"><span>Терміновість (+50%):</span><span class="pd-urgent">0 грн</span></div>
-                {% if has_discount %}
-                <div style="color:#28b463; display:flex; justify-content:space-between; padding-top:4px; font-size:14px;">
-                    <span>Знижка постійного клієнта (3%):</span>
-                    <span class="pd-discount">-0 грн</span>
-                </div>
-                {% endif %}
-                <div class="price-total"><span>Разом:</span><span class="pd-total">0 грн</span></div>
-            </div>
-            <input type="hidden" name="total_price" class="total-price-input" value="0">
-            <button type="submit" class="confirm-btn">Підтвердити замовлення</button>
-        </form>
     </div>
 
     <!-- Спортивний одяг -->
-    <div class="glass-card">
-        <div class="section-title">Спортивний одяг</div>
-        <div class="item-header"><img src="https://images.prom.ua/4243735384_w640_h640_muzhskoj-sportivnyj-kostyum.jpg" alt=""></div>
-        <div class="item-description">
-            <div class="price-row"><span>Костюм</span><span>200 грн</span></div>
-            <div class="price-row"><span>Футболка / майка</span><span>80 грн</span></div>
-            <div class="price-row"><span>Спортивні штани</span><span>110 грн</span></div>
-            <div class="price-row"><span>Термобілизна</span><span>140 грн</span></div>
-            <div class="price-row"><span>Кросівки / кеди</span><span>180 грн</span></div>
+    <div class="cat-card"
+        data-category="Спортивний одяг"
+        data-items='[{"name":"Спортивний костюм","price":200},{"name":"Футболка / майка","price":80},{"name":"Спортивні штани","price":110},{"name":"Термобілизна","price":140},{"name":"Кросівки / кеди","price":180}]'
+        data-services='[{"name":"Хімчистка","price":120},{"name":"Виведення поту","price":90},{"name":"Дезодорація","price":70},{"name":"Виведення трав. плям","price":85},{"name":"Відновлення кольору","price":150},{"name":"Антибакт. обробка","price":80}]'>
+        {% if request.user.is_staff %}
+        <button class="btn-manager-edit" onclick="openManagerModal(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Редагувати
+        </button>
+        {% endif %}
+        <img class="cat-img" src="https://images.prom.ua/4243735384_w640_h640_muzhskoj-sportivnyj-kostyum.jpg" alt="Спортивний одяг">
+        <div class="cat-body">
+            <div class="cat-title">Спортивний одяг</div>
+            <div class="price-table" data-price-table>
+                <div class="price-row-new"><span>Костюм</span><span>200 грн</span></div>
+                <div class="price-row-new"><span>Футболка / майка</span><span>80 грн</span></div>
+                <div class="price-row-new"><span>Спортивні штани</span><span>110 грн</span></div>
+                <div class="price-row-new"><span>Термобілизна</span><span>140 грн</span></div>
+                <div class="price-row-new"><span>Кросівки / кеди</span><span>180 грн</span></div>
+            </div>
+            <button class="btn-order-toggle" type="button">Зробити замовлення</button>
         </div>
-        <button class="start5lab" type="button">Зробити замовлення</button>
-        <form method="POST" class="order-form" action="{% url 'create_order' %}" novalidate>
-            {% csrf_token %}
-            <label>Філія:</label>
-            <select name="branch">
-                <option value="Нові будинки">Нові будинки</option>
-                <option value="Центр">Центр</option>
-                <option value="Салтівка">Салтівка</option>
-                <option value="Мотель">Мотель</option>
-                <option value="П'ятихатки">П'ятихатки</option>
-                <option value="ХТЗ">ХТЗ</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву речі</div>
-            <label>Назва речі:</label>
-            <select name="item_name" class="item-select">
-                <option value="">Оберіть річ</option>
-                <option value="Спортивний костюм" data-price="200">Спортивний костюм</option>
-                <option value="Футболка / майка" data-price="80">Футболка / майка</option>
-                <option value="Спортивні штани" data-price="110">Спортивні штани</option>
-                <option value="Термобілизна" data-price="140">Термобілизна</option>
-                <option value="Кросівки / кеди" data-price="180">Кросівки / кеди</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву речі</div>
-            <label>Вид послуги:</label>
-            <div class="services-grid">
-                <label class="service-option"><input type="checkbox" name="service_type" value="Хімчистка" data-price="120"><span class="svc-text">Хімчистка<span class="service-price">120 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Виведення поту" data-price="90"><span class="svc-text">Виведення поту<span class="service-price">90 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Дезодорація" data-price="70"><span class="svc-text">Дезодорація<span class="service-price">70 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Виведення трав'яних плям" data-price="85"><span class="svc-text">Виведення трав. плям<span class="service-price">85 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Відновлення кольору" data-price="150"><span class="svc-text">Відновлення кольору<span class="service-price">150 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Антибактеріальна обробка" data-price="80"><span class="svc-text">Антибакт. обробка<span class="service-price">80 грн</span></span></label>
-            </div>
-            <div class="service-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть хоча б одну послугу</div>
-            <label>Опис дефектів:</label>
-            <textarea name="defect_description" placeholder="Опишіть плями або пошкодження..."></textarea>
-            <label>Бажана дата:</label>
-            <input type="date" name="desired_date" class="date-input">
-            <div class="date-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Вкажіть бажану дату</div>
-            <label>Терміновість:</label>
-            <select name="urgent" class="urgent-select">
-                <option value="False">Ні</option>
-                <option value="True">Так (+50%)</option>
-            </select>
-            <div class="price-display" style="display:none;">
-                <div class="price-line"><span>Річ:</span><span class="pd-item">0 грн</span></div>
-                <div class="price-line"><span>Послуги:</span><span class="pd-services">0 грн</span></div>
-                <div class="price-weekend" style="display:none;"><span>Вихідний день (+20%):</span><span class="pd-weekend">0 грн</span></div>
-                <div class="price-urgent" style="display:none;"><span>Терміновість (+50%):</span><span class="pd-urgent">0 грн</span></div>
-                {% if has_discount %}
-                <div style="color:#28b463; display:flex; justify-content:space-between; padding-top:4px; font-size:14px;">
-                    <span>Знижка постійного клієнта (3%):</span>
-                    <span class="pd-discount">-0 грн</span>
-                </div>
-                {% endif %}
-                <div class="price-total"><span>Разом:</span><span class="pd-total">0 грн</span></div>
-            </div>
-            <input type="hidden" name="total_price" class="total-price-input" value="0">
-            <button type="submit" class="confirm-btn">Підтвердити замовлення</button>
-        </form>
     </div>
 
     <!-- Робочий одяг -->
-    <div class="glass-card">
-        <div class="section-title">Робочий одяг</div>
-        <div class="item-header"><img src="https://togtrade.com/image/catalog/jak-organizuvati-reguljarnu-zaminu-specodjagu-na-virobnictvi-2.png" alt=""></div>
-        <div class="item-description">
-            <div class="price-row"><span>Комбінезон / роба</span><span>250 грн</span></div>
-            <div class="price-row"><span>Захисна куртка</span><span>220 грн</span></div>
-            <div class="price-row"><span>Робочі штани</span><span>150 грн</span></div>
-            <div class="price-row"><span>Спецодяг медика</span><span>180 грн</span></div>
-            <div class="price-row"><span>Фартух / жилет</span><span>100 грн</span></div>
+    <div class="cat-card"
+        data-category="Робочий одяг"
+        data-items='[{"name":"Комбінезон / роба","price":250},{"name":"Захисна куртка","price":220},{"name":"Робочі штани","price":150},{"name":"Спецодяг медика","price":180},{"name":"Фартух / жилет","price":100}]'
+        data-services='[{"name":"Промислова хімчистка","price":200},{"name":"Виведення мастила","price":130},{"name":"Виведення фарби","price":150},{"name":"Дезінфекція","price":100},{"name":"Ремонт швів","price":90},{"name":"Вогнезахист. просочення","price":180}]'>
+        {% if request.user.is_staff %}
+        <button class="btn-manager-edit" onclick="openManagerModal(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Редагувати
+        </button>
+        {% endif %}
+        <img class="cat-img" src="https://togtrade.com/image/catalog/jak-organizuvati-reguljarnu-zaminu-specodjagu-na-virobnictvi-2.png" alt="Робочий одяг">
+        <div class="cat-body">
+            <div class="cat-title">Робочий одяг</div>
+            <div class="price-table" data-price-table>
+                <div class="price-row-new"><span>Комбінезон / роба</span><span>250 грн</span></div>
+                <div class="price-row-new"><span>Захисна куртка</span><span>220 грн</span></div>
+                <div class="price-row-new"><span>Робочі штани</span><span>150 грн</span></div>
+                <div class="price-row-new"><span>Спецодяг медика</span><span>180 грн</span></div>
+                <div class="price-row-new"><span>Фартух / жилет</span><span>100 грн</span></div>
+            </div>
+            <button class="btn-order-toggle" type="button">Зробити замовлення</button>
         </div>
-        <button class="start5lab" type="button">Зробити замовлення</button>
-        <form method="POST" class="order-form" action="{% url 'create_order' %}" novalidate>
-            {% csrf_token %}
-            <label>Філія:</label>
-            <select name="branch">
-                <option value="Нові будинки">Нові будинки</option>
-                <option value="Центр">Центр</option>
-                <option value="Салтівка">Салтівка</option>
-                <option value="Мотель">Мотель</option>
-                <option value="П'ятихатки">П'ятихатки</option>
-                <option value="ХТЗ">ХТЗ</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву речі</div>
-            <label>Назва речі:</label>
-            <select name="item_name" class="item-select">
-                <option value="">Оберіть річ</option>
-                <option value="Комбінезон / роба" data-price="250">Комбінезон / роба</option>
-                <option value="Захисна куртка" data-price="220">Захисна куртка</option>
-                <option value="Робочі штани" data-price="150">Робочі штани</option>
-                <option value="Спецодяг медика" data-price="180">Спецодяг медика</option>
-                <option value="Фартух / жилет" data-price="100">Фартух / жилет</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву речі</div>
-            <label>Вид послуги:</label>
-            <div class="services-grid">
-                <label class="service-option"><input type="checkbox" name="service_type" value="Промислова хімчистка" data-price="200"><span class="svc-text">Промислова хімчистка<span class="service-price">200 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Виведення мастила" data-price="130"><span class="svc-text">Виведення мастила<span class="service-price">130 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Виведення фарби" data-price="150"><span class="svc-text">Виведення фарби<span class="service-price">150 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Дезінфекція" data-price="100"><span class="svc-text">Дезінфекція<span class="service-price">100 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Ремонт швів" data-price="90"><span class="svc-text">Ремонт швів<span class="service-price">90 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Вогнезахисне просочення" data-price="180"><span class="svc-text">Вогнезахисне просочення<span class="service-price">180 грн</span></span></label>
-            </div>
-            <div class="service-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть хоча б одну послугу</div>
-            <label>Опис дефектів:</label>
-            <textarea name="defect_description" placeholder="Опишіть плями або пошкодження..."></textarea>
-            <label>Бажана дата:</label>
-            <input type="date" name="desired_date" class="date-input">
-            <div class="date-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Вкажіть бажану дату</div>
-            <label>Терміновість:</label>
-            <select name="urgent" class="urgent-select">
-                <option value="False">Ні</option>
-                <option value="True">Так (+50%)</option>
-            </select>
-            <div class="price-display" style="display:none;">
-                <div class="price-line"><span>Річ:</span><span class="pd-item">0 грн</span></div>
-                <div class="price-line"><span>Послуги:</span><span class="pd-services">0 грн</span></div>
-                <div class="price-weekend" style="display:none;"><span>Вихідний день (+20%):</span><span class="pd-weekend">0 грн</span></div>
-                <div class="price-urgent" style="display:none;"><span>Терміновість (+50%):</span><span class="pd-urgent">0 грн</span></div>
-                {% if has_discount %}
-                <div style="color:#28b463; display:flex; justify-content:space-between; padding-top:4px; font-size:14px;">
-                    <span>Знижка постійного клієнта (3%):</span>
-                    <span class="pd-discount">-0 грн</span>
-                </div>
-                {% endif %}
-                <div class="price-total"><span>Разом:</span><span class="pd-total">0 грн</span></div>
-            </div>
-            <input type="hidden" name="total_price" class="total-price-input" value="0">
-            <button type="submit" class="confirm-btn">Підтвердити замовлення</button>
-        </form>
     </div>
 
     <!-- Фірмовий одяг -->
-    <div class="glass-card">
-        <div class="section-title">Фірмовий одяг</div>
-        <div class="item-header"><img src="https://images.unian.net/photos/2022_09/thumb_files/400_0_1662204765-9857.jpg?r=814461" alt=""></div>
-        <div class="item-description">
-            <div class="price-row"><span>Діловий костюм</span><span>350 грн</span></div>
-            <div class="price-row"><span>Сорочка / блуза</span><span>120 грн</span></div>
-            <div class="price-row"><span>Краватка / шарф</span><span>80 грн</span></div>
-            <div class="price-row"><span>Піджак / жакет</span><span>260 грн</span></div>
-            <div class="price-row"><span>Форменний одяг</span><span>200 грн</span></div>
+    <div class="cat-card"
+        data-category="Фірмовий одяг"
+        data-items='[{"name":"Діловий костюм","price":350},{"name":"Сорочка / блуза","price":120},{"name":"Краватка / шарф","price":80},{"name":"Піджак / жакет","price":260},{"name":"Форменний одяг","price":200}]'
+        data-services='[{"name":"Делікатна хімчистка","price":200},{"name":"Прасування з парою","price":90},{"name":"Виведення плям","price":100},{"name":"Відновлення форми","price":160},{"name":"Чищення підкладки","price":120},{"name":"Нашивка емблеми","price":70}]'>
+        {% if request.user.is_staff %}
+        <button class="btn-manager-edit" onclick="openManagerModal(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Редагувати
+        </button>
+        {% endif %}
+        <img class="cat-img" src="https://images.unian.net/photos/2022_09/thumb_files/400_0_1662204765-9857.jpg?r=814461" alt="Фірмовий одяг">
+        <div class="cat-body">
+            <div class="cat-title">Фірмовий одяг</div>
+            <div class="price-table" data-price-table>
+                <div class="price-row-new"><span>Діловий костюм</span><span>350 грн</span></div>
+                <div class="price-row-new"><span>Сорочка / блуза</span><span>120 грн</span></div>
+                <div class="price-row-new"><span>Краватка / шарф</span><span>80 грн</span></div>
+                <div class="price-row-new"><span>Піджак / жакет</span><span>260 грн</span></div>
+                <div class="price-row-new"><span>Форменний одяг</span><span>200 грн</span></div>
+            </div>
+            <button class="btn-order-toggle" type="button">Зробити замовлення</button>
         </div>
-        <button class="start5lab" type="button">Зробити замовлення</button>
-        <form method="POST" class="order-form" action="{% url 'create_order' %}" novalidate>
-            {% csrf_token %}
-            <label>Філія:</label>
-            <select name="branch">
-                <option value="Нові будинки">Нові будинки</option>
-                <option value="Центр">Центр</option>
-                <option value="Салтівка">Салтівка</option>
-                <option value="Мотель">Мотель</option>
-                <option value="П'ятихатки">П'ятихатки</option>
-                <option value="ХТЗ">ХТЗ</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву речі</div>
-            <label>Назва речі:</label>
-            <select name="item_name" class="item-select">
-                <option value="">Оберіть річ</option>
-                <option value="Діловий костюм" data-price="350">Діловий костюм</option>
-                <option value="Сорочка / блуза" data-price="120">Сорочка / блуза</option>
-                <option value="Краватка / шарф" data-price="80">Краватка / шарф</option>
-                <option value="Піджак / жакет" data-price="260">Піджак / жакет</option>
-                <option value="Форменний одяг" data-price="200">Форменний одяг</option>
-            </select>
-            <div class="item-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть назву речі</div>
-            <label>Вид послуги:</label>
-            <div class="services-grid">
-                <label class="service-option"><input type="checkbox" name="service_type" value="Делікатна хімчистка" data-price="200"><span class="svc-text">Делікатна хімчистка<span class="service-price">200 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Прасування з парою" data-price="90"><span class="svc-text">Прасування з парою<span class="service-price">90 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Виведення плям" data-price="100"><span class="svc-text">Виведення плям<span class="service-price">100 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Відновлення форми" data-price="160"><span class="svc-text">Відновлення форми<span class="service-price">160 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Чищення підкладки" data-price="120"><span class="svc-text">Чищення підкладки<span class="service-price">120 грн</span></span></label>
-                <label class="service-option"><input type="checkbox" name="service_type" value="Нашивка емблеми" data-price="70"><span class="svc-text">Нашивка емблеми<span class="service-price">70 грн</span></span></label>
-            </div>
-            <div class="service-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Оберіть хоча б одну послугу</div>
-            <label>Опис дефектів:</label>
-            <textarea name="defect_description" placeholder="Опишіть плями або пошкодження..."></textarea>
-            <label>Бажана дата:</label>
-            <input type="date" name="desired_date" class="date-input">
-            <div class="date-error" style="color:#ff6b6b;font-size:17px;margin-top:5px;display:none;">Вкажіть бажану дату</div>
-            <label>Терміновість:</label>
-            <select name="urgent" class="urgent-select">
-                <option value="False">Ні</option>
-                <option value="True">Так (+50%)</option>
-            </select>
-            <div class="price-display" style="display:none;">
-                <div class="price-line"><span>Річ:</span><span class="pd-item">0 грн</span></div>
-                <div class="price-line"><span>Послуги:</span><span class="pd-services">0 грн</span></div>
-                <div class="price-weekend" style="display:none;"><span>Вихідний день (+20%):</span><span class="pd-weekend">0 грн</span></div>
-                <div class="price-urgent" style="display:none;"><span>Терміновість (+50%):</span><span class="pd-urgent">0 грн</span></div>
-                {% if has_discount %}
-                <div style="color:#28b463; display:flex; justify-content:space-between; padding-top:4px; font-size:14px;">
-                    <span>Знижка постійного клієнта (3%):</span>
-                    <span class="pd-discount">-0 грн</span>
-                </div>
-                {% endif %}
-                <div class="price-total"><span>Разом:</span><span class="pd-total">0 грн</span></div>
-            </div>
-            <input type="hidden" name="total_price" class="total-price-input" value="0">
-            <button type="submit" class="confirm-btn">Підтвердити замовлення</button>
-        </form>
     </div>
 
+</div><!-- /catalog-grid -->
+
+
+<!-- ===== ORDER MODAL (single shared) ===== -->
+<div id="orderModal">
+    <div class="order-modal-box">
+        <div class="order-modal-header">
+            <div>
+                <div class="order-modal-title">Оформити замовлення</div>
+                <div class="order-modal-cat" id="orderModalCat"></div>
+            </div>
+            <button class="order-modal-close" id="orderModalCloseBtn">✕</button>
+        </div>
+        <div class="order-modal-body">
+            <form method="POST" action="{% url 'create_order' %}" novalidate id="orderModalForm">
+                {% csrf_token %}
+
+                <div>
+                    <label class="field-label">Філія</label>
+                    <select name="branch" class="field-select" id="omBranch">
+                        <option value="Нові будинки">Нові будинки</option>
+                        <option value="Центр">Центр</option>
+                        <option value="Салтівка">Салтівка</option>
+                        <option value="Мотель">Мотель</option>
+                        <option value="П'ятихатки">П'ятихатки</option>
+                        <option value="ХТЗ">ХТЗ</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="field-label">Назва речі</label>
+                    <select name="item_name" class="field-select" id="omItem">
+                        <option value="">Оберіть річ</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="field-label">Вид послуги</label>
+                    <div class="svc-grid" id="omSvcGrid"></div>
+                </div>
+
+                <div>
+                    <label class="field-label">Опис дефектів</label>
+                    <textarea name="defect_description" class="field-textarea" id="omDefect" placeholder="Опишіть плями або пошкодження..."></textarea>
+                </div>
+
+                <div>
+                    <label class="field-label">Бажана дата</label>
+                    <input type="date" name="desired_date" class="field-date" id="omDate">
+                </div>
+
+                <div>
+                    <label class="field-label">Терміновість</label>
+                    <select name="urgent" class="field-select" id="omUrgent">
+                        <option value="False">Ні</option>
+                        <option value="True">Так (+50%)</option>
+                    </select>
+                </div>
+
+                <div class="price-summary" id="omPriceSummary">
+                    <div class="ps-row"><span>Річ:</span><span id="omPsItem">0 грн</span></div>
+                    <div class="ps-row"><span>Послуги:</span><span id="omPsServices">0 грн</span></div>
+                    <div class="ps-row weekend" id="omPsWeekendRow" style="display:none"><span>Вихідний (+20%):</span><span id="omPsWeekend">0 грн</span></div>
+                    <div class="ps-row urgent"  id="omPsUrgentRow"  style="display:none"><span>Терміновість (+50%):</span><span id="omPsUrgent">0 грн</span></div>
+                    {% if has_discount %}
+                    <div class="ps-row discount" id="omPsDiscountRow"><span>Знижка клієнта (3%):</span><span id="omPsDiscount">-0 грн</span></div>
+                    {% endif %}
+                    <div class="ps-total"><span>Разом:</span><span id="omPsTotal">0 грн</span></div>
+                </div>
+
+                <input type="hidden" name="total_price" id="omTotalInput" value="0">
+
+                <div class="form-hint" id="omHint">⚠ Ще потрібно обрати: <span id="omHintTxt"></span></div>
+
+                <button type="submit" class="confirm-btn" id="omSubmitBtn" disabled>Підтвердити замовлення</button>
+            </form>
+        </div>
+    </div>
 </div>
 
+
+<!-- ===== MANAGER MODAL ===== -->
+<div class="mgr-overlay" id="mgrOverlay">
+    <div class="mgr-modal" id="mgrModal">
+        <div class="mgr-modal-header">
+            <div>
+                <div class="mgr-modal-title" id="mgrModalTitle">Редагування категорії</div>
+                <div class="mgr-modal-subtitle">Управління даними картки</div>
+            </div>
+            <button class="mgr-close-btn" onclick="closeManagerModal()">✕</button>
+        </div>
+
+        <div class="mgr-tabs">
+            <button class="mgr-tab active" onclick="switchTab('branches', this)">Філії</button>
+            <button class="mgr-tab" onclick="switchTab('items', this)">Речі</button>
+            <button class="mgr-tab" onclick="switchTab('services', this)">Послуги</button>
+        </div>
+
+        <div class="mgr-section active" id="tab-branches">
+            <div class="mgr-list" id="branch-list"></div>
+            <hr class="mgr-divider">
+            <div class="mgr-add-form">
+                <div class="mgr-add-title">+ Додати нову філію</div>
+                <div class="mgr-input-row">
+                    <div class="mgr-input-group"><label>Назва філії</label><input type="text" class="mgr-input" id="new-branch-name" placeholder="напр. Холодна Гора"></div>
+                    <button class="mgr-btn-add" onclick="addBranch()">Додати</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mgr-section" id="tab-items">
+            <div class="mgr-list" id="item-list"></div>
+            <hr class="mgr-divider">
+            <div class="mgr-add-form">
+                <div class="mgr-add-title">+ Додати нову річ</div>
+                <div class="mgr-input-row">
+                    <div class="mgr-input-group"><label>Назва речі</label><input type="text" class="mgr-input" id="new-item-name" placeholder="напр. Пальто"></div>
+                    <div class="mgr-input-group" style="max-width:110px;"><label>Ціна (грн)</label><input type="number" class="mgr-input" id="new-item-price" placeholder="200" min="1"></div>
+                    <button class="mgr-btn-add" onclick="addItem()">Додати</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mgr-section" id="tab-services">
+            <div class="mgr-list" id="service-list"></div>
+            <hr class="mgr-divider">
+            <div class="mgr-add-form">
+                <div class="mgr-add-title">+ Додати нову послугу</div>
+                <div class="mgr-input-row">
+                    <div class="mgr-input-group"><label>Назва послуги</label><input type="text" class="mgr-input" id="new-service-name" placeholder="напр. Глибоке чищення"></div>
+                    <div class="mgr-input-group" style="max-width:110px;"><label>Ціна (грн)</label><input type="number" class="mgr-input" id="new-service-price" placeholder="100" min="1"></div>
+                    <button class="mgr-btn-add" onclick="addService()">Додати</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
-// відкривання+закривання форми замовлення 
-document.querySelectorAll(".start5lab").forEach(function(button) {
-    button.addEventListener("click", function() {
-        const isAuth = document.getElementById('user-auth').value === 'true';
-        if (!isAuth) {
-            window.location.href = "{% url 'login' %}";
-            return;
+// ========== BUBBLE ANIMATION ==========
+(function() {
+    const canvas = document.getElementById('bubble-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, bubbles = [];
+    const COLORS = [
+        'rgba(212,165,116,','rgba(180,130,90,','rgba(240,200,150,',
+        'rgba(200,150,100,','rgba(255,220,170,','rgba(160,110,70,',
+    ];
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+    function mkBubble(scatterY) {
+        const r = 6 + Math.random() * 28;
+        return {
+            x: Math.random() * W,
+            y: scatterY !== undefined ? scatterY : H + r + Math.random() * 80,
+            r,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: -(0.35 + Math.random() * 0.55),
+            wobble: Math.random() * Math.PI * 2,
+            wobbleSpeed: 0.012 + Math.random() * 0.018,
+            wobbleAmp:   0.4  + Math.random() * 1.2,
+            alpha: 0.12 + Math.random() * 0.22,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            pulse: Math.random() * Math.PI * 2,
+            pulseSpeed: 0.02 + Math.random() * 0.03,
+        };
+    }
+
+    function init() {
+        for (let i = 0; i < 42; i++) {
+            const b = mkBubble(); b.y = Math.random() * (H + 200) - 100; bubbles.push(b);
         }
+    }
 
-        var form = button.nextElementSibling;
-        var isOpen = form.style.maxHeight === "2000px";
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = bubbles.length - 1; i >= 0; i--) {
+            const b = bubbles[i];
+            b.wobble += b.wobbleSpeed; b.pulse += b.pulseSpeed;
+            b.x += b.vx + Math.sin(b.wobble) * b.wobbleAmp;
+            b.y += b.vy;
+            const rr = b.r + Math.sin(b.pulse) * b.r * 0.08;
+            if (b.y + rr < -20) { bubbles.splice(i, 1); bubbles.push(mkBubble()); continue; }
 
-        document.querySelectorAll(".order-form").forEach(function(f) { f.style.maxHeight = "0px"; });
-        document.querySelectorAll(".start5lab").forEach(function(btn) {
-            btn.textContent = "Зробити замовлення";
-            btn.style.background = "linear-gradient(135deg, #dbe9ff, #f8faff)";
-            btn.style.color = "";
+            ctx.save();
+            ctx.globalAlpha = b.alpha;
+            ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, Math.PI*2);
+            ctx.strokeStyle = b.color + '0.8)'; ctx.lineWidth = 1.2; ctx.stroke();
+            const g = ctx.createRadialGradient(b.x - rr*.3, b.y - rr*.3, rr*.05, b.x, b.y, rr);
+            g.addColorStop(0, b.color+'0.35)'); g.addColorStop(0.6, b.color+'0.08)'); g.addColorStop(1, b.color+'0)');
+            ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
+            ctx.beginPath(); ctx.arc(b.x - rr*.28, b.y - rr*.28, rr*.22, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fill();
+            ctx.restore();
+        }
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize(); init(); draw();
+
+    // burst on card hover
+    document.querySelectorAll('.cat-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const rect = card.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                bubbles.push({
+                    x: rect.left + Math.random() * rect.width,
+                    y: rect.bottom + 10,
+                    r: 4 + Math.random() * 12,
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: -(0.7 + Math.random() * 1.0),
+                    wobble: Math.random()*Math.PI*2, wobbleSpeed: 0.018+Math.random()*.022, wobbleAmp: 0.6+Math.random()*1.4,
+                    alpha: 0.2+Math.random()*.25,
+                    color: COLORS[Math.floor(Math.random()*COLORS.length)],
+                    pulse: Math.random()*Math.PI*2, pulseSpeed: 0.025+Math.random()*.03,
+                });
+            }
+        });
+    });
+})();
+
+
+// ========== ORDER MODAL ==========
+const orderModal   = document.getElementById('orderModal');
+const omItem       = document.getElementById('omItem');
+const omSvcGrid    = document.getElementById('omSvcGrid');
+const omDate       = document.getElementById('omDate');
+const omUrgent     = document.getElementById('omUrgent');
+const omHint       = document.getElementById('omHint');
+const omHintTxt    = document.getElementById('omHintTxt');
+const omSubmitBtn  = document.getElementById('omSubmitBtn');
+const omPriceSummary = document.getElementById('omPriceSummary');
+let omUserStarted  = false;
+
+omDate.setAttribute('min', new Date().toISOString().split('T')[0]);
+
+// Open modal when clicking "Зробити замовлення"
+document.querySelectorAll('.btn-order-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const isAuth = document.getElementById('user-auth').value === 'true';
+        if (!isAuth) { window.location.href = "{% url 'login' %}"; return; }
+
+        const card     = btn.closest('.cat-card');
+        const items    = JSON.parse(card.dataset.items);
+        const services = JSON.parse(card.dataset.services);
+
+        document.getElementById('orderModalCat').textContent = card.dataset.category;
+
+        // Fill items
+        omItem.innerHTML = '<option value="">Оберіть річ</option>';
+        items.forEach(it => {
+            const o = document.createElement('option');
+            o.value = it.name;
+            o.textContent = it.name + ' — ' + it.price + ' грн';
+            o.dataset.price = it.price;
+            omItem.appendChild(o);
         });
 
-        if (!isOpen) {
-            form.style.maxHeight = "2000px";
-            button.textContent = "Закрити замовлення";
-            button.style.background = "linear-gradient(135deg, #ff6b6b, #ff0000)";
-            button.style.color = "white";
-        }
+        // Fill services
+        omSvcGrid.innerHTML = '';
+        services.forEach(sv => {
+            const lbl = document.createElement('label');
+            lbl.className = 'svc-opt';
+            lbl.innerHTML = `<input type="checkbox" name="service_type" data-price="${sv.price}"><span><span class="svc-name">${sv.name}</span><span class="svc-price">${sv.price} грн</span></span>`;
+            lbl.querySelector('input').addEventListener('change', function() {
+                lbl.classList.toggle('checked', this.checked);
+                omUserStarted = true; omCheck();
+            });
+            omSvcGrid.appendChild(lbl);
+        });
+
+        // Reset state
+        omUserStarted = false;
+        omItem.value = ''; omDate.value = ''; omUrgent.value = 'False';
+        document.getElementById('omDefect').value = '';
+        omPriceSummary.style.display = 'none';
+        omHint.classList.remove('show');
+        omSubmitBtn.disabled = true;
+        omSubmitBtn.textContent = 'Підтвердити замовлення';
+
+        orderModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
     });
 });
 
-// розрахунок вартості замовлення 
-function calcPrice(form) {
-    const itemSelect = form.querySelector(".item-select");
-    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-    const itemPrice = parseInt(selectedOption.getAttribute("data-price") || "0");
+function closeOrderModal() {
+    orderModal.classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.getElementById('orderModalCloseBtn').addEventListener('click', closeOrderModal);
+orderModal.addEventListener('click', e => { if (e.target === orderModal) closeOrderModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeOrderModal(); closeManagerModal(); } });
 
-    let servicesPrice = 0;
-    form.querySelectorAll("input[name='service_type']:checked").forEach(function(cb) {
-        servicesPrice += parseInt(cb.getAttribute("data-price") || "0");
-    });
+// Price calc
+function omCalcPrice() {
+    const opt = omItem.options[omItem.selectedIndex];
+    const ip  = parseInt(opt?.dataset?.price || '0');
+    let sp = 0;
+    omSvcGrid.querySelectorAll('input:checked').forEach(cb => sp += parseInt(cb.dataset.price || '0'));
 
-    const dateInput = form.querySelector("input[name='desired_date']");
-    let dateBonus = 0, isWeekend = false;
-    if (dateInput && dateInput.value) {
-        const day = new Date(dateInput.value).getUTCDay();
-        isWeekend = (day === 0 || day === 6);
-        if (isWeekend) dateBonus = Math.round((itemPrice + servicesPrice) * 0.2);
+    let wa = 0, isWe = false;
+    if (omDate.value) {
+        const d = new Date(omDate.value).getUTCDay();
+        isWe = d === 0 || d === 6;
+        if (isWe) wa = Math.round((ip + sp) * 0.2);
     }
 
-    const urgent = form.querySelector(".urgent-select").value === "True";
-    const baseWithWeekend = itemPrice + servicesPrice + dateBonus;
-    const urgentAmount = urgent ? Math.round(baseWithWeekend * 0.5) : 0;
+    const urg  = omUrgent.value === 'True';
+    const base = ip + sp + wa;
+    const ua   = urg ? Math.round(base * 0.5) : 0;
 
-    // знижка 3% для постійних клієнтів
-    const discountEl = form.querySelector(".pd-discount");
-    let discountAmount = 0;
+    const discountEl = document.getElementById('omPsDiscount');
+    let disc = 0;
     if (discountEl) {
-        discountAmount = Math.round((baseWithWeekend + urgentAmount) * 0.03);
-        discountEl.textContent = "-" + discountAmount + " грн";
+        disc = Math.round((base + ua) * 0.03);
+        discountEl.textContent = '-' + disc + ' грн';
     }
 
-    const total = baseWithWeekend + urgentAmount - discountAmount;
+    const total = base + ua - disc;
 
-    const display = form.querySelector(".price-display");
-    if (itemPrice > 0 || servicesPrice > 0) {
-        display.style.display = "block";
-        form.querySelector(".pd-item").textContent = itemPrice + " грн";
-        form.querySelector(".pd-services").textContent = servicesPrice + " грн";
-
-        const weekendRow = form.querySelector(".price-weekend");
-        if (isWeekend && (itemPrice + servicesPrice) > 0) {
-            weekendRow.style.display = "flex";
-            form.querySelector(".pd-weekend").textContent = dateBonus + " грн";
-        } else {
-            weekendRow.style.display = "none";
-        }
-
-        const urgentRow = form.querySelector(".price-urgent");
-        if (urgent && baseWithWeekend > 0) {
-            urgentRow.style.display = "flex";
-            form.querySelector(".pd-urgent").textContent = urgentAmount + " грн";
-        } else {
-            urgentRow.style.display = "none";
-        }
-
-        form.querySelector(".pd-total").textContent = total + " грн";
-        form.querySelector(".total-price-input").value = total;
+    if (ip > 0 || sp > 0) {
+        omPriceSummary.style.display = 'block';
+        document.getElementById('omPsItem').textContent     = ip + ' грн';
+        document.getElementById('omPsServices').textContent = sp + ' грн';
+        const wr = document.getElementById('omPsWeekendRow');
+        wr.style.display = (isWe && (ip+sp) > 0) ? 'flex' : 'none';
+        document.getElementById('omPsWeekend').textContent  = wa + ' грн';
+        const ur = document.getElementById('omPsUrgentRow');
+        ur.style.display = (urg && base > 0) ? 'flex' : 'none';
+        document.getElementById('omPsUrgent').textContent   = ua + ' грн';
+        document.getElementById('omPsTotal').textContent    = total + ' грн';
     } else {
-        display.style.display = "none";
+        omPriceSummary.style.display = 'none';
     }
+    document.getElementById('omTotalInput').value = total;
+    return total;
 }
 
-// слухачі для оновлення ціни при виборі речі та послуг
-document.querySelectorAll(".order-form").forEach(function(form) {
-    form.querySelector(".item-select").addEventListener("change", function() {
-        form.querySelector(".item-error").style.display = "none";
-        calcPrice(form);
-    });
-    form.querySelectorAll("input[name='service_type']").forEach(function(cb) {
-        cb.addEventListener("change", function() {
-            form.querySelector(".service-error").style.display = "none";
-            calcPrice(form);
-        });
-    });
-    form.querySelector(".urgent-select").addEventListener("change", function() { calcPrice(form); });
-    form.querySelector("input[name='desired_date']").addEventListener("change", function() {
-        form.querySelector(".date-error").style.display = "none";
-        calcPrice(form);
-    });
+// Validate
+function omCheck() {
+    const hi = !!omItem.value;
+    const hs = omSvcGrid.querySelectorAll('input:checked').length > 0;
+    const hd = !!omDate.value;
+    omSubmitBtn.disabled = !(hi && hs && hd);
+    if (omUserStarted && !(hi && hs && hd)) {
+        const m = [];
+        if (!hi) m.push('річ'); if (!hs) m.push('послугу'); if (!hd) m.push('дату');
+        omHintTxt.textContent = m.join(', ');
+        omHint.classList.add('show');
+    } else {
+        omHint.classList.remove('show');
+    }
+    omCalcPrice();
+}
 
-    form.addEventListener("submit", function(e) {
-        e.preventDefault();
-        let hasError = false;
+omItem.addEventListener('change',   () => { omUserStarted = true; omCheck(); });
+omDate.addEventListener('change',   () => { omUserStarted = true; omCheck(); });
+omUrgent.addEventListener('change', () => omCalcPrice());
 
-        const itemSelect = form.querySelector(".item-select");
-        const itemError = form.querySelector(".item-error");
-        if (!itemSelect.value) {
-            itemError.style.display = "block";
-            hasError = true;
-        } else {
-            itemError.style.display = "none";
-        }
-
-        const checked = form.querySelectorAll("input[name='service_type']:checked");
-        const serviceError = form.querySelector(".service-error");
-        if (checked.length === 0) {
-            serviceError.style.display = "block";
-            hasError = true;
-        } else {
-            serviceError.style.display = "none";
-        }
-
-        const dateInput = form.querySelector("input[name='desired_date']");
-        const dateError = form.querySelector(".date-error");
-        if (!dateInput.value) {
-            dateError.style.display = "block";
-            hasError = true;
-        } else {
-            dateError.style.display = "none";
-        }
-
-        if (!hasError) form.submit();
-    });
+// Safety net on submit
+document.getElementById('orderModalForm').addEventListener('submit', function(e) {
+    const hi = !!omItem.value;
+    const hs = omSvcGrid.querySelectorAll('input:checked').length > 0;
+    const hd = !!omDate.value;
+    if (!hi || !hs || !hd) { e.preventDefault(); }
 });
 
-// щоб не можна було вибрати минулу дату для бажаної дати
-const today = new Date().toISOString().split('T')[0];
-document.querySelectorAll(".date-input").forEach(function(input) {
-    input.setAttribute("min", today);
+
+// ========== MANAGER MODAL ==========
+let currentCard = null;
+
+function openManagerModal(btn) {
+    currentCard = btn.closest('.cat-card');
+    document.getElementById('mgrModalTitle').textContent = currentCard.getAttribute('data-category');
+    switchTab('branches', document.querySelector('.mgr-tab'));
+    renderAll();
+    document.getElementById('mgrOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeManagerModal() {
+    document.getElementById('mgrOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    currentCard = null;
+}
+
+document.getElementById('mgrOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeManagerModal();
 });
 
+function switchTab(name, tabBtn) {
+    document.querySelectorAll('.mgr-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.mgr-section').forEach(s => s.classList.remove('active'));
+    const clicked = tabBtn || document.querySelector(`.mgr-tab[onclick*="${name}"]`);
+    if (clicked) clicked.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+}
+
+function getBranches() {
+    if (!currentCard) return [];
+    // For manager modal we still read from a hidden select stored on card, or use a data store
+    return (currentCard._branches || ['Нові будинки','Центр','Салтівка','Мотель',"П'ятихатки",'ХТЗ']);
+}
+function getItems() {
+    if (!currentCard) return [];
+    return JSON.parse(currentCard.dataset.items);
+}
+function getServices() {
+    if (!currentCard) return [];
+    return JSON.parse(currentCard.dataset.services);
+}
+
+function renderAll() { renderBranches(); renderItems(); renderServices(); }
+
+function renderBranches() {
+    const list = document.getElementById('branch-list');
+    const branches = getBranches();
+    if (!branches.length) { list.innerHTML = '<div class="mgr-empty">Немає філій</div>'; return; }
+    list.innerHTML = branches.map((b, i) => `
+        <div class="mgr-list-item">
+            <div class="mgr-item-info"><div class="mgr-item-name">${b}</div></div>
+            <div class="mgr-item-actions">
+                <button class="mgr-btn-icon mgr-btn-edit" onclick="editBranch(${i})">✏️</button>
+                <button class="mgr-btn-icon mgr-btn-delete" onclick="deleteBranch(${i})">🗑</button>
+            </div>
+        </div>`).join('');
+}
+
+function renderItems() {
+    const list = document.getElementById('item-list');
+    const items = getItems();
+    if (!items.length) { list.innerHTML = '<div class="mgr-empty">Немає речей</div>'; return; }
+    list.innerHTML = items.map((it, i) => `
+        <div class="mgr-list-item">
+            <div class="mgr-item-info"><div class="mgr-item-name">${it.name}</div><div class="mgr-item-price">${it.price} грн</div></div>
+            <div class="mgr-item-actions">
+                <button class="mgr-btn-icon mgr-btn-edit" onclick="editItem(${i})">✏️</button>
+                <button class="mgr-btn-icon mgr-btn-delete" onclick="deleteItem(${i})">🗑</button>
+            </div>
+        </div>`).join('');
+}
+
+function renderServices() {
+    const list = document.getElementById('service-list');
+    const services = getServices();
+    if (!services.length) { list.innerHTML = '<div class="mgr-empty">Немає послуг</div>'; return; }
+    list.innerHTML = services.map((s, i) => `
+        <div class="mgr-list-item">
+            <div class="mgr-item-info"><div class="mgr-item-name">${s.name}</div><div class="mgr-item-price">${s.price} грн</div></div>
+            <div class="mgr-item-actions">
+                <button class="mgr-btn-icon mgr-btn-edit" onclick="editService(${i})">✏️</button>
+                <button class="mgr-btn-icon mgr-btn-delete" onclick="deleteService(${i})">🗑</button>
+            </div>
+        </div>`).join('');
+}
+
+function addBranch() {
+    const input = document.getElementById('new-branch-name');
+    const name = input.value.trim();
+    if (!name) { input.focus(); input.style.borderColor='var(--danger)'; setTimeout(()=>input.style.borderColor='',1500); return; }
+    if (!currentCard._branches) currentCard._branches = getBranches().slice();
+    currentCard._branches.push(name);
+    input.value = ''; renderBranches();
+}
+function deleteBranch(idx) {
+    if (!currentCard._branches) currentCard._branches = getBranches().slice();
+    currentCard._branches.splice(idx, 1); renderBranches();
+}
+function editBranch(idx) {
+    const list = document.getElementById('branch-list'); const item = list.children[idx]; const cur = getBranches()[idx];
+    item.innerHTML = `<div class="mgr-edit-inline"><input type="text" value="${cur}" id="edit-branch-val"><button class="mgr-btn-save" onclick="saveBranch(${idx})">Зберегти</button><button class="mgr-btn-cancel" onclick="renderBranches()">✕</button></div>`;
+    item.querySelector('input').focus();
+}
+function saveBranch(idx) {
+    const v = document.getElementById('edit-branch-val').value.trim(); if (!v) return;
+    if (!currentCard._branches) currentCard._branches = getBranches().slice();
+    currentCard._branches[idx] = v; renderBranches();
+}
+
+function addItem() {
+    const ni = document.getElementById('new-item-name'); const pi = document.getElementById('new-item-price');
+    const name = ni.value.trim(); const price = parseInt(pi.value);
+    if (!name||!price||price<1) { if(!name){ni.style.borderColor='var(--danger)';setTimeout(()=>ni.style.borderColor='',1500);} if(!price){pi.style.borderColor='var(--danger)';setTimeout(()=>pi.style.borderColor='',1500);} return; }
+    const items = JSON.parse(currentCard.dataset.items); items.push({name, price});
+    currentCard.dataset.items = JSON.stringify(items);
+    const pt = currentCard.querySelector('[data-price-table]');
+    if (pt) { const row=document.createElement('div'); row.className='price-row-new'; row.innerHTML=`<span>${name}</span><span>${price} грн</span>`; pt.appendChild(row); }
+    ni.value=''; pi.value=''; renderItems();
+}
+function deleteItem(idx) {
+    const items = JSON.parse(currentCard.dataset.items); items.splice(idx,1);
+    currentCard.dataset.items = JSON.stringify(items);
+    const pt = currentCard.querySelector('[data-price-table]'); if(pt&&pt.children[idx]) pt.children[idx].remove();
+    renderItems();
+}
+function editItem(idx) {
+    const list=document.getElementById('item-list'); const item=list.children[idx]; const cur=getItems()[idx];
+    item.innerHTML=`<div class="mgr-edit-inline"><input type="text" value="${cur.name}" id="edit-item-name"><input type="number" value="${cur.price}" id="edit-item-price" class="price-field" min="1"><button class="mgr-btn-save" onclick="saveItem(${idx})">Зберегти</button><button class="mgr-btn-cancel" onclick="renderItems()">✕</button></div>`;
+    item.querySelector('input').focus();
+}
+function saveItem(idx) {
+    const n=document.getElementById('edit-item-name').value.trim(); const p=parseInt(document.getElementById('edit-item-price').value); if(!n||!p) return;
+    const items=JSON.parse(currentCard.dataset.items); items[idx]={name:n,price:p}; currentCard.dataset.items=JSON.stringify(items);
+    const pt=currentCard.querySelector('[data-price-table]'); if(pt&&pt.children[idx]) pt.children[idx].innerHTML=`<span>${n}</span><span>${p} грн</span>`;
+    renderItems();
+}
+
+function addService() {
+    const ni=document.getElementById('new-service-name'); const pi=document.getElementById('new-service-price');
+    const name=ni.value.trim(); const price=parseInt(pi.value);
+    if(!name||!price||price<1) { if(!name){ni.style.borderColor='var(--danger)';setTimeout(()=>ni.style.borderColor='',1500);} if(!price){pi.style.borderColor='var(--danger)';setTimeout(()=>pi.style.borderColor='',1500);} return; }
+    const svcs=JSON.parse(currentCard.dataset.services); svcs.push({name,price}); currentCard.dataset.services=JSON.stringify(svcs);
+    ni.value=''; pi.value=''; renderServices();
+}
+function deleteService(idx) {
+    const svcs=JSON.parse(currentCard.dataset.services); svcs.splice(idx,1); currentCard.dataset.services=JSON.stringify(svcs); renderServices();
+}
+function editService(idx) {
+    const list=document.getElementById('service-list'); const item=list.children[idx]; const cur=getServices()[idx];
+    item.innerHTML=`<div class="mgr-edit-inline"><input type="text" value="${cur.name}" id="edit-svc-name"><input type="number" value="${cur.price}" id="edit-svc-price" class="price-field" min="1"><button class="mgr-btn-save" onclick="saveService(${idx})">Зберегти</button><button class="mgr-btn-cancel" onclick="renderServices()">✕</button></div>`;
+    item.querySelector('input').focus();
+}
+function saveService(idx) {
+    const n=document.getElementById('edit-svc-name').value.trim(); const p=parseInt(document.getElementById('edit-svc-price').value); if(!n||!p) return;
+    const svcs=JSON.parse(currentCard.dataset.services); svcs[idx]={name:n,price:p}; currentCard.dataset.services=JSON.stringify(svcs); renderServices();
+}
 </script>
 
 {% endblock %}

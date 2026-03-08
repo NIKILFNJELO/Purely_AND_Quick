@@ -1,92 +1,116 @@
 {% extends 'main/base.html' %}
 {% load i18n %}
-
-{% block title %}{% trans "Вхід" %}{% endblock %}
-
-{% block extra_head %}
-<style>
-  .form-title {
-      background: #e5e5e5;
-      color: #222;
-      padding: 20px 40px;
-      font-size: 26px;
-      font-weight: 600;
-      text-align: center;
-      margin-bottom: 40px;
-
-      width: 100vw;
-      margin-left: calc(-50vw + 50%);
-  }
-</style>
-{% endblock %}
+{% block title %}Вхід — Purely&Quick{% endblock %}
 
 {% block content %}
+<style>
+.auth-wrap {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-<div class="form-title">
-    {% trans "Вхід до облікового запису" %}
-</div>
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 44px;
+}
 
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-body">
+.auth-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 6px;
+}
 
-        {% if form_errors and form_errors.all %}
-        <div class="alert alert-danger">
-          {{ form_errors.all }}
-        </div>
+.auth-sub {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 36px;
+}
+
+.auth-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+}
+
+.alert-error {
+    background: rgba(220,53,69,0.1);
+    border: 1px solid rgba(220,53,69,0.25);
+    color: #dc3545;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.auth-footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-footer a:hover { color: var(--accent2); }
+
+.mb-field { margin-bottom: 18px; }
+</style>
+
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-logo">Purely&Quick</div>
+        <div class="auth-sub">Вхід до облікового запису</div>
+
+        {% if error %}
+        <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
         {% endif %}
 
         <form method="post">
-          {% csrf_token %}
+            {% csrf_token %}
 
-          <div class="mb-3">
-            <label for="username" class="form-label fs-5">
-              {% trans "ПІБ користувача" %}
-            </label>
-            <input type="text"
-                   class="form-control {% if form_errors.username %}is-invalid{% endif %} fs-5"
-                   id="username"
-                   name="username"
-                   value="{{ username|default:'' }}"
-                   required>
-            {% if form_errors.username %}
-            <div class="invalid-feedback">
-              {{ form_errors.username }}
+            <div class="mb-field">
+                <label class="field-label">Ім'я користувача</label>
+                <input type="text" name="username" value="{{ username|default:'' }}"
+                    class="field-input {% if form_errors.username %}is-invalid{% endif %}"
+                    placeholder="Ваш логін" required>
+                {% if form_errors.username %}
+                    <div class="field-error">{{ form_errors.username }}</div>
+                {% endif %}
             </div>
-            {% endif %}
-          </div>
 
-          <div class="mb-3">
-            <label for="password" class="form-label fs-5">
-              {% trans "Пароль" %}
-            </label>
-            <input type="password"
-                   class="form-control {% if form_errors.password %}is-invalid{% endif %} fs-5"
-                   id="password"
-                   name="password" required>
-{% if error %}
-    <div style="color:#dc3545; font-size:20px; margin-top:8px;">{{ error }}</div>
-{% endif %}
-          </div>
+            <div class="mb-field">
+                <label class="field-label">Пароль</label>
+                <input type="password" name="password"
+                    class="field-input {% if form_errors.password %}is-invalid{% endif %}"
+                    placeholder="••••••••" required>
+                {% if form_errors.password %}
+                    <div class="field-error">{{ form_errors.password }}</div>
+                {% endif %}
+            </div>
 
-          <div class="d-grid">
-            <button type="submit"
-                    class="btn btn-primary fs-4"
-                    style="background-color: #6A89EA;">
-              {% trans "Увійти" %}
+            <button type="submit" class="btn-pq btn-pq-gold" style="width:100%;justify-content:center;margin-top:8px;padding:13px;">
+                Увійти <i class="fas fa-arrow-right"></i>
             </button>
-          </div>
         </form>
 
-        <p class="mt-3 text-center fs-5">
-          {% trans "Ще не маєте облікового запису?" %}
-          <a href="{% url 'register' %}">
-            {% trans "Зареєструйтесь" %}
-          </a>
-        </p>
-      </div>
+        <div class="auth-footer">
+            Ще немає акаунту? <a href="{% url 'register' %}">Зареєструватись</a>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

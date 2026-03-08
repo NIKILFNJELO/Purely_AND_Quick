@@ -1,33 +1,88 @@
 {% extends 'main/base.html' %}
-{% block title %}Відгуки{% endblock %}
+{% block title %}Відгуки — Purely&Quick{% endblock %}
 
 {% block extra_head %}
 <style>
-.reviews-page {
-    padding-bottom: 80px;
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
-.section-header {
-    background: #e5e5e5;
-    color: #222;
-    padding: 14px 35px;
-    border-radius: 50px;
+.review-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color .2s;
+}
+
+.review-card:hover { border-color: rgba(212,165,116,0.2); }
+
+.review-stars {
+    color: #f5a623;
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.review-stars .empty { color: #333; }
+
+.review-title-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
     font-weight: 600;
-    font-size: 22px;
-    display: inline-block;
-    margin-bottom: 30px;
+    color: var(--text);
+    margin-bottom: 8px;
 }
 
-.company-reviews-section {
-    margin-bottom: 60px;
-    position: relative;
+.review-body {
+    font-size: 13px;
+    color: #7a6d64;
+    line-height: 1.7;
+    flex: 1;
+    margin-bottom: 16px;
 }
+
+.review-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid rgba(139,90,43,0.05);
+    padding-top: 14px;
+}
+
+.review-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(212,165,116,0.15);
+    border: 1px solid rgba(212,165,116,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.review-meta .name { font-size: 13px; font-weight: 600; color: var(--text); }
+.review-meta .date { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* carousel */
+.carousel-section { margin-bottom: 40px; }
 
 .carousel-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .carousel-track-outer {
@@ -37,606 +92,621 @@
 
 .carousel-track {
     display: flex;
-    gap: 20px;
+    gap: 16px;
     transition: transform 0.4s ease;
 }
 
-.company-card {
-    background: rgba(255, 255, 255, 0.92);
-    border-radius: 20px;
-    padding: 25px 28px;
-    min-width: calc(25% - 15px);
-    max-width: calc(25% - 15px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+.carousel-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 22px;
+    min-width: calc(25% - 12px);
+    max-width: calc(25% - 12px);
     flex-shrink: 0;
+    transition: border-color .2s;
 }
 
-.stars {
-    color: #f5a623;
-    font-size: 18px;
-    margin-bottom: 14px;
-    letter-spacing: 2px;
-}
-
-.company-card .review-text {
-    font-size: 15px;
-    color: #333;
-    line-height: 1.6;
-    margin-bottom: 16px;
-    min-height: 100px;
-}
-
-.company-card .reviewer-name {
-    font-weight: 600;
-    color: #111;
-    font-size: 15px;
-}
-
-.company-card .reviewer-role {
-    color: #888;
-    font-size: 13px;
-}
+.carousel-card:hover { border-color: rgba(212,165,116,0.2); }
 
 .carousel-btn {
-    background: rgba(255,255,255,0.85);
-    border: none;
+    width: 38px; height: 38px;
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    font-size: 18px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    background: var(--card);
+    color: var(--muted);
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    transition: 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: all .2s;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .carousel-btn:hover {
-    background: white;
-    transform: scale(1.1);
+    border-color: rgba(212,165,116,0.3);
+    color: var(--accent);
 }
 
-.user-reviews-section {
-    margin-top: 10px;
-}
-
-.user-reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-}
-
-.user-card {
-    background: rgba(255, 255, 255, 0.92);
-    border-radius: 20px;
-    padding: 28px 30px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.user-card .review-title {
-    font-size: 17px;
-    font-weight: 700;
-    color: #111;
-    margin-bottom: 10px;
-}
-
-.user-card .stars {
-    margin-bottom: 12px;
-}
-
-.user-card .review-text {
-    font-size: 14px;
-    color: #333;
-    line-height: 1.65;
-    margin-bottom: 20px;
-}
-
-.user-card .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-top: 1px solid #e5e5e5;
-    padding-top: 16px;
-}
-
-.user-card .avatar-placeholder {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6d8eff, #4f63ff);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.user-card .user-meta .name {
-    font-weight: 600;
-    font-size: 14px;
-    color: #111;
-}
-
-.user-card .user-meta .date {
-    font-size: 12px;
-    color: #888;
-    margin-top: 2px;
-}
-
-.write-review-btn {
-    background: linear-gradient(135deg, #6d8eff, #4f63ff);
-    color: white;
-    border: none;
-    padding: 14px 35px;
-    border-radius: 50px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.3s;
-    margin-top: 40px;
-    display: inline-block;
-    text-decoration: none;
-}
-
-.write-review-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(79, 99, 255, 0.4);
-    color: white;
-}
-
+/* ============ REVIEW MODAL ============ */
 .modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(5px);
     z-index: 9000;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
-.modal-overlay.active {
-    display: flex;
-}
+.modal-overlay.active { display: flex; }
 
 .review-modal {
-    background: #1a1a1a;
-    border-radius: 24px;
-    padding: 40px;
+    background: var(--surface);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    padding: 36px;
     width: 100%;
-    max-width: 500px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    max-width: 460px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7);
     position: relative;
-    color: #f1f1f1;
+    animation: slideUp .25s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-close {
-    position: absolute; top: 18px; right: 22px;
-    background: none; border: none; color: #aaa;
-    font-size: 24px; cursor: pointer; transition: 0.2s;
+    position: absolute; top: 16px; right: 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: var(--muted);
+    width: 32px; height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
 }
-.modal-close:hover { color: white; }
+.modal-close:hover { background: rgba(220,53,69,0.15); color: var(--danger); border-color: rgba(220,53,69,0.3); }
 
 .modal-title {
-    font-size: 22px; font-weight: 600;
-    margin-bottom: 28px; text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600; color: var(--text);
+    margin-bottom: 24px;
+    padding-right: 30px;
 }
-
-.modal-input, .modal-textarea {
-    background: #2a2a2a;
-    border: 1.5px solid transparent;
-    border-radius: 14px;
-    padding: 14px 18px;
-    color: #f1f1f1;
-    font-size: 16px;
-    font-family: inherit;
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 4px;
-    outline: none;
-    resize: none;
-    transition: border-color 0.2s;
-}
-.modal-input::placeholder, .modal-textarea::placeholder { color: #555; }
-.modal-input.error, .modal-textarea.error { border-color: #ff6b6b; }
-
-.modal-field-error {
-    color: #ff6b6b;
-    font-size: 13px;
-    margin-bottom: 8px;
-    display: none;
-}
-
-.char-counter {
-    text-align: right;
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 8px;
-}
-.char-counter.ok   { color: #28b463; }
-.char-counter.warn { color: #ffb347; }
-.char-counter.over { color: #ff6b6b; font-weight: 600; }
 
 .star-select {
-    display: flex;
-    gap: 8px;
-    font-size: 28px;
-    margin-bottom: 18px;
-    cursor: pointer;
+    display: flex; gap: 6px; font-size: 28px;
+    margin-bottom: 18px; cursor: pointer;
 }
-.star-select .s { color: #444; transition: 0.15s; cursor: pointer; }
+.star-select .s { color: #333; transition: color .15s; }
 .star-select .s.active { color: #f5a623; }
 
-.modal-submit {
+.modal-input, .modal-textarea {
     width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #6d8eff, #4f63ff);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.3s;
-    margin-top: 6px;
+    background: rgba(139,90,43,0.05);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    transition: border-color .2s;
+    margin-bottom: 4px;
+    box-sizing: border-box;
 }
-.modal-submit:hover { background: linear-gradient(135deg, #4f63ff, #3a50e0); }
+.modal-input:focus, .modal-textarea:focus { border-color: var(--accent); }
+.modal-input::placeholder, .modal-textarea::placeholder { color: #444; }
+.modal-input.error, .modal-textarea.error { border-color: var(--danger); }
 
-@media (max-width: 992px) {
-    .user-reviews-grid { grid-template-columns: 1fr 1fr; }
-    .company-card { min-width: calc(50% - 10px); max-width: calc(50% - 10px); }
+.char-counter { text-align: right; font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.char-counter.ok   { color: var(--success); }
+.char-counter.warn { color: #ffb347; }
+.char-counter.over { color: var(--danger); font-weight: 600; }
+
+.modal-field-error {
+    color: var(--danger); font-size: 12px;
+    margin-bottom: 8px; display: none;
+}
+
+@media (max-width: 900px) {
+    .reviews-grid { grid-template-columns: 1fr 1fr; }
+    .carousel-card { min-width: calc(50% - 8px); max-width: calc(50% - 8px); }
 }
 @media (max-width: 600px) {
-    .user-reviews-grid { grid-template-columns: 1fr; }
-    .company-card { min-width: 100%; max-width: 100%; }
+    .reviews-grid { grid-template-columns: 1fr; }
+    .carousel-card { min-width: 100%; max-width: 100%; }
+}
+/* ===== BUBBLE CANVAS ===== */
+#bubble-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="reviews-page">
 
-    <!-- Відгуки компаній -->
-    <div class="company-reviews-section">
-        <div class="section-header">Що компанії кажуть про нас</div>
 
-        <div class="carousel-wrapper">
-            <button class="carousel-btn" id="prevBtn" onclick="slideCarousel(-1)">&#8592;</button>
+<!-- Bubble canvas -->
+<canvas id="bubble-canvas"></canvas>
+<div class="page-header">
+    <h1>Відгуки</h1>
+    <p>Що клієнти говорять про нас</p>
+</div>
 
-            <div class="carousel-track-outer">
-                <div class="carousel-track" id="carouselTrack">
-
-                    {% for review in company_reviews %}
-                    <div class="company-card">
-                        <div class="stars">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
-                            {% endfor %}
+<!-- Карусель відгуків компаній -->
+<div class="carousel-section">
+    <div class="section-label">Від партнерів та організацій</div>
+    <div class="carousel-wrapper">
+        <button class="carousel-btn" onclick="slideCarousel(-1)">&#8592;</button>
+        <div class="carousel-track-outer">
+            <div class="carousel-track" id="carouselTrack">
+                {% for review in company_reviews %}
+                <div class="carousel-card">
+                    <div class="review-stars">
+                        {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}<span class="empty">★</span>{% endif %}{% endfor %}
+                    </div>
+                    <div class="review-body">{{ review.text }}</div>
+                    <div class="review-author">
+                        <div class="review-avatar">{{ review.author|slice:":1"|upper }}</div>
+                        <div class="review-meta">
+                            <div class="name">{{ review.author }}</div>
+                            <div class="date">{{ review.company }}</div>
                         </div>
-                        <div class="review-text">{{ review.text }}</div>
-                        <div class="reviewer-name">{{ review.author }}</div>
-                        <div class="reviewer-role">{{ review.company }}</div>
                     </div>
-                    {% empty %}
-                    <div class="company-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">Сервіс Purely&Quick, де не треба "висіти" на телефоні, щоб дізнатися довго сушила одяг. З особистим кабінетом P&Q Вашу послугу відстеження статусу: від прийому до готовності. Дуже зручно, що все прозоро і справді швидко!</div>
-                        <div class="reviewer-name">Олексій Марченко</div>
-                        <div class="reviewer-role">2025</div>
-                    </div>
-                    <div class="company-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">Користуємося послугами цієї мережі вже пів року. Минулого тижня автоматично отримала статус "постійний клієнт" та свою знижку 3%. Приємно, що система сама все рахує.</div>
-                        <div class="reviewer-name">Марина Ковальчук</div>
-                        <div class="reviewer-role">2025</div>
-                    </div>
-                    <div class="company-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">Здаємо складні речі і в купу плям. Адміністратор одразу зафіксував усі деталі з автоматичним складанням. Ціна чесна, а результат перевершив очікування. Найкраща хімчистка за місто!</div>
-                        <div class="reviewer-name">Ігор Степанович</div>
-                        <div class="reviewer-role">2025</div>
-                    </div>
-                    <div class="company-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">Purely&Quick ідеально справляється зі координацією. Веб-інтерфейс зтіш, а автоматизація обліку по філіях робить її сервіс на голову вищим за конкурентів.</div>
-                        <div class="reviewer-name">Тетяна Резяк</div>
-                        <div class="reviewer-role">2025</div>
-                    </div>
-                    <div class="company-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">Дуже задоволені рівнем сервісу. Речі повертають у ідеальному стані, терміни дотримуються точно. Менеджери уважні і завжди готові допомогти.</div>
-                        <div class="reviewer-name">Оксана Литвин</div>
-                        <div class="reviewer-role">2025</div>
-                    </div>
-                    {% endfor %}
-
                 </div>
+                {% empty %}
+                <div class="carousel-card">
+                    <div class="review-stars">★★★★★</div>
+                    <div class="review-body">Сервіс Purely&Quick — де не треба "висіти" на телефоні. З особистим кабінетом відстеження статусу замовлення зручно і прозоро.</div>
+                    <div class="review-author">
+                        <div class="review-avatar">О</div>
+                        <div class="review-meta"><div class="name">Олексій Марченко</div><div class="date">2025</div></div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <div class="review-stars">★★★★★</div>
+                    <div class="review-body">Користуємося пів року. Автоматично отримала статус "постійний клієнт" та знижку 3%. Приємно, що система сама все рахує.</div>
+                    <div class="review-author">
+                        <div class="review-avatar">М</div>
+                        <div class="review-meta"><div class="name">Марина Ковальчук</div><div class="date">2025</div></div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <div class="review-stars">★★★★★</div>
+                    <div class="review-body">Здаємо складні речі — адміністратор одразу фіксує всі деталі. Ціна чесна, результат перевершив очікування.</div>
+                    <div class="review-author">
+                        <div class="review-avatar">І</div>
+                        <div class="review-meta"><div class="name">Ігор Степанович</div><div class="date">2025</div></div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <div class="review-stars">★★★★★</div>
+                    <div class="review-body">Веб-інтерфейс зручний, а автоматизація обліку по філіях робить сервіс на голову вищим за конкурентів.</div>
+                    <div class="review-author">
+                        <div class="review-avatar">Т</div>
+                        <div class="review-meta"><div class="name">Тетяна Резяк</div><div class="date">2025</div></div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <div class="review-stars">★★★★★</div>
+                    <div class="review-body">Речі повертають у ідеальному стані, терміни дотримуються точно. Менеджери уважні і завжди готові допомогти.</div>
+                    <div class="review-author">
+                        <div class="review-avatar">О</div>
+                        <div class="review-meta"><div class="name">Оксана Литвин</div><div class="date">2025</div></div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-
-            <button class="carousel-btn" id="nextBtn" onclick="slideCarousel(1)">&#8594;</button>
         </div>
-    </div>
-
-    <!-- Відгуки користувачів -->
-    <div class="user-reviews-section">
-        <div class="section-header">Що користувачі кажуть про нас</div>
-
-        <div class="user-reviews-grid">
-            {% for review in user_reviews %}
-            <div class="user-card">
-                <div class="review-title">{{ review.title }}</div>
-                <div class="stars">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </div>
-                <div class="review-text">{{ review.text }}</div>
-                <div class="user-info">
-                    <div class="avatar-placeholder">{{ review.author|slice:":1"|upper }}</div>
-                    <div class="user-meta">
-                        <div class="name">{{ review.author }}</div>
-                        <div class="date">{{ review.created_at }}</div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="user-card">
-                <div class="review-title">Сучасний та прозорий сервіс</div>
-                <div class="stars">★★★★★</div>
-                <div class="review-text">Користуюся Purely&Quick вже кілька місяців. Найбільше подобається можливість дистанційно відстежувати статус через веб-інтерфейс — тепер не треба телефонувати, щоб дізнатися, чи готова сукня. Робота виконується професійно і завжди вчасно. Дуже рекомендую!</div>
-                <div class="user-info">
-                    <div class="avatar-placeholder">Ш</div>
-                    <div class="user-meta">
-                        <div class="name">Швейкер</div>
-                        <div class="date">5 січня 2025 року</div>
-                    </div>
-                </div>
-            </div>
-            <div class="user-card">
-                <div class="review-title">Вражаючий досвід</div>
-                <div class="stars">★★★★<span style="color:#ccc">★</span></div>
-                <div class="review-text">Приємний сервіс хімчистки. Після третього звернення система автоматично надала мені статус "постійний клієнт" і знижку 3%. Ціна розраховується чесно, з урахуванням складності роботи, а підтвердження приходить миттєво. Обов'язково скористаюся ще раз!</div>
-                <div class="user-info">
-                    <div class="avatar-placeholder">С</div>
-                    <div class="user-meta">
-                        <div class="name">Світлана Яковенко</div>
-                        <div class="date">24 квітня 2025 року</div>
-                    </div>
-                </div>
-            </div>
-            <div class="user-card">
-                <div class="review-title">Purely&Quick надає відмінний сервіс</div>
-                <div class="stars">★★★★★</div>
-                <div class="review-text">Purely&Quick — це сервіс, який реально економить час. Окремий плюс за можливість здавати речі у різних філіях мережі — облік чіткий і централізований. Ідеально для зайнятих людей.</div>
-                <div class="user-info">
-                    <div class="avatar-placeholder">Д</div>
-                    <div class="user-meta">
-                        <div class="name">Дмитро Ігнатов</div>
-                        <div class="date">7 лютого 2025 року</div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        {% if user.is_authenticated %}
-        <button class="write-review-btn" onclick="openReviewModal()">Залишити відгук</button>
-        {% else %}
-        <a href="{% url 'login' %}" class="write-review-btn">Увійдіть, щоб залишити відгук</a>
-        {% endif %}
+        <button class="carousel-btn" onclick="slideCarousel(1)">&#8594;</button>
     </div>
 </div>
+
+<!-- Відгуки користувачів -->
+<div class="section-label">Від користувачів</div>
+<div class="reviews-grid">
+    {% for review in user_reviews %}
+    <div class="review-card">
+        <div class="review-stars">
+            {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}<span class="empty">★</span>{% endif %}{% endfor %}
+        </div>
+        <div class="review-title-text">{{ review.title }}</div>
+        <div class="review-body">{{ review.text }}</div>
+        <div class="review-author">
+            <div class="review-avatar">{{ review.author|slice:":1"|upper }}</div>
+            <div class="review-meta">
+                <div class="name">{{ review.author }}</div>
+                <div class="date">{{ review.created_at }}</div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-title-text">Сучасний та прозорий сервіс</div>
+        <div class="review-body">Користуюся Purely&Quick вже кілька місяців. Найбільше подобається можливість відстежувати статус через веб-інтерфейс. Дуже рекомендую!</div>
+        <div class="review-author">
+            <div class="review-avatar">Ш</div>
+            <div class="review-meta"><div class="name">Швейкер</div><div class="date">5 січня 2025</div></div>
+        </div>
+    </div>
+    <div class="review-card">
+        <div class="review-stars">★★★★<span class="empty">★</span></div>
+        <div class="review-title-text">Вражаючий досвід</div>
+        <div class="review-body">Після третього звернення система автоматично надала мені статус "постійний клієнт" і знижку 3%. Ціна розраховується чесно. Обов'язково скористаюся ще раз!</div>
+        <div class="review-author">
+            <div class="review-avatar">С</div>
+            <div class="review-meta"><div class="name">Світлана Яковенко</div><div class="date">24 квітня 2025</div></div>
+        </div>
+    </div>
+    <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-title-text">Purely&Quick надає відмінний сервіс</div>
+        <div class="review-body">Purely&Quick — це сервіс, який реально економить час. Облік чіткий і централізований. Ідеально для зайнятих людей.</div>
+        <div class="review-author">
+            <div class="review-avatar">Д</div>
+            <div class="review-meta"><div class="name">Дмитро Ігнатов</div><div class="date">7 лютого 2025</div></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if user.is_authenticated %}
+<button class="btn-pq btn-pq-gold" style="margin-top:8px;" onclick="openReviewModal()">
+    <i class="fas fa-pen"></i> Залишити відгук
+</button>
+{% else %}
+<a href="{% url 'login' %}" class="btn-pq btn-pq-outline" style="margin-top:8px;">
+    Увійдіть, щоб залишити відгук
+</a>
+{% endif %}
+
 {% endblock %}
 
 {% block footer %}
-
-<!-- Модальне вікно відгуку -->
-<div class="modal-overlay" id="reviewModal">
-    <div class="review-modal">
-        <button class="modal-close" onclick="closeReviewModal()">&#10005;</button>
-        <div class="modal-title">Ваш відгук</div>
-
-        <div class="star-select" id="starSelect">
-            <span class="s" data-val="1">★</span>
-            <span class="s" data-val="2">★</span>
-            <span class="s" data-val="3">★</span>
-            <span class="s" data-val="4">★</span>
-            <span class="s" data-val="5">★</span>
-        </div>
-
-        <input class="modal-input" type="text" id="reviewTitle"
-               placeholder="Заголовок відгуку (до 20 символів)" maxlength="20">
-        <div class="char-counter" id="titleCounter">0 / 20 символів</div>
-        <div class="modal-field-error" id="titleError"></div>
-
-        <textarea class="modal-textarea" id="reviewText" rows="5"
-                  placeholder="Розкажіть про ваш досвід... (до 100 символів)"
-                  maxlength="100"></textarea>
-        <div class="char-counter" id="charCounter">0 / 100 символів</div>
-        <div class="modal-field-error" id="textError"></div>
-
-        <button class="modal-submit" onclick="submitReview()">Надіслати</button>
+<!-- REVIEW MODAL — appended directly to body via JS to guarantee fixed positioning -->
+<div id="reviewModalTpl" style="display:none;">
+    <div class="star-select" id="starSelect">
+        <span class="s active" data-val="1">★</span>
+        <span class="s active" data-val="2">★</span>
+        <span class="s active" data-val="3">★</span>
+        <span class="s active" data-val="4">★</span>
+        <span class="s active" data-val="5">★</span>
     </div>
+    <input class="modal-input" type="text" id="reviewTitle"
+           placeholder="Заголовок відгуку (до 20 символів)" maxlength="20">
+    <div class="char-counter" id="titleCounter">0 / 20</div>
+    <div class="modal-field-error" id="titleError"></div>
+    <textarea class="modal-textarea" id="reviewText" rows="4"
+              placeholder="Розкажіть про ваш досвід... (до 100 символів)"
+              maxlength="100"></textarea>
+    <div class="char-counter" id="charCounter">0 / 100</div>
+    <div class="modal-field-error" id="textError"></div>
 </div>
 
 <script>
-// ===== КАРУСЕЛЬ =====
-let carouselIndex = 0;
+// ===== Build modal and append directly to <body> to guarantee position:fixed works =====
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        #reviewModalOverlay {
+            display: none;
+            position: fixed !important;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #reviewModalOverlay.active { display: flex !important; }
+        #reviewModalBox {
+            background: #1a1510;
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            position: relative;
+            animation: rmSlideUp .25s ease;
+            box-sizing: border-box;
+        }
+        @keyframes rmSlideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        #reviewModalBox .rm-close {
+            position: absolute; top: 16px; right: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #888;
+            width: 32px; height: 32px; font-size: 16px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all .2s;
+        }
+        #reviewModalBox .rm-close:hover { background: rgba(220,53,69,0.15); color: #dc3545; }
+        #reviewModalBox .rm-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px; font-weight: 600; color: #e8d5b7;
+            margin-bottom: 22px; padding-right: 30px;
+        }
+        .rm-star-row { display: flex; gap: 6px; font-size: 30px; margin-bottom: 18px; cursor: pointer; }
+        .rm-star-row .s { color: #333; transition: color .15s; user-select: none; }
+        .rm-star-row .s.active { color: #f5a623; }
+        .rm-input, .rm-textarea {
+            width: 100%; background: rgba(139,90,43,0.07);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 10px; padding: 11px 14px;
+            color: #e8d5b7; font-family: 'DM Sans', sans-serif;
+            font-size: 14px; outline: none; resize: none;
+            transition: border-color .2s; margin-bottom: 4px;
+            box-sizing: border-box;
+        }
+        .rm-input:focus, .rm-textarea:focus { border-color: #d4a574; }
+        .rm-input::placeholder, .rm-textarea::placeholder { color: #555; }
+        .rm-input.error, .rm-textarea.error { border-color: #dc3545; }
+        .rm-counter { text-align: right; font-size: 11px; color: #666; margin-bottom: 10px; }
+        .rm-counter.ok   { color: #28a745; }
+        .rm-counter.warn { color: #ffb347; }
+        .rm-counter.over { color: #dc3545; font-weight: 600; }
+        .rm-field-error { color: #dc3545; font-size: 12px; margin-bottom: 8px; display: none; }
+        .rm-submit {
+            width: 100%; background: linear-gradient(135deg, #8b5a2b, #6b4423);
+            border: none; border-radius: 10px; color: white;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+            padding: 13px; cursor: pointer; transition: opacity .2s, transform .2s;
+            margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .rm-submit:hover { opacity: .88; transform: translateY(-1px); }
+    `;
+    document.head.appendChild(style);
 
-function getVisibleCount() {
-    if (window.innerWidth <= 600) return 1;
-    if (window.innerWidth <= 992) return 2;
-    return 4;
-}
+    const overlay = document.createElement('div');
+    overlay.id = 'reviewModalOverlay';
+    overlay.innerHTML = `
+        <div id="reviewModalBox">
+            <button class="rm-close" id="rmClose">✕</button>
+            <div class="rm-title">Ваш відгук</div>
+            <div class="rm-star-row" id="rmStars">
+                <span class="s active" data-val="1">★</span>
+                <span class="s active" data-val="2">★</span>
+                <span class="s active" data-val="3">★</span>
+                <span class="s active" data-val="4">★</span>
+                <span class="s active" data-val="5">★</span>
+            </div>
+            <input class="rm-input" type="text" id="rmTitle" placeholder="Заголовок відгуку (до 20 символів)" maxlength="20">
+            <div class="rm-counter" id="rmTitleCount">0 / 20</div>
+            <div class="rm-field-error" id="rmTitleErr"></div>
+            <textarea class="rm-textarea" id="rmText" rows="4" placeholder="Розкажіть про ваш досвід... (до 100 символів)" maxlength="100"></textarea>
+            <div class="rm-counter" id="rmTextCount">0 / 100</div>
+            <div class="rm-field-error" id="rmTextErr"></div>
+            <button class="rm-submit" onclick="submitReview()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Надіслати відгук
+            </button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
 
-function slideCarousel(dir) {
-    const track = document.getElementById('carouselTrack');
-    const cards = track.querySelectorAll('.company-card');
-    const visible = getVisibleCount();
-    const max = Math.max(0, cards.length - visible);
-    carouselIndex = Math.min(Math.max(carouselIndex + dir, 0), max);
-    const cardWidth = cards[0].offsetWidth + 20;
-    track.style.transform = `translateX(-${carouselIndex * cardWidth}px)`;
-}
-
-window.addEventListener('resize', () => slideCarousel(0));
-
-
-// ===== ЗІРКИ =====
-let selectedRating = 5;
-
-document.querySelectorAll('#starSelect .s').forEach(star => {
-    star.addEventListener('mouseenter', () => {
-        const val = parseInt(star.dataset.val);
-        document.querySelectorAll('#starSelect .s').forEach(s => {
-            s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+    // Stars
+    let selectedRating = 5;
+    overlay.querySelectorAll('#rmStars .s').forEach(star => {
+        star.addEventListener('mouseenter', () => {
+            const v = parseInt(star.dataset.val);
+            overlay.querySelectorAll('#rmStars .s').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= v));
         });
-    });
-    star.addEventListener('mouseleave', () => {
-        document.querySelectorAll('#starSelect .s').forEach(s => {
-            s.classList.toggle('active', parseInt(s.dataset.val) <= selectedRating);
+        star.addEventListener('mouseleave', () => {
+            overlay.querySelectorAll('#rmStars .s').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= selectedRating));
         });
+        star.addEventListener('click', () => { selectedRating = parseInt(star.dataset.val); });
     });
-    star.addEventListener('click', () => {
-        selectedRating = parseInt(star.dataset.val);
+
+    document.getElementById('rmTitle').addEventListener('input', function() {
+        const len = this.value.length;
+        const c = document.getElementById('rmTitleCount');
+        c.textContent = len + ' / 20';
+        c.className = 'rm-counter' + (len > 20 ? ' over' : len >= 3 ? ' ok' : '');
+        document.getElementById('rmTitleErr').style.display = 'none';
+        this.classList.remove('error');
     });
-});
 
-document.querySelectorAll('#starSelect .s').forEach(s => s.classList.add('active'));
+    document.getElementById('rmText').addEventListener('input', function() {
+        const len = this.value.length;
+        const c = document.getElementById('rmTextCount');
+        c.textContent = len + ' / 100';
+        c.className = 'rm-counter' + (len > 100 ? ' over' : len >= 10 ? ' ok' : len > 0 ? ' warn' : '');
+        document.getElementById('rmTextErr').style.display = 'none';
+        this.classList.remove('error');
+    });
 
+    document.getElementById('rmClose').addEventListener('click', closeReviewModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeReviewModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReviewModal(); });
 
-// ===== ЛІЧИЛЬНИК — ЗАГОЛОВОК =====
-document.getElementById('reviewTitle').addEventListener('input', function() {
-    const len = this.value.length;
-    const counter = document.getElementById('titleCounter');
-    counter.textContent = len + ' / 20 символів';
-    counter.className = 'char-counter';
-    if (len > 20) counter.classList.add('over');
-    else if (len >= 3) counter.classList.add('ok');
-    document.getElementById('titleError').style.display = 'none';
-    this.classList.remove('error');
-});
+    window._reviewRating = () => selectedRating;
+    window._resetReviewRating = () => {
+        selectedRating = 5;
+        overlay.querySelectorAll('#rmStars .s').forEach(s => s.classList.add('active'));
+    };
+})();
 
-// ===== ЛІЧИЛЬНИК — ТЕКСТ =====
-document.getElementById('reviewText').addEventListener('input', function() {
-    const len = this.value.length;
-    const counter = document.getElementById('charCounter');
-    counter.textContent = len + ' / 100 символів';
-    counter.className = 'char-counter';
-    if (len > 100) counter.classList.add('over');
-    else if (len >= 10) counter.classList.add('ok');
-    else if (len > 0) counter.classList.add('warn');
-    document.getElementById('textError').style.display = 'none';
-    this.classList.remove('error');
-});
-
-
-// ===== МОДАЛЬНЕ ВІКНО =====
 function openReviewModal() {
-    document.getElementById('reviewModal').classList.add('active');
+    document.getElementById('reviewModalOverlay').classList.add('active');
 }
 
 function closeReviewModal() {
-    document.getElementById('reviewModal').classList.remove('active');
-    document.getElementById('reviewTitle').value = '';
-    document.getElementById('reviewText').value = '';
-    document.getElementById('titleCounter').textContent = '0 / 20 символів';
-    document.getElementById('titleCounter').className = 'char-counter';
-    document.getElementById('charCounter').textContent = '0 / 100 символів';
-    document.getElementById('charCounter').className = 'char-counter';
-    ['titleError', 'textError'].forEach(id => {
-        document.getElementById(id).style.display = 'none';
-        document.getElementById(id).textContent = '';
+    document.getElementById('reviewModalOverlay').classList.remove('active');
+    document.getElementById('rmTitle').value = '';
+    document.getElementById('rmText').value = '';
+    document.getElementById('rmTitleCount').textContent = '0 / 20';
+    document.getElementById('rmTextCount').textContent = '0 / 100';
+    ['rmTitleErr','rmTextErr'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.display = 'none'; el.textContent = ''; }
     });
-    document.getElementById('reviewTitle').classList.remove('error');
-    document.getElementById('reviewText').classList.remove('error');
-    selectedRating = 5;
-    document.querySelectorAll('#starSelect .s').forEach(s => s.classList.add('active'));
+    document.getElementById('rmTitle').classList.remove('error');
+    document.getElementById('rmText').classList.remove('error');
+    window._resetReviewRating();
 }
 
-document.getElementById('reviewModal').addEventListener('click', function(e) {
-    if (e.target === this) closeReviewModal();
-});
-
-
-// ===== CSRF =====
 function getCookie(name) {
     let val = null;
-    if (document.cookie) {
-        document.cookie.split(';').forEach(c => {
-            c = c.trim();
-            if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
-        });
-    }
+    if (document.cookie) document.cookie.split(';').forEach(c => {
+        c=c.trim();
+        if(c.startsWith(name+'=')) val=decodeURIComponent(c.substring(name.length+1));
+    });
     return val;
 }
 
+function showErr(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
 
-// ===== ВІДПРАВКА З ВАЛІДАЦІЄЮ =====
 function submitReview() {
-    const titleEl = document.getElementById('reviewTitle');
-    const textEl = document.getElementById('reviewText');
-    const titleError = document.getElementById('titleError');
-    const textError = document.getElementById('textError');
+    const titleEl = document.getElementById('rmTitle');
+    const textEl  = document.getElementById('rmText');
+    const title   = titleEl.value.trim();
+    const text    = textEl.value.trim();
+    let hasError  = false;
 
-    const title = titleEl.value.trim();
-    const text = textEl.value.trim();
-    let hasError = false;
+    if (title.length < 3)        { showErr('rmTitleErr', 'Заголовок занадто короткий'); titleEl.classList.add('error'); hasError = true; }
+    else if (title.length > 20)  { showErr('rmTitleErr', 'Максимум 20 символів');       titleEl.classList.add('error'); hasError = true; }
+    else { document.getElementById('rmTitleErr').style.display='none'; titleEl.classList.remove('error'); }
 
-    // Валідація заголовку
-    if (title.length < 3) {
-        titleError.textContent = 'Заголовок занадто короткий';
-        titleError.style.display = 'block';
-        titleEl.classList.add('error');
-        hasError = true;
-    } else if (title.length > 20) {
-        titleError.textContent = 'Заголовок не може перевищувати 20 символів';
-        titleError.style.display = 'block';
-        titleEl.classList.add('error');
-        hasError = true;
-    } else {
-        titleError.style.display = 'none';
-        titleEl.classList.remove('error');
-    }
-
-    // Валідація тексту
-    if (text.length < 10) {
-        textError.textContent = 'Відгук занадто короткий';
-        textError.style.display = 'block';
-        textEl.classList.add('error');
-        hasError = true;
-    } else if (text.length > 100) {
-        textError.textContent = 'Відгук не може перевищувати 100 символів';
-        textError.style.display = 'block';
-        textEl.classList.add('error');
-        hasError = true;
-    } else {
-        textError.style.display = 'none';
-        textEl.classList.remove('error');
-    }
+    if (text.length < 10)        { showErr('rmTextErr', 'Відгук занадто короткий');     textEl.classList.add('error'); hasError = true; }
+    else if (text.length > 100)  { showErr('rmTextErr', 'Максимум 100 символів');       textEl.classList.add('error'); hasError = true; }
+    else { document.getElementById('rmTextErr').style.display='none'; textEl.classList.remove('error'); }
 
     if (hasError) return;
 
     fetch("{% url 'reviews' %}", {
         method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ title, text, rating: selectedRating })
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, text, rating: window._reviewRating() })
     }).then(res => {
-        if (res.ok) {
-            closeReviewModal();
-            window.location.reload();
-        } else {
-            textError.textContent = 'Помилка при надсиланні. Спробуйте ще раз.';
-            textError.style.display = 'block';
-        }
+        if (res.ok) { closeReviewModal(); window.location.reload(); }
+        else { showErr('rmTextErr', 'Помилка при надсиланні. Спробуйте ще раз.'); }
     });
 }
+
+// ===== Carousel =====
+let carouselIndex = 0;
+function getVisibleCount() {
+    if (window.innerWidth <= 600) return 1;
+    if (window.innerWidth <= 900) return 2;
+    return 4;
+}
+function slideCarousel(dir) {
+    const track = document.getElementById('carouselTrack');
+    const cards = track.querySelectorAll('.carousel-card');
+    if (!cards.length) return;
+    const visible = getVisibleCount();
+    const max = Math.max(0, cards.length - visible);
+    carouselIndex = Math.min(Math.max(carouselIndex + dir, 0), max);
+    const cardWidth = cards[0].offsetWidth + 16;
+    track.style.transform = `translateX(-${carouselIndex * cardWidth}px)`;
+}
+window.addEventListener('resize', () => slideCarousel(0));
+
+(function() {
+    const canvas = document.getElementById('bubble-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, bubbles = [];
+    const COLORS = [
+        'rgba(212,165,116,','rgba(180,130,90,','rgba(240,200,150,',
+        'rgba(200,150,100,','rgba(255,220,170,','rgba(160,110,70,',
+    ];
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+    function mkBubble(scatterY) {
+        const r = 6 + Math.random() * 28;
+        return {
+            x: Math.random() * W,
+            y: scatterY !== undefined ? scatterY : H + r + Math.random() * 80,
+            r,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: -(0.35 + Math.random() * 0.55),
+            wobble: Math.random() * Math.PI * 2,
+            wobbleSpeed: 0.012 + Math.random() * 0.018,
+            wobbleAmp:   0.4  + Math.random() * 1.2,
+            alpha: 0.12 + Math.random() * 0.22,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            pulse: Math.random() * Math.PI * 2,
+            pulseSpeed: 0.02 + Math.random() * 0.03,
+        };
+    }
+
+    function init() {
+        for (let i = 0; i < 42; i++) {
+            const b = mkBubble(); b.y = Math.random() * (H + 200) - 100; bubbles.push(b);
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = bubbles.length - 1; i >= 0; i--) {
+            const b = bubbles[i];
+            b.wobble += b.wobbleSpeed; b.pulse += b.pulseSpeed;
+            b.x += b.vx + Math.sin(b.wobble) * b.wobbleAmp;
+            b.y += b.vy;
+            const rr = b.r + Math.sin(b.pulse) * b.r * 0.08;
+            if (b.y + rr < -20) { bubbles.splice(i, 1); bubbles.push(mkBubble()); continue; }
+
+            ctx.save();
+            ctx.globalAlpha = b.alpha;
+            ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, Math.PI*2);
+            ctx.strokeStyle = b.color + '0.8)'; ctx.lineWidth = 1.2; ctx.stroke();
+            const g = ctx.createRadialGradient(b.x - rr*.3, b.y - rr*.3, rr*.05, b.x, b.y, rr);
+            g.addColorStop(0, b.color+'0.35)'); g.addColorStop(0.6, b.color+'0.08)'); g.addColorStop(1, b.color+'0)');
+            ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
+            ctx.beginPath(); ctx.arc(b.x - rr*.28, b.y - rr*.28, rr*.22, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fill();
+            ctx.restore();
+        }
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize(); init(); draw();
+
+    // burst on card hover
+    document.querySelectorAll('.cat-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const rect = card.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                bubbles.push({
+                    x: rect.left + Math.random() * rect.width,
+                    y: rect.bottom + 10,
+                    r: 4 + Math.random() * 12,
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: -(0.7 + Math.random() * 1.0),
+                    wobble: Math.random()*Math.PI*2, wobbleSpeed: 0.018+Math.random()*.022, wobbleAmp: 0.6+Math.random()*1.4,
+                    alpha: 0.2+Math.random()*.25,
+                    color: COLORS[Math.floor(Math.random()*COLORS.length)],
+                    pulse: Math.random()*Math.PI*2, pulseSpeed: 0.025+Math.random()*.03,
+                });
+            }
+        });
+    });
+})();
+
 </script>
 {% endblock %}

@@ -2,82 +2,129 @@
 {% load i18n %}
 {% block title %}Мої замовлення{% endblock %}
 
-{% block extra_head %}
+{% block content %}
 <style>
-body { overflow-x: hidden; }
-.form-title {
-    background: #e5e5e5; color: #222;
-    padding: 20px 40px; font-size: 28px; font-weight: 600;
-    text-align: center; margin-bottom: 40px;
-    width: 100vw; margin-left: calc(-50vw + 50%);
-    border-radius: 0 0 20px 20px;
-}
-.orders-list { 
-    max-width: 1000px; 
-    margin: 0 auto; 
+.orders-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 900px;
 }
 
 .order-row {
-    background: rgba(255,255,255,0.9); border-radius: 20px;
-    padding: 25px 35px; margin-bottom: 18px;
-    display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15); flex-wrap: wrap; gap: 15px;
-}
-.order-row-info { 
-    font-size: 18px; 
-    color: #222; 
-    line-height: 1.8; 
-}
-
-.order-row-info span { 
-    font-weight: 700; 
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    transition: border-color .2s;
 }
 
-.badge-paid {
-    background: #d4edda; color: #155724;
-    padding: 8px 20px; border-radius: 30px;
-    font-size: 16px; font-weight: 600;
-    display: flex; align-items: center; gap: 8px;
+.order-row:hover {
+    border-color: rgba(212,165,116,0.2);
 }
-.badge-unpaid {
-    background: #fff3cd; color: #856404;
-    padding: 8px 20px; border-radius: 30px;
-    font-size: 16px; font-weight: 600;
-}
-.empty-msg { 
-    color: #f1f1f1; 
-    font-size: 20px; 
-    text-align: center; 
-    margin-top: 40px; 
-    }
 
+.order-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.order-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.order-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.order-meta-item span {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.order-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+    margin-bottom: 8px;
+}
+
+.order-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: rgba(212,165,116,0.2);
+    margin-bottom: 16px;
+    display: block;
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .order-row { flex-direction: column; align-items: flex-start; }
+    .order-right { align-items: flex-start; }
+}
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="form-title">{% trans "Мої замовлення" %}</div>
+<div class="page-header">
+    <h1>Мої замовлення</h1>
+    <p>Історія всіх ваших замовлень</p>
+</div>
 
-<div class="orders-list">
+<div class="orders-grid">
     {% for order in orders %}
     <div class="order-row">
-        <div class="order-row-info">
-            <div>Замовлення <span>#{{ order.user_number }}</span></div>
-            <div>Філія: <span>{{  order.branch }}</span></div>
-            <div>Послуга: <span>{{ order.service_type }}</span></div>
-            <div>Річ: <span>{{ order.item_name }}</span></div>
-            <div>Дата: <span>{{ order.order_date }}</span></div>
-            <div>Сума: <span>{{ order.total_price }} грн</span></div>
-        </div>
         <div>
+            <div class="order-num">#{{ order.user_number }}</div>
+            <div class="order-meta">
+                <div class="order-meta-item">Філія: <span>{{ order.branch }}</span></div>
+                <div class="order-meta-item">Річ: <span>{{ order.item_name }}</span></div>
+                <div class="order-meta-item">Послуга: <span>{{ order.service_type }}</span></div>
+                <div class="order-meta-item">Дата: <span>{{ order.order_date }}</span></div>
+            </div>
+        </div>
+        <div class="order-right">
+            <div class="order-price">{{ order.total_price }} грн</div>
             {% if order.is_paid %}
-                <div class="badge-paid"><i class="fa fa-check-circle"></i> Сплачено</div>
+                <span class="badge-pq badge-success"><i class="fas fa-check-circle"></i> Сплачено</span>
             {% else %}
-                <div class="badge-unpaid"><i class="fa fa-clock"></i> Очікує оплати</div>
+                <span class="badge-pq badge-warning"><i class="fas fa-clock"></i> Очікує оплати</span>
             {% endif %}
         </div>
     </div>
     {% empty %}
-    <div class="empty-msg">У вас ще немає замовлень.</div>
+    <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <p>У вас ще немає замовлень</p>
+        <a href="{% url 'catalog' %}" class="btn-pq btn-pq-gold">Зробити замовлення</a>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

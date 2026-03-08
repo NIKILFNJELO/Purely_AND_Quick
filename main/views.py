@@ -225,3 +225,46 @@ def reviews(request):
         "company_reviews": company_reviews,
         "user_reviews": user_reviews,
     })
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if order.is_paid:
+        messages.error(request, "Не можна редагувати сплачене замовлення")
+        return redirect("profile")
+    
+    if request.method == "POST":
+        item_name = request.POST.get("item_name", "").strip()
+        service_type = request.POST.get("service_type", "").strip()
+        branch = request.POST.get("branch", "").strip()
+        desired_date = request.POST.get("desired_date", "").strip()
+        defect_description = request.POST.get("defect_description", "").strip()
+        urgent = request.POST.get("urgent") == "True"
+        
+        # Recalculated price from frontend
+        try:
+            total_price = int(request.POST.get("total_price", "0"))
+        except (ValueError, TypeError):
+            total_price = 0
+        
+        if not item_name or not service_type or not branch or not desired_date:
+            messages.error(request, "Заповніть всі обов'язкові поля")
+            return redirect("profile")
+        
+        order.item_name = item_name
+        order.service_type = service_type
+        order.branch = branch
+        order.desired_date = desired_date
+        order.defect_description = defect_description
+        order.urgent = urgent
+        if total_price > 0:
+            order.total_price = total_price
+        order.save()
+        
+        return redirect("profile")
+    
+    return redirect("profile")
+
+

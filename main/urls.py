@@ -6,6 +6,8 @@ from .views import HomePageView, ProposalsView
 urlpatterns = [
     path('', HomePageView.as_view(), name='home'),
 
+    path('order/<int:order_id>/edit/', views.edit_order, name='edit_order'),
+    path('order/<int:order_id>/edit/', views.edit_order, name='edit_order'),
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('profile/', views.profile, name='profile'),

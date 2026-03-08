@@ -1,32 +1,143 @@
 {% extends "main/base.html" %}
-{% load i18n %}
-{% block title %}Замовлення #{{ order.id }}{% endblock %}
+{% block title %}Замовлення #{{ order.user_number }}{% endblock %}
 
 {% block content %}
-<div style="max-width:700px;margin:40px auto;">
-    <div style="background:rgba(255,255,255,0.9);border-radius:24px;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
-        <h2 style="margin-bottom:25px;">Замовлення <strong>#{{ order.id }}</strong></h2>
-        <p><strong>Філія:</strong> {{ order.branch }}</p>
-        <p><strong>Клієнт:</strong> {{ order.client_name }}</p>
-        <p><strong>Назва речі:</strong> {{ order.item_name }}</p>
-        <p><strong>Вид послуги:</strong> {{ order.service_type }}</p>
-        <p><strong>Опис дефектів:</strong> {{ order.defect_description }}</p>
-        <p><strong>Бажана дата:</strong> {{ order.desired_date }}</p>
-        <p><strong>Терміновість:</strong> {% if order.urgent %}Так{% else %}Ні{% endif %}</p>
-        <p><strong>Сума:</strong> {{ order.total_price }} грн</p>
-        <p><strong>Статус:</strong>
+<style>
+.detail-wrap {
+    max-width: 680px;
+}
+
+.detail-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.detail-top {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.detail-order-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.detail-order-num span {
+    color: var(--accent);
+}
+
+.detail-body {
+    padding: 28px 32px;
+}
+
+.detail-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 20px;
+}
+
+.detail-field:last-child { border-bottom: none; }
+
+.detail-key {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.detail-val {
+    font-size: 15px;
+    color: var(--text);
+    text-align: right;
+}
+
+.detail-footer {
+    padding: 20px 32px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+}
+
+.total-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.total-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+</style>
+
+<div class="detail-wrap">
+    <div class="page-header">
+        <h1>Деталі замовлення</h1>
+        <p>Повна інформація про ваше замовлення</p>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-top">
+            <div class="detail-order-num">Замовлення <span>#{{ order.user_number }}</span></div>
             {% if order.is_paid %}
-                <span style="color:#198754;font-weight:700;"> Сплачено</span>
+                <span class="badge-pq badge-success"><i class="fas fa-check-circle"></i> Сплачено</span>
             {% else %}
-                <span style="color:#856404;font-weight:700;"> Очікує оплати</span>
+                <span class="badge-pq badge-warning"><i class="fas fa-clock"></i> Очікує оплати</span>
             {% endif %}
-        </p>
-        <a href="{% url 'profile' %}" style="display:inline-block;margin-top:20px;background:linear-gradient(135deg,#6d8eff,#4f63ff);color:white;padding:12px 28px;border-radius:15px;text-decoration:none;font-size:17px;">
-            ← Назад до кабінету
-        </a>
+        </div>
+
+        <div class="detail-body">
+            <div class="detail-field">
+                <div class="detail-key">Філія</div>
+                <div class="detail-val">{{ order.branch }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-key">Назва речі</div>
+                <div class="detail-val">{{ order.item_name }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-key">Вид послуги</div>
+                <div class="detail-val">{{ order.service_type }}</div>
+            </div>
+            {% if order.defect_description %}
+            <div class="detail-field">
+                <div class="detail-key">Опис дефектів</div>
+                <div class="detail-val">{{ order.defect_description }}</div>
+            </div>
+            {% endif %}
+            <div class="detail-field">
+                <div class="detail-key">Бажана дата</div>
+                <div class="detail-val">{{ order.desired_date }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-key">Терміновість</div>
+                <div class="detail-val">{% if order.urgent %}Так{% else %}Ні{% endif %}</div>
+            </div>
+        </div>
+
+        <div class="detail-footer">
+            <div>
+                <div class="total-label">До сплати</div>
+                <div class="total-price">{{ order.total_price }} грн</div>
+            </div>
+            <a href="{% url 'profile' %}" class="btn-pq btn-pq-outline">
+                <i class="fas fa-arrow-left"></i> Назад до кабінету
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}
-
-
-

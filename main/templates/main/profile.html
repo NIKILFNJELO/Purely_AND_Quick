@@ -1,415 +1,1177 @@
 {% extends "main/base.html" %}
 {% load i18n %}
-
 {% block title %}Особистий кабінет{% endblock %}
 
-{% block extra_head %}
+{% block content %}
 <style>
-body { overflow-x: hidden; }
-
-.form-title {
-    background: #e5e5e5; color: #222;
-    padding: 20px 40px; font-size: 28px; font-weight: 600;
-    text-align: center; margin-bottom: 40px;
-    width: 100vw; margin-left: calc(-50vw + 50%);
-    border-radius: 0 0 20px 20px;
-}
-.profile-card {
-    background: rgba(255,255,255,0.8); backdrop-filter: blur(8px);
-    border-radius: 30px; padding: 40px;
-    max-width: 1200px; margin: 0 auto 50px auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 100%;
-}
-.profile-info { 
-    font-size: 22px; 
-    line-height: 1.8; 
+.profile-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+    align-items: start;
 }
 
-.loyalty-card {
-    margin-top: 30px; background: #f0f0f0;
-    border-radius: 20px; padding: 25px 30px;
-    display: flex; justify-content: space-between; align-items: center;
-}
-.loyalty-text { 
-    font-size: 20px; 
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.loyalty-btn {
-    background: #8e8e8e; color: white;
-    padding: 12px 25px; border-radius: 15px;
-    border: none; font-size: 18px; cursor: pointer; transition: 0.3s;
-}
-.loyalty-btn:hover { background: #6f6f6f; }
-
-.dashboard-grid {
-    max-width: 1300px; margin: 0 auto 80px auto;
-    display: flex; justify-content: space-between;
-    gap: 40px; height: 290px;
-}
-.dashboard-card {
-    flex: 1; background: rgb(255,255,255);
-    border-radius: 25px; padding: 30px; text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-    transition: 0.3s ease; cursor: pointer;
-}
-.dashboard-card:hover { 
-    transform: translateY(-10px); 
+.profile-info-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 28px;
 }
 
-.section-title { 
-    font-size: 24px; 
-    font-weight: 600; 
-    margin-bottom: 20px; 
+.profile-avatar {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, rgba(212,165,116,0.3), rgba(212,165,116,0.1));
+    border: 1px solid rgba(212,165,116,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    color: var(--accent);
+    margin-bottom: 16px;
 }
 
-.item-header img { 
-    max-width: 100%; 
-    height: 150px; 
-    object-fit: 
-    contain; 
+.profile-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
 }
 
-/* неоплачені замовлення */
-.orders-section { 
-    max-width: 1200px; 
-    margin: 0 auto 60px auto; 
+.profile-email {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
 }
 
-.orders-section-title { 
-    font-size: 26px; 
-    font-weight: 600; 
-    color: #f1f1f1; 
-    margin-bottom: 25px; 
+.profile-field {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(139,90,43,0.05);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
 }
 
-.order-card {
-    background: rgba(255,255,255,0.9); border-radius: 20px;
-    padding: 25px 35px; margin-bottom: 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15); gap: 20px; flex-wrap: wrap;
-}
-.order-info { 
-    font-size: 18px; 
-    color: #222; 
-    line-height: 1.7; 
+.profile-field:last-child { border-bottom: none; }
+
+.profile-field-key {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
 }
 
-.order-info span { 
-    font-weight: 600; 
+.profile-field-val {
+    font-size: 14px;
+    color: var(--text);
+    text-align: right;
 }
 
-.pay-btn {
-    background: linear-gradient(135deg, #6d8eff, #4f63ff);
-    color: white; border: none; padding: 12px 28px;
-    border-radius: 15px; font-size: 18px; cursor: pointer;
-    transition: 0.3s; font-family: inherit;
-}
-.pay-btn:hover { 
-    background: linear-gradient(135deg, #4f63ff, #3a50e0); 
-    transform: translateY(-2px); 
+.loyalty-card-new {
+    background: linear-gradient(135deg, rgba(212,165,116,0.1) 0%, rgba(212,165,116,0.04) 100%);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    padding: 24px;
 }
 
-/* форма оплати */
-.modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.65); z-index: 9000;
-    justify-content: center; align-items: center;
-}
-.modal-overlay.active { 
-    display: flex; 
-}
-
-.payment-modal {
-    background: #1a1a1a; border-radius: 24px; padding: 40px;
-    width: 100%; max-width: 480px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-    position: relative; color: #f1f1f1;
-}
-.modal-close {
-    position: absolute; top: 18px; right: 22px;
-    background: none; border: none; color: #aaa;
-    font-size: 24px; cursor: pointer; transition: 0.2s;
-}
-.modal-close:hover { 
-    color: white; 
-}
-
-.modal-title { 
-    font-size: 25px; 
-    font-weight: 600; 
-    margin-bottom: 28px; 
-    text-align: center; 
-}
-
-.amount-display {
-    border: 1.5px solid #ffffff; border-radius: 14px;
-    padding: 18px 22px; font-size: 20px; font-weight: 600;
-    color: #ffffff; margin-bottom: 8px;
-}
-.amount-label { 
-    font-size: 22px; 
-    color: #ffffff; 
-    margin-bottom: 24px; 
-    padding-left: 4px; 
-}
-
-.card-input-group {
-    background: #2a2a2a; border-radius: 14px;
-    padding: 16px 20px; margin-bottom: 14px;
-}
-
-.card-input-label { 
-    font-size: 22px; 
-    color: #888; 
-    margin-bottom: 6px; 
-}
-
-.card-input {
-    background: none; border: none; outline: none;
-    color: #f1f1f1; font-size: 18px; font-family: inherit;
-    width: 100%; letter-spacing: 2px;
-}
-
-.card-input::placeholder { 
-    color: #555; 
-    letter-spacing: 2px; 
-}
-
-.card-row { 
-    display: flex; 
-    gap: 14px; 
-    margin-bottom: 14px; 
-}
-
-.card-row .card-input-group { 
-    flex: 1; margin-bottom: 0; 
-}
-
-.cvv-wrapper { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-}
-
-.submit-pay-btn {
-    width: 100%; padding: 16px;
-    background: linear-gradient(135deg, #6d8eff, #4f63ff);
-    color: white; border: none; border-radius: 14px;
-    font-size: 20px; font-weight: 600; cursor: pointer;
-    margin-top: 10px; font-family: inherit; transition: 0.3s;
-}
-.submit-pay-btn:hover { 
-    background: linear-gradient(135deg, #4f63ff, #3a50e0); 
-}
-
-/* анімація успішної оплати*/
-.success-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.75); z-index: 9999;
-    justify-content: center; align-items: center;
-}
-.success-overlay.active { 
-    display: flex; 
-}
-.success-box {
-    background: #1a1a1a; border-radius: 28px; padding: 60px 50px;
-    text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-    animation: popIn 0.4s ease;
-}
-@keyframes popIn {
-    0% { transform: scale(0.7); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-.checkmark-circle {
-    width: 100px; height: 100px; border-radius: 50%;
-    background: #198754; display: flex;
-    align-items: center; justify-content: center;
-    margin: 0 auto 25px auto; animation: scaleIn 0.5s ease 0.1s both;
-}
-@keyframes scaleIn {
-    0% { transform: scale(0); }
-    70% { transform: scale(1.15); }
-    100% { transform: scale(1); }
-}
-.checkmark-circle i { 
-    color: white; 
-    font-size: 50px; 
-}
-.success-title { font-size: 26px; 
-    font-weight: 700; 
-    color: #f1f1f1; 
-    margin-bottom: 10px; 
-}
-.success-subtitle { 
-    font-size: 18px; 
-    color: #aaa; 
-}
-
-.delete-btn {
-    background: linear-gradient(135deg, #ff4f4f, #cc0000);
-    color: white;
-    border: none;
-    padding: 12px 28px;
-    border-radius: 15px;
+.loyalty-title {
+    font-family: 'Cormorant Garamond', serif;
     font-size: 18px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-family: inherit;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
 }
 
-.delete-btn:hover {
-    background: linear-gradient(135deg, #cc0000, #990000);
+.loyalty-status {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.loyalty-hint { font-size: 12px; color: var(--muted); }
+.loyalty-active { font-size: 13px; color: var(--success); font-weight: 600; }
+
+.quick-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.quick-nav-card {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius);
+    backdrop-filter: blur(16px);
+    padding: 18px 14px;
+    text-align: center;
+    text-decoration: none;
+    transition: border-color .2s, transform .2s;
+}
+
+.quick-nav-card:hover {
+    border-color: rgba(212,165,116,0.3);
     transform: translateY(-2px);
 }
-</style>
-{% endblock %}
 
-{% block content %}
-<div class="form-title">{% trans "Особистий кабінет клієнта" %}</div>
+.quick-nav-icon { font-size: 22px; color: var(--accent); margin-bottom: 8px; }
+.quick-nav-label { font-size: 13px; color: var(--muted); font-weight: 500; }
 
-<div class="profile-card">
-    <div class="profile-info">
-        <p><strong>ПІБ:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Телефон:</strong> {{ user.profile.phone }}</p>
-    </div>
-    <div class="loyalty-card">
-        <div class="loyalty-text">
-        <strong>Loyalty Card</strong><br>
-        Ваш статус: <strong>{{ user.profile.loyalty_status }}</strong><br>
+.pending-section {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+}
 
-        {% if user.profile.paid_orders_count < 3 %}
-            <span style="font-size:16px; color:#555;">
-                До знижки 3%: ще
-                <strong>
-                    {{ orders_until_discount }}
-                    {% if orders_until_discount == 1 %}замовлення{% else %}замовлення{% endif %}
-                </strong>
-            </span>
-        {% else %}
-            <span style="font-size:16px; color:#28b463; font-weight:600;">
-                 Ваша знижка: 3% на кожне замовлення
-            </span>
-        {% endif %}
-    </div>
-    {% if request.user.is_staff %}
-<a href="/admin/main/order/branch-report/" 
-    style="
-    display: inline-block;
-    background: linear-gradient(135deg, #5278ff);
-    color: #ffffff;
-    padding: 12px 24px;
-    border-radius: 18px;
-    font-size: 16px;
+.pending-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pending-header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
     font-weight: 600;
-    text-decoration: none;
-    margin-top: 10px;">Універсальний доступ</a>
-{% endif %}
-</div>
+    color: var(--text);
+}
+
+.order-item {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(139,90,43,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: background .2s;
+}
+
+.order-item:last-child { border-bottom: none; }
+.order-item:hover { background: rgba(212,165,116,0.02); }
+
+.order-item-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.order-item-meta {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.order-item-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.order-price-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.order-actions { display: flex; gap: 8px; align-items: center; }
+
+.paid-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(40,167,69,0.1);
+    border: 1px solid rgba(40,167,69,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--success);
+}
+
+.empty-pending {
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.lp-dot {
+    width: 32px; height: 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.1);
+}
+.lp-done { background: linear-gradient(135deg, #8b5a2b 0%, #6b4423 100%); }
+
+/* ============ UNIVERSAL MODAL BASE ============ */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(5px);
+    z-index: 9000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+
+/* ============ PAYMENT MODAL ============ */
+.payment-modal {
+    background: var(--surface, #1a1510);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    padding: 36px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+    position: relative;
+    animation: slideUp .25s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(24px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px; right: 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: var(--muted);
+    width: 32px; height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+}
+.modal-close:hover { background: rgba(220,53,69,0.15); color: var(--danger); border-color: rgba(220,53,69,0.3); }
+
+.modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 24px;
+    padding-right: 30px;
+}
+
+.amount-pill {
+    background: rgba(212,165,116,0.1);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.amount-pill-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.amount-pill-val { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--accent); }
+
+.card-field {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    transition: border-color .2s;
+}
+.card-field:focus-within { border-color: var(--accent); }
+.card-field-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.card-input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    width: 100%; letter-spacing: 2px;
+}
+.card-input::placeholder { color: #444; }
+.card-row { display: flex; gap: 10px; }
+.card-row .card-field { flex: 1; margin-bottom: 0; }
+
+/* ============ VIEW ORDER MODAL ============ */
+.view-modal {
+    background: var(--surface, #1a1510);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    padding: 36px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+    position: relative;
+    animation: slideUp .25s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212,165,116,0.2) transparent;
+}
+
+.view-order-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 12px;
+}
+
+.view-order-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.view-order-date {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+}
+
+.view-order-price-big {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.view-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 18px 0; }
+
+.view-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.view-info-block {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.view-info-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
+.view-info-val { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.4; }
+
+.view-services-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.view-service-tag {
+    background: rgba(212,165,116,0.1);
+    border: 1px solid rgba(212,165,116,0.2);
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-size: 12px;
+    color: var(--accent);
+}
+
+.view-status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.view-status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.view-status-dot.paid { background: var(--success); box-shadow: 0 0 6px rgba(40,167,69,0.5); }
+.view-status-dot.unpaid { background: #ffb347; box-shadow: 0 0 6px rgba(255,179,71,0.5); }
+
+.view-status-text { font-size: 13px; font-weight: 600; }
+.view-status-text.paid { color: var(--success); }
+.view-status-text.unpaid { color: #ffb347; }
+
+.view-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+/* ============ EDIT ORDER MODAL ============ */
+.edit-modal {
+    background: var(--surface, #1a1510);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    padding: 36px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+    position: relative;
+    animation: slideUp .25s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212,165,116,0.2) transparent;
+}
+
+.edit-field-group { margin-bottom: 14px; }
+.edit-field-label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.edit-input, .edit-select, .edit-textarea {
+    width: 100%;
+    background: #ffffff;
+    border: 1.5px solid #d4b896;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #1a1510;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+    box-sizing: border-box;
+    appearance: auto;
+    -webkit-appearance: auto;
+}
+.edit-input:focus, .edit-select:focus, .edit-textarea:focus { border-color: #8b5a2b; }
+.edit-textarea { resize: vertical; min-height: 70px; }
+.edit-select option { background: #ffffff; color: #1a1510; }
+.edit-input::placeholder, .edit-textarea::placeholder { color: #999; }
+
+/* Edit services grid */
+.edit-svc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.edit-svc-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+}
+
+.edit-svc-opt:hover { background: rgba(212,165,116,0.06); border-color: rgba(212,165,116,0.2); }
+.edit-svc-opt.checked { background: rgba(212,165,116,0.1); border-color: rgba(212,165,116,0.35); }
+
+.edit-svc-opt input[type="checkbox"] {
+    width: 14px; height: 14px;
+    margin-top: 2px; cursor: pointer;
+    accent-color: var(--accent); flex-shrink: 0;
+}
+
+.edit-svc-name { font-size: 12px; color: #ccc; line-height: 1.3; }
+.edit-svc-price { color: var(--accent); font-size: 11px; font-weight: 600; display: block; margin-top: 2px; }
+
+/* Edit price display */
+.edit-price-box {
+    background: rgba(212,165,116,0.06);
+    border: 1px solid rgba(212,165,116,0.2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    font-size: 13px;
+}
+
+.edit-price-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    color: #999;
+    border-bottom: 1px solid rgba(139,90,43,0.05);
+}
+.edit-price-row:last-child { border-bottom: none; }
+.edit-price-row--weekend { color: #8b6a3e; }
+.edit-price-row--urgent  { color: #ffb347; }
+.edit-price-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    margin-top: 4px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent);
+    border-top: 1px solid rgba(212,165,116,0.15);
+}
+/* ============ RECEIPT MODAL ============ */
+.receipt-modal {
+    background: #fdfaf5;
+    border-radius: 16px;
+    padding: 0;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+    position: relative;
+    animation: slideUp .25s ease;
+    overflow: hidden;
+    color: #1a1510;
+}
+
+.receipt-header {
+    background: linear-gradient(135deg, #6b4423, #8b5a2b);
+    padding: 28px 32px 22px;
+    text-align: center;
+    color: white;
+}
+
+.receipt-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.receipt-subtitle { font-size: 12px; opacity: 0.75; }
+
+.receipt-body { padding: 24px 32px; }
+
+.receipt-check-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(40,167,69,0.12);
+    border: 2px solid rgba(40,167,69,0.3);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 24px;
+    color: #28a745;
+}
+
+.receipt-paid-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    color: #1a1510;
+    margin-bottom: 20px;
+}
+
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.08);
+    font-size: 13px;
+}
+.receipt-row:last-child { border-bottom: none; }
+.receipt-row-key { color: #888; flex-shrink: 0; margin-right: 10px; }
+.receipt-row-val { color: #1a1510; font-weight: 500; text-align: right; }
+
+.receipt-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(139,90,43,0.07);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 14px;
+}
+.receipt-total-key { font-size: 13px; font-weight: 600; color: #6b4423; }
+.receipt-total-val { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: #6b4423; }
+
+.receipt-footer {
+    background: rgba(0,0,0,0.03);
+    border-top: 1px dashed rgba(0,0,0,0.1);
+    padding: 14px 32px;
+    text-align: center;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.receipt-actions {
+    display: flex;
+    gap: 10px;
+    padding: 0 32px 24px;
+}
+
+/* ============ SUCCESS OVERLAY ============ */
+.success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+.success-overlay.active { display: flex; }
+
+.success-box {
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    backdrop-filter: blur(16px);
+    padding: 50px 60px;
+    text-align: center;
+    animation: popIn .35s ease;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.75); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.checkmark-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--success);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px; font-size: 36px; color: white;
+    box-shadow: 0 0 30px rgba(40,167,69,0.4);
+}
+
+.success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 700; color: var(--text);
+    margin-bottom: 6px;
+}
+
+.success-sub { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 900px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .quick-nav { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (max-width: 500px) {
+    .quick-nav { grid-template-columns: 1fr; }
+    .order-item { flex-direction: column; align-items: flex-start; }
+    .order-item-right { align-items: flex-start; }
+    .view-info-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="page-header">
+    <h1>Особистий кабінет</h1>
+    <p>Керуйте замовленнями та налаштуваннями</p>
 </div>
 
-<div class="dashboard-grid">
-    <div class="dashboard-card">
-        <a href="{% url 'proposals' %}" class="section-title" style="width:100%;text-decoration:none;">Мої бонуси</a>
-        <div class="item-header"><img src="https://wishspaceapp.com/images/gifts.png" alt="Бонуси"></div>
-    </div>
-    <div class="dashboard-card">
-        <a href="{% url 'order_list' %}" class="section-title" style="width:100%;text-decoration:none;">Мої замовлення</a>
-        <div class="item-header"><img src="https://www.decopack.com.ua/img/article/0/86_main.jpg" alt="Замовлення"></div>
-    </div>
-    <div class="dashboard-card">
-        <a href="{% url 'reviews' %}" class="section-title" style="width:100%;text-decoration:none;">Мої відгуки</a>
-        <div class="item-header"><img src="https://img.freepik.com/premium-vector/best-estimate-performance-score-five-points-flat-modern-design-illustration_566886-774.jpg" alt="Відгуки"></div>
-    </div>
-</div>
-
-{% if orders %}
-<div class="orders-section">
-    <div class="orders-section-title">Очікують оплати:</div>
-    {% for order in orders %}
-        {% if not order.is_paid %}
-        <div class="order-card">
-            <div class="order-info">
-                <div>Замовлення <span>#{{ order.user_number }}</span></div>
-                <div>Послуга: <span>{{ order.service_type }}</span></div>
-                <div>Річ: <span>{{ order.item_name }}</span></div>
+<div class="profile-grid">
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+        <div class="profile-info-card">
+            <div class="profile-avatar">{{ user.username|first|upper }}</div>
+            <div class="profile-name">{{ user.username }}</div>
+            <div class="profile-email">{{ user.email }}</div>
+            <div class="profile-field">
+                <div class="profile-field-key">Телефон</div>
+                <div class="profile-field-val">{{ user.profile.phone }}</div>
             </div>
-            <div style="display:flex; gap:12px; justify-content:flex-end;">
-                <button class="pay-btn" onclick="openPayModal('{{ order.id }}', '{{ order.total_price }}', '{{ order.user_number }}')">Сплатити</button>
-                <button class="delete-btn" onclick="deleteOrder('{{ order.id }}')">Видалити</button>
+            <div class="profile-field">
+                <div class="profile-field-key">Статус</div>
+                <div class="profile-field-val">{{ user.profile.loyalty_status }}</div>
+            </div>
+            <div class="profile-field">
+                <div class="profile-field-key">Сплачених замовлень</div>
+                <div class="profile-field-val">{{ user.profile.paid_orders_count }}</div>
             </div>
         </div>
+
+        <div class="loyalty-card-new">
+            <div class="loyalty-title">Loyalty Card</div>
+            {% if user.profile.paid_orders_count < 3 %}
+            <div class="loyalty-status">До знижки 3% — ще {{ orders_until_discount }} замовлень</div>
+            <div style="display:flex; gap:8px; margin: 10px 0;">
+                <div class="lp-dot {% if user.profile.paid_orders_count >= 1 %}lp-done{% endif %}"></div>
+                <div class="lp-dot {% if user.profile.paid_orders_count >= 2 %}lp-done{% endif %}"></div>
+                <div class="lp-dot {% if user.profile.paid_orders_count >= 3 %}lp-done{% endif %}"></div>
+            </div>
+            <div class="loyalty-hint">Виконайте 3 замовлення для активації</div>
+            {% else %}
+            <div class="loyalty-active"><i class="fas fa-check-circle"></i> Знижка 3% активована!</div>
+            <div class="loyalty-hint" style="margin-top:6px;">Діє на всі наступні замовлення</div>
+            {% endif %}
+        </div>
+
+        {% if request.user.is_staff %}
+        <a href="/admin/main/order/branch-report/" class="btn-pq btn-pq-outline" style="justify-content:center;">
+            <i class="fas fa-chart-bar"></i> Звіт по філіях
+        </a>
         {% endif %}
-    {% endfor %}
+    </div>
+
+    <!-- Main -->
+    <div>
+        <div class="quick-nav">
+            <a href="{% url 'proposals' %}" class="quick-nav-card">
+                <div class="quick-nav-icon"><i class="fas fa-gift"></i></div>
+                <div class="quick-nav-label">Мої бонуси</div>
+            </a>
+            <a href="{% url 'order_list' %}" class="quick-nav-card">
+                <div class="quick-nav-icon"><i class="fas fa-box"></i></div>
+                <div class="quick-nav-label">Всі замовлення</div>
+            </a>
+            <a href="{% url 'reviews' %}" class="quick-nav-card">
+                <div class="quick-nav-icon"><i class="fas fa-star"></i></div>
+                <div class="quick-nav-label">Відгуки</div>
+            </a>
+        </div>
+
+        <div class="pending-section">
+            <div class="pending-header">
+                <div class="pending-header-title">Мої замовлення</div>
+                <span class="badge-pq badge-warning">
+                    {% for order in orders %}{% if not order.is_paid %}1{% endif %}{% endfor %} нових
+                </span>
+            </div>
+
+            {% for order in orders %}
+            <div class="order-item"
+                data-id="{{ order.id }}"
+                data-num="{{ order.user_number }}"
+                data-item="{{ order.item_name|escapejs }}"
+                data-services="{{ order.service_type|escapejs }}"
+                data-branch="{{ order.branch|escapejs }}"
+                data-date="{{ order.desired_date }}"
+                data-price="{{ order.total_price }}"
+                data-paid="{{ order.is_paid|yesno:'true,false' }}"
+                data-defect="{{ order.defect_description|escapejs }}"
+                data-urgent="{{ order.urgent|yesno:'true,false' }}"
+                data-order-date="{{ order.order_date }}">
+                <div>
+                    <div class="order-item-num">#{{ order.user_number }}</div>
+                    <div class="order-item-meta">
+                        {{ order.service_type }}<br>
+                        {{ order.item_name }} · {{ order.branch }}
+                    </div>
+                </div>
+                <div class="order-item-right">
+                    <div class="order-price-tag">{{ order.total_price }} грн</div>
+                    <div class="order-actions">
+                        <!-- View button -->
+                        <button class="btn-pq btn-pq-outline btn-view-order" style="padding:7px 12px;font-size:12px;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {% if not order.is_paid %}
+                        <!-- Edit button -->
+                        <button class="btn-pq btn-pq-outline btn-edit-order" style="padding:7px 12px;font-size:12px;">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <!-- Pay button -->
+                        <button class="btn-pq btn-pq-gold btn-pay-order" style="padding:7px 14px;font-size:13px;">
+                            <i class="fas fa-credit-card"></i> Сплатити
+                        </button>
+                        <!-- Delete button -->
+                        <button class="btn-pq btn-pq-danger btn-delete-order" style="padding:7px 12px;font-size:13px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% else %}
+                        <div class="paid-badge"><i class="fas fa-check-circle"></i> Сплачено</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-pending">Замовлень немає</div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
-{% endif %}
-{% endblock %}
 
+<!-- ======== VIEW ORDER MODAL ======== -->
+<div class="modal-overlay" id="viewModal">
+    <div class="view-modal">
+        <button class="modal-close" onclick="closeModal('viewModal')">✕</button>
+        <div class="view-order-header">
+            <div>
+                <div class="view-order-num" id="viewOrderNum">#1</div>
+                <div class="view-order-date" id="viewOrderDate"></div>
+            </div>
+            <div class="view-order-price-big" id="viewOrderPrice">0 грн</div>
+        </div>
 
-{% block footer %}
+        <div class="view-status-row">
+            <div class="view-status-dot" id="viewStatusDot"></div>
+            <div class="view-status-text" id="viewStatusText"></div>
+        </div>
 
-<!-- форма оплати -->
+        <div class="view-info-grid">
+            <div class="view-info-block">
+                <div class="view-info-label">Річ</div>
+                <div class="view-info-val" id="viewItem">—</div>
+            </div>
+            <div class="view-info-block">
+                <div class="view-info-label">Філія</div>
+                <div class="view-info-val" id="viewBranch">—</div>
+            </div>
+            <div class="view-info-block">
+                <div class="view-info-label">Бажана дата</div>
+                <div class="view-info-val" id="viewDate">—</div>
+            </div>
+            <div class="view-info-block">
+                <div class="view-info-label">Терміновість</div>
+                <div class="view-info-val" id="viewUrgent">—</div>
+            </div>
+        </div>
+
+        <div class="view-info-block" style="margin-bottom:12px;">
+            <div class="view-info-label">Послуги</div>
+            <div class="view-services-list" id="viewServices"></div>
+        </div>
+
+        <div class="view-info-block" id="viewDefectBlock" style="display:none;">
+            <div class="view-info-label">Опис дефектів</div>
+            <div class="view-info-val" id="viewDefect" style="color:var(--muted);font-size:13px;"></div>
+        </div>
+
+        <div class="view-divider"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--muted);">Вартість замовлення</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--accent);" id="viewPriceBottom">0 грн</span>
+        </div>
+    </div>
+</div>
+
+<!-- ======== EDIT ORDER MODAL ======== -->
+<div class="modal-overlay" id="editModal">
+    <div class="edit-modal">
+        <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+        <div class="modal-title">Редагувати замовлення <span id="editOrderNum" style="color:var(--accent);"></span></div>
+
+        <form id="editForm" method="POST" action="">
+            {% csrf_token %}
+
+            <!-- Branch -->
+            <div class="edit-field-group">
+                <label class="edit-field-label">Філія</label>
+                <select name="branch" class="edit-select" id="editBranch">
+                    <option value="Нові будинки">Нові будинки</option>
+                    <option value="Центр">Центр</option>
+                    <option value="Салтівка">Салтівка</option>
+                    <option value="Мотель">Мотель</option>
+                    <option value="П'ятихатки">П'ятихатки</option>
+                    <option value="ХТЗ">ХТЗ</option>
+                </select>
+            </div>
+
+            <!-- Item name — dropdown by category -->
+            <div class="edit-field-group">
+                <label class="edit-field-label">Категорія</label>
+                <select class="edit-select" id="editCategory" onchange="onEditCategoryChange()">
+                    <option value="Побутовий одяг">Побутовий одяг</option>
+                    <option value="Спортивний одяг">Спортивний одяг</option>
+                    <option value="Робочий одяг">Робочий одяг</option>
+                    <option value="Фірмовий одяг">Фірмовий одяг</option>
+                </select>
+            </div>
+
+            <div class="edit-field-group">
+                <label class="edit-field-label">Назва речі</label>
+                <select name="item_name" class="edit-select" id="editItemSelect" onchange="recalcEditPrice()">
+                    <option value="">Оберіть річ</option>
+                </select>
+            </div>
+
+            <!-- Services — checkboxes -->
+            <div class="edit-field-group">
+                <label class="edit-field-label">Послуги</label>
+                <div class="edit-svc-grid" id="editSvcGrid"></div>
+                <input type="hidden" name="service_type" id="editServiceType">
+            </div>
+
+            <!-- Date -->
+            <div class="edit-field-group">
+                <label class="edit-field-label">Бажана дата</label>
+                <input type="date" name="desired_date" class="edit-input" id="editDesiredDate" onchange="recalcEditPrice()">
+            </div>
+
+            <!-- Urgency -->
+            <div class="edit-field-group">
+                <label class="edit-field-label">Терміновість</label>
+                <select name="urgent" class="edit-select" id="editUrgent" onchange="recalcEditPrice()">
+                    <option value="False">Ні</option>
+                    <option value="True">Так (+50%)</option>
+                </select>
+            </div>
+
+            <!-- Defects -->
+            <div class="edit-field-group">
+                <label class="edit-field-label">Опис дефектів</label>
+                <textarea name="defect_description" class="edit-textarea" id="editDefect" placeholder="Опишіть плями або пошкодження..."></textarea>
+            </div>
+
+            <!-- Price display -->
+            <div class="edit-price-box" id="editPriceBox" style="display:none;">
+                <div class="edit-price-row"><span>Річ:</span><span id="epItem">0 грн</span></div>
+                <div class="edit-price-row"><span>Послуги:</span><span id="epServices">0 грн</span></div>
+                <div class="edit-price-row edit-price-row--weekend" id="epWeekendRow" style="display:none;"><span>Вихідний (+20%):</span><span id="epWeekend">0 грн</span></div>
+                <div class="edit-price-row edit-price-row--urgent" id="epUrgentRow" style="display:none;"><span>Терміновість (+50%):</span><span id="epUrgent">0 грн</span></div>
+                <div class="edit-price-total"><span>Разом:</span><span id="epTotal">0 грн</span></div>
+            </div>
+            <input type="hidden" name="total_price" id="editTotalPrice" value="0">
+
+            <div style="display:flex;gap:10px;margin-top:16px;">
+                <button type="submit" class="btn-pq btn-pq-gold" style="flex:1;justify-content:center;padding:12px;" onclick="beforeEditSubmit()">
+                    <i class="fas fa-save"></i> Зберегти зміни
+                </button>
+                <button type="button" class="btn-pq btn-pq-outline" style="padding:12px 16px;" onclick="closeModal('editModal')">
+                    Скасувати
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ======== PAYMENT MODAL ======== -->
 <div class="modal-overlay" id="payModal">
     <div class="payment-modal">
-        <button class="modal-close" onclick="closePayModal()">&#10005;</button>
-        <div class="modal-title">Оплата замовлення <span id="modalOrderId"></span></div>
+        <button class="modal-close" onclick="closeModal('payModal')">✕</button>
+        <div class="modal-title">Оплата замовлення <span id="modalOrderId" style="color:var(--accent);"></span></div>
 
-        <div class="amount-display" id="modalAmount">0 UAH</div>
-        <div class="amount-label">Сума до сплати</div>
+        <div class="amount-pill">
+            <span class="amount-pill-label">Сума до сплати</span>
+            <span class="amount-pill-val" id="modalAmount">0 грн</span>
+        </div>
 
-        <div class="card-input-group">
-            <div class="card-input-label">Номер карти</div>
+        <div class="card-field">
+            <div class="card-field-label">Номер карти</div>
             <input class="card-input" id="cardNumber" type="text"
                    placeholder="XXXX XXXX XXXX XXXX" maxlength="19"
                    oninput="formatCardNumber(this)">
         </div>
 
         <div class="card-row">
-            <div class="card-input-group">
-                <div class="card-input-label">Термін дії</div>
+            <div class="card-field">
+                <div class="card-field-label">Термін дії</div>
                 <input class="card-input" id="cardExpiry" type="text" placeholder="ММ/РР" maxlength="5" oninput="formatExpiry(this)">
             </div>
-            <div class="card-input-group">
-                <div class="card-input-label">CVV</div>
-                <div class="cvv-wrapper">
-                    <input class="card-input" id="cardCvv" type="password"
-                           placeholder="CVV" maxlength="3">
-                </div>
+            <div class="card-field">
+                <div class="card-field-label">CVV</div>
+                <input class="card-input" id="cardCvv" type="password" placeholder="•••" maxlength="3">
             </div>
         </div>
 
-        <button class="submit-pay-btn" onclick="submitPayment()">Сплатити</button>
+        <button class="btn-pq btn-pq-gold" style="width:100%;justify-content:center;padding:14px;margin-top:14px;font-size:15px;"
+            onclick="submitPayment()">
+            <i class="fas fa-lock"></i> Підтвердити оплату
+        </button>
     </div>
 </div>
 
-<!-- успішна оплата -->
+<!-- ======== RECEIPT MODAL ======== -->
+<div class="modal-overlay" id="receiptModal">
+    <div class="receipt-modal">
+        <div class="receipt-header">
+            <div class="receipt-logo">Purely&Quick</div>
+            <div class="receipt-subtitle">Квитанція про оплату</div>
+        </div>
+        <div class="receipt-body">
+            <div class="receipt-check-icon">✓</div>
+            <div class="receipt-paid-title">Оплата успішна!</div>
+
+            <div class="receipt-row">
+                <span class="receipt-row-key">Номер замовлення</span>
+                <span class="receipt-row-val" id="receiptOrderNum">—</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-row-key">Річ</span>
+                <span class="receipt-row-val" id="receiptItem">—</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-row-key">Філія</span>
+                <span class="receipt-row-val" id="receiptBranch">—</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-row-key">Бажана дата</span>
+                <span class="receipt-row-val" id="receiptDate">—</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-row-key">Дата оплати</span>
+                <span class="receipt-row-val" id="receiptPayDate">—</span>
+            </div>
+
+            <div class="receipt-total-row">
+                <span class="receipt-total-key">СУМА ОПЛАЧЕНО</span>
+                <span class="receipt-total-val" id="receiptTotal">—</span>
+            </div>
+        </div>
+        <div class="receipt-footer">Дякуємо за довіру · Purely&Quick</div>
+        <div class="receipt-actions">
+            <button class="btn-pq btn-pq-gold" style="flex:1;justify-content:center;padding:11px;font-size:13px;" onclick="printReceipt()">
+                <i class="fas fa-print"></i> Роздрукувати
+            </button>
+            <button class="btn-pq btn-pq-outline" style="flex:1;justify-content:center;padding:11px;font-size:13px;" onclick="closeReceiptAndReload()">
+                Закрити
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ======== SUCCESS OVERLAY ======== -->
 <div class="success-overlay" id="successOverlay">
     <div class="success-box">
-        <div class="checkmark-circle">
-            <i class="fa fa-check"></i>
-        </div>
+        <div class="checkmark-circle"><i class="fas fa-check"></i></div>
         <div class="success-title">Оплата успішна!</div>
+        <div class="success-sub">Формуємо квитанцію...</div>
     </div>
 </div>
 
 <script>
-let currentOrderId = null;
+// ===== Helpers =====
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
 
-function openPayModal(orderId, amount, userNumber) {
-    currentOrderId = orderId;
-    document.getElementById('modalOrderId').textContent = '#' + userNumber;
-    document.getElementById('modalAmount').textContent = amount + ' UAH';
-    document.getElementById('payModal').classList.add('active');
+function getCookie(name) {
+    let val = null;
+    if (document.cookie) document.cookie.split(';').forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
+    });
+    return val;
+}
+
+// Close overlay on backdrop click / Escape
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+});
+
+// ===== READ data from .order-item =====
+function getOrderData(btn) {
+    return btn.closest('.order-item').dataset;
+}
+
+// ===== VIEW ORDER =====
+function openViewModal(d) {
+    document.getElementById('viewOrderNum').textContent   = '#' + d.num;
+    document.getElementById('viewOrderDate').textContent  = 'Дата замовлення: ' + d.orderDate;
+    document.getElementById('viewOrderPrice').textContent = d.price + ' грн';
+    document.getElementById('viewPriceBottom').textContent= d.price + ' грн';
+    document.getElementById('viewItem').textContent       = d.item;
+    document.getElementById('viewBranch').textContent     = d.branch;
+    document.getElementById('viewDate').textContent       = d.date;
+    document.getElementById('viewUrgent').textContent     = d.urgent === 'true' ? '⚡ Так (+50%)' : 'Ні';
+
+    const dot = document.getElementById('viewStatusDot');
+    const txt = document.getElementById('viewStatusText');
+    if (d.paid === 'true') {
+        dot.className = 'view-status-dot paid';
+        txt.className = 'view-status-text paid';
+        txt.textContent = '✓ Замовлення сплачено';
+    } else {
+        dot.className = 'view-status-dot unpaid';
+        txt.className = 'view-status-text unpaid';
+        txt.textContent = '⏳ Очікує оплати';
+    }
+
+    const svcContainer = document.getElementById('viewServices');
+    svcContainer.innerHTML = '';
+    d.services.split(',').forEach(s => {
+        const tag = document.createElement('span');
+        tag.className = 'view-service-tag';
+        tag.textContent = s.trim();
+        svcContainer.appendChild(tag);
+    });
+
+    const defectBlock = document.getElementById('viewDefectBlock');
+    if (d.defect && d.defect.trim()) {
+        defectBlock.style.display = 'block';
+        document.getElementById('viewDefect').textContent = d.defect;
+    } else {
+        defectBlock.style.display = 'none';
+    }
+
+    openModal('viewModal');
+}
+
+// ===== EDIT ORDER =====
+function openEditModal(d) {
+    document.getElementById('editOrderNum').textContent = '#' + d.num;
+    document.getElementById('editForm').action = '/order/' + d.id + '/edit/';
+    document.getElementById('editItemName').value    = d.item;
+    document.getElementById('editServiceType').value = d.services;
+    document.getElementById('editDesiredDate').value = d.date;
+    document.getElementById('editDefect').value      = d.defect;
+
+    const branchSel = document.getElementById('editBranch');
+    for (let o of branchSel.options) o.selected = (o.value === d.branch);
+    document.getElementById('editUrgent').value = d.urgent === 'true' ? 'True' : 'False';
+    document.getElementById('editDesiredDate').setAttribute('min', new Date().toISOString().split('T')[0]);
+
+    openModal('editModal');
+}
+
+// ===== PAYMENT =====
+let currentOrderId = null;
+let currentPayData = {};
+
+function openPayModal(d) {
+    currentOrderId = d.id;
+    currentPayData = { num: d.num, amount: d.price, item: d.item, branch: d.branch, date: d.date };
+    document.getElementById('modalOrderId').textContent  = '#' + d.num;
+    document.getElementById('modalAmount').textContent   = d.price + ' грн';
     document.getElementById('cardNumber').value = '';
     document.getElementById('cardExpiry').value = '';
-    document.getElementById('cardCvv').value = '';
+    document.getElementById('cardCvv').value    = '';
+    openModal('payModal');
 }
 
-function closePayModal() {
-    document.getElementById('payModal').classList.remove('active');
-    currentOrderId = null;
-}
+// ===== EVENT DELEGATION — всі кнопки через data-* =====
+document.addEventListener('click', function(e) {
+    const viewBtn   = e.target.closest('.btn-view-order');
+    const editBtn   = e.target.closest('.btn-edit-order');
+    const payBtn    = e.target.closest('.btn-pay-order');
+    const deleteBtn = e.target.closest('.btn-delete-order');
 
+    if (viewBtn)   openViewModal(getOrderData(viewBtn));
+    if (editBtn)   openEditModal(getOrderData(editBtn));
+    if (payBtn)    openPayModal(getOrderData(payBtn));
+    if (deleteBtn) {
+        const d = getOrderData(deleteBtn);
+        if (!confirm('Видалити замовлення #' + d.num + '?')) return;
+        fetch('/order/' + d.id + '/delete/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' },
+        }).then(() => window.location.reload());
+    }
+});
+
+// ===== CARD INPUT FORMAT =====
 function formatCardNumber(input) {
     let val = input.value.replace(/\D/g, '').substring(0, 16);
     input.value = val.replace(/(.{4})/g, '$1 ').trim();
@@ -417,84 +1179,297 @@ function formatCardNumber(input) {
 
 function formatExpiry(input) {
     let val = input.value.replace(/\D/g, '').substring(0, 4);
-
-    // Обмеження місяця до 12
     if (val.length >= 2) {
         let month = parseInt(val.substring(0, 2));
         if (month > 12) month = 12;
         if (month < 1 && val.length === 2) month = 1;
         val = String(month).padStart(2, '0') + val.substring(2);
     }
-
-    // Обмеження року від 2026 до 2036
     if (val.length === 4) {
         let year = parseInt(val.substring(2, 4));
         if (year < 26) year = 26;
         if (year > 36) year = 36;
         val = val.substring(0, 2) + String(year).padStart(2, '0');
     }
-
     input.value = val.length >= 3 ? val.substring(0, 2) + '/' + val.substring(2) : val;
-}
-
-function getCookie(name) {
-    let val = null;
-    if (document.cookie) {
-        document.cookie.split(';').forEach(c => {
-            c = c.trim();
-            if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
-        });
-    }
-    return val;
 }
 
 function submitPayment() {
     const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-    const expiry = document.getElementById('cardExpiry').value;
-    const cvv = document.getElementById('cardCvv').value;
+    const expiry     = document.getElementById('cardExpiry').value;
+    const cvv        = document.getElementById('cardCvv').value;
 
     if (cardNumber.length < 16 || expiry.length < 5 || cvv.length < 3) {
         alert('Будь ласка, заповніть всі поля форми коректно.');
         return;
     }
 
-    document.getElementById('payModal').classList.remove('active');
+    closeModal('payModal');
     document.getElementById('successOverlay').classList.add('active');
 
-    fetch(`/order/${currentOrderId}/pay/`, {
+    fetch('/order/' + currentOrderId + '/pay/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' },
     }).finally(() => {
         setTimeout(() => {
             document.getElementById('successOverlay').classList.remove('active');
-            window.location.reload();
-        }, 2500);
+            showReceipt();
+        }, 1800);
     });
 }
 
-document.getElementById('payModal').addEventListener('click', function(e) {
-    if (e.target === this) closePayModal();
+function showReceipt() {
+    const d = currentPayData;
+    document.getElementById('receiptOrderNum').textContent = '#' + d.num;
+    document.getElementById('receiptItem').textContent     = d.item;
+    document.getElementById('receiptBranch').textContent   = d.branch;
+    document.getElementById('receiptDate').textContent     = d.date;
+    document.getElementById('receiptTotal').textContent    = d.amount + ' грн';
+
+    const now = new Date();
+    document.getElementById('receiptPayDate').textContent =
+        now.toLocaleDateString('uk-UA') + ' ' + now.toLocaleTimeString('uk-UA', {hour:'2-digit', minute:'2-digit'});
+
+    openModal('receiptModal');
+}
+
+function closeReceiptAndReload() {
+    closeModal('receiptModal');
+    window.location.reload();
+}
+
+function printReceipt() {
+    const receiptEl = document.querySelector('.receipt-modal');
+    const printWin = window.open('', '_blank', 'width=450,height=700');
+    printWin.document.write(`<html><head><title>Квитанція Purely&Quick</title>
+    <style>
+        body{font-family:'Georgia',serif;background:#fdfaf5;color:#1a1510;margin:0}
+        .receipt-header{background:linear-gradient(135deg,#6b4423,#8b5a2b);padding:24px 32px 18px;text-align:center;color:white}
+        .receipt-logo{font-size:22px;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+        .receipt-subtitle{font-size:12px;opacity:.75}
+        .receipt-body{padding:20px 32px}
+        .receipt-check-icon{width:50px;height:50px;border-radius:50%;border:2px solid #28a745;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;color:#28a745}
+        .receipt-paid-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:18px}
+        .receipt-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed rgba(0,0,0,.1);font-size:13px}
+        .receipt-row-key{color:#888}
+        .receipt-row-val{font-weight:500}
+        .receipt-total-row{display:flex;justify-content:space-between;background:rgba(139,90,43,.07);border-radius:10px;padding:14px 16px;margin-top:14px}
+        .receipt-total-key{font-size:13px;font-weight:600;color:#6b4423}
+        .receipt-total-val{font-size:24px;font-weight:700;color:#6b4423}
+        .receipt-footer{background:rgba(0,0,0,.03);border-top:1px dashed rgba(0,0,0,.1);padding:12px 32px;text-align:center;font-size:11px;color:#aaa}
+        .receipt-actions{display:none}
+    </style></head><body>` + receiptEl.innerHTML + `</body></html>`);
+    printWin.document.close();
+    printWin.focus();
+    setTimeout(() => { printWin.print(); }, 400);
+}
+
+// ===== CATALOG DATA (mirrors catalog.html) =====
+const CATALOG = {
+    'Побутовий одяг': {
+        items: [
+            { name: 'Куртка / пальто',   price: 280 },
+            { name: 'Светр / кофта',      price: 150 },
+            { name: 'Штани / джинси',     price: 130 },
+            { name: 'Сукня / спідниця',   price: 160 },
+            { name: 'Сорочка / блуза',    price: 100 },
+        ],
+        services: [
+            { name: 'Хімчистка',                         price: 150 },
+            { name: 'Прасування',                        price:  60 },
+            { name: 'Виведення плям',                    price:  80 },
+            { name: 'Ремонт тканини',                    price: 120 },
+            { name: 'Водовідштовхувальне просочення',    price: 100 },
+            { name: 'Антистатична обробка',              price:  70 },
+        ]
+    },
+    'Спортивний одяг': {
+        items: [
+            { name: 'Спортивний костюм', price: 200 },
+            { name: 'Футболка / майка',  price:  80 },
+            { name: 'Спортивні штани',   price: 110 },
+            { name: 'Термобілизна',      price: 140 },
+            { name: 'Кросівки / кеди',   price: 180 },
+        ],
+        services: [
+            { name: 'Хімчистка',                   price: 120 },
+            { name: 'Виведення поту',               price:  90 },
+            { name: 'Дезодорація',                  price:  70 },
+            { name: "Виведення трав'яних плям",     price:  85 },
+            { name: 'Відновлення кольору',          price: 150 },
+            { name: 'Антибактеріальна обробка',     price:  80 },
+        ]
+    },
+    'Робочий одяг': {
+        items: [
+            { name: 'Комбінезон / роба',  price: 250 },
+            { name: 'Захисна куртка',     price: 220 },
+            { name: 'Робочі штани',       price: 150 },
+            { name: 'Спецодяг медика',    price: 180 },
+            { name: 'Фартух / жилет',     price: 100 },
+        ],
+        services: [
+            { name: 'Промислова хімчистка',       price: 200 },
+            { name: 'Виведення мастила',           price: 130 },
+            { name: 'Виведення фарби',             price: 150 },
+            { name: 'Дезінфекція',                 price: 100 },
+            { name: 'Ремонт швів',                 price:  90 },
+            { name: 'Вогнезахисне просочення',     price: 180 },
+        ]
+    },
+    'Фірмовий одяг': {
+        items: [
+            { name: 'Діловий костюм',  price: 350 },
+            { name: 'Сорочка / блуза', price: 120 },
+            { name: 'Краватка / шарф', price:  80 },
+            { name: 'Піджак / жакет',  price: 260 },
+            { name: 'Форменний одяг',  price: 200 },
+        ],
+        services: [
+            { name: 'Делікатна хімчистка',   price: 200 },
+            { name: 'Прасування з парою',    price:  90 },
+            { name: 'Виведення плям',        price: 100 },
+            { name: 'Відновлення форми',     price: 160 },
+            { name: 'Чищення підкладки',     price: 120 },
+            { name: 'Нашивка емблеми',       price:  70 },
+        ]
+    }
+};
+
+// Find which category an item belongs to
+function findCategoryForItem(itemName) {
+    for (const [cat, data] of Object.entries(CATALOG)) {
+        if (data.items.some(i => i.name === itemName)) return cat;
+    }
+    return 'Побутовий одяг';
+}
+
+function onEditCategoryChange() {
+    const cat = document.getElementById('editCategory').value;
+    renderEditItems(cat, '');
+    renderEditServices(cat, []);
+    recalcEditPrice();
+}
+
+function renderEditItems(cat, selectedItem) {
+    const sel = document.getElementById('editItemSelect');
+    sel.innerHTML = '<option value="">Оберіть річ</option>';
+    (CATALOG[cat]?.items || []).forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.name;
+        opt.textContent = item.name + ' — ' + item.price + ' грн';
+        opt.dataset.price = item.price;
+        if (item.name === selectedItem) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+function renderEditServices(cat, checkedServices) {
+    const grid = document.getElementById('editSvcGrid');
+    grid.innerHTML = '';
+    (CATALOG[cat]?.services || []).forEach(svc => {
+        const isChecked = checkedServices.includes(svc.name);
+        const label = document.createElement('label');
+        label.className = 'edit-svc-opt' + (isChecked ? ' checked' : '');
+        label.innerHTML = `
+            <input type="checkbox" ${isChecked ? 'checked' : ''} data-name="${svc.name}" data-price="${svc.price}">
+            <span>
+                <span class="edit-svc-name">${svc.name}</span>
+                <span class="edit-svc-price">${svc.price} грн</span>
+            </span>
+        `;
+        label.querySelector('input').addEventListener('change', function() {
+            label.classList.toggle('checked', this.checked);
+            recalcEditPrice();
+        });
+        grid.appendChild(label);
+    });
+}
+
+function recalcEditPrice() {
+    const sel = document.getElementById('editItemSelect');
+    const selectedOpt = sel.options[sel.selectedIndex];
+    const itemPrice = parseInt(selectedOpt?.dataset?.price || '0');
+
+    let servicesPrice = 0;
+    document.querySelectorAll('#editSvcGrid input[type=checkbox]:checked').forEach(cb => {
+        servicesPrice += parseInt(cb.dataset.price || '0');
+    });
+
+    const dateVal = document.getElementById('editDesiredDate').value;
+    let weekendBonus = 0, isWeekend = false;
+    if (dateVal) {
+        const day = new Date(dateVal).getUTCDay();
+        isWeekend = (day === 0 || day === 6);
+        if (isWeekend) weekendBonus = Math.round((itemPrice + servicesPrice) * 0.2);
+    }
+
+    const urgent = document.getElementById('editUrgent').value === 'True';
+    const base = itemPrice + servicesPrice + weekendBonus;
+    const urgentAmt = urgent ? Math.round(base * 0.5) : 0;
+    const total = base + urgentAmt;
+
+    const box = document.getElementById('editPriceBox');
+    if (itemPrice > 0 || servicesPrice > 0) {
+        box.style.display = 'block';
+        document.getElementById('epItem').textContent     = itemPrice + ' грн';
+        document.getElementById('epServices').textContent = servicesPrice + ' грн';
+
+        const wRow = document.getElementById('epWeekendRow');
+        wRow.style.display = (isWeekend && (itemPrice + servicesPrice) > 0) ? 'flex' : 'none';
+        document.getElementById('epWeekend').textContent = weekendBonus + ' грн';
+
+        const uRow = document.getElementById('epUrgentRow');
+        uRow.style.display = (urgent && base > 0) ? 'flex' : 'none';
+        document.getElementById('epUrgent').textContent = urgentAmt + ' грн';
+
+        document.getElementById('epTotal').textContent = total + ' грн';
+        document.getElementById('editTotalPrice').value  = total;
+    } else {
+        box.style.display = 'none';
+    }
+}
+
+function beforeEditSubmit() {
+    // Recalculate price one last time
+    recalcEditPrice();
+    // Collect checked services into hidden input
+    const checked = [];
+    document.querySelectorAll('#editSvcGrid input[type=checkbox]:checked').forEach(cb => {
+        checked.push(cb.dataset.name);
+    });
+    document.getElementById('editServiceType').value = checked.join(', ');
+    return true;
+}
+
+// Also intercept form submit to guarantee data is collected
+document.getElementById('editForm').addEventListener('submit', function() {
+    beforeEditSubmit();
 });
 
-function deleteOrder(orderId) {
-    if (!confirm('Ви впевнені що хочете видалити замовлення?')) return;
+// Override openEditModal to use new logic
+function openEditModal(d) {
+    document.getElementById('editOrderNum').textContent = '#' + d.num;
+    document.getElementById('editForm').action = '/order/' + d.id + '/edit/';
+    document.getElementById('editDefect').value = d.defect || '';
+    document.getElementById('editUrgent').value = d.urgent === 'true' ? 'True' : 'False';
+    document.getElementById('editDesiredDate').value = d.date;
+    document.getElementById('editDesiredDate').setAttribute('min', new Date().toISOString().split('T')[0]);
 
-    fetch(`/order/${orderId}/delete/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' },
-    }).then(() => {
-        window.location.reload();
-    });
-}
+    const branchSel = document.getElementById('editBranch');
+    for (let o of branchSel.options) o.selected = (o.value === d.branch);
 
-const discountRow = form.querySelector(".pd-discount");
-const finalRow = form.querySelector(".pd-final");
-if (discountRow && finalRow) {
-    const discount = Math.round(total * 0.03);
-    const finalPrice = total - discount;
-    discountRow.textContent = "-" + discount + " грн";
-    finalRow.textContent = finalPrice + " грн";
-    form.querySelector(".total-price-input").value = finalPrice;
+    // Detect category from item name
+    const cat = findCategoryForItem(d.item);
+    document.getElementById('editCategory').value = cat;
+    renderEditItems(cat, d.item);
+
+    // Parse existing services
+    const existingServices = d.services ? d.services.split(',').map(s => s.trim()) : [];
+    renderEditServices(cat, existingServices);
+
+    recalcEditPrice();
+    openModal('editModal');
 }
 </script>
 {% endblock %}
