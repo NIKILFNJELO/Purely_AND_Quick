@@ -681,7 +681,17 @@
     .order-item-right { align-items: flex-start; }
     .view-info-grid { grid-template-columns: 1fr; }
 }
+/* ===== BUBBLE CANVAS ===== */
+#bubble-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
 </style>
+
+<!-- Bubble canvas -->
+<canvas id="bubble-canvas"></canvas>
 
 <div class="page-header">
     <h1>Особистий кабінет</h1>
@@ -726,8 +736,8 @@
         </div>
 
         {% if request.user.is_staff %}
-        <a href="/admin/main/order/branch-report/" class="btn-pq btn-pq-outline" style="justify-content:center;">
-            <i class="fas fa-chart-bar"></i> Звіт по філіях
+        <a href="{% url 'manager' %}" class="btn-pq btn-pq-gold" style="justify-content:center;">
+            <i class="fas fa-chart-line"></i> Панель менеджера
         </a>
         {% endif %}
     </div>
@@ -764,7 +774,7 @@
                 data-item="{{ order.item_name|escapejs }}"
                 data-services="{{ order.service_type|escapejs }}"
                 data-branch="{{ order.branch|escapejs }}"
-                data-date="{{ order.desired_date }}"
+                data-date="{{ order.desired_date|date:'Y-m-d' }}"
                 data-price="{{ order.total_price }}"
                 data-paid="{{ order.is_paid|yesno:'true,false' }}"
                 data-defect="{{ order.defect_description|escapejs }}"
@@ -877,26 +887,17 @@
             <!-- Branch -->
             <div class="edit-field-group">
                 <label class="edit-field-label">Філія</label>
-                <select name="branch" class="edit-select" id="editBranch">
-                    <option value="Нові будинки">Нові будинки</option>
-                    <option value="Центр">Центр</option>
-                    <option value="Салтівка">Салтівка</option>
-                    <option value="Мотель">Мотель</option>
-                    <option value="П'ятихатки">П'ятихатки</option>
-                    <option value="ХТЗ">ХТЗ</option>
-                </select>
+                <select name="branch" class="edit-select" id="editBranch"></select>
             </div>
 
             <!-- Item name — dropdown by category -->
-            <div class="edit-field-group">
-                <label class="edit-field-label">Категорія</label>
-                <select class="edit-select" id="editCategory" onchange="onEditCategoryChange()">
-                    <option value="Побутовий одяг">Побутовий одяг</option>
-                    <option value="Спортивний одяг">Спортивний одяг</option>
-                    <option value="Робочий одяг">Робочий одяг</option>
-                    <option value="Фірмовий одяг">Фірмовий одяг</option>
-                </select>
-            </div>
+            <!-- Категорія прихована — визначається автоматично по назві речі -->
+            <select id="editCategory" style="display:none">
+                <option value="Побутовий одяг">Побутовий одяг</option>
+                <option value="Спортивний одяг">Спортивний одяг</option>
+                <option value="Робочий одяг">Робочий одяг</option>
+                <option value="Фірмовий одяг">Фірмовий одяг</option>
+            </select>
 
             <div class="edit-field-group">
                 <label class="edit-field-label">Назва речі</label>
@@ -1120,21 +1121,6 @@ function openViewModal(d) {
 }
 
 // ===== EDIT ORDER =====
-function openEditModal(d) {
-    document.getElementById('editOrderNum').textContent = '#' + d.num;
-    document.getElementById('editForm').action = '/order/' + d.id + '/edit/';
-    document.getElementById('editItemName').value    = d.item;
-    document.getElementById('editServiceType').value = d.services;
-    document.getElementById('editDesiredDate').value = d.date;
-    document.getElementById('editDefect').value      = d.defect;
-
-    const branchSel = document.getElementById('editBranch');
-    for (let o of branchSel.options) o.selected = (o.value === d.branch);
-    document.getElementById('editUrgent').value = d.urgent === 'true' ? 'True' : 'False';
-    document.getElementById('editDesiredDate').setAttribute('min', new Date().toISOString().split('T')[0]);
-
-    openModal('editModal');
-}
 
 // ===== PAYMENT =====
 let currentOrderId = null;
@@ -1264,77 +1250,8 @@ function printReceipt() {
     setTimeout(() => { printWin.print(); }, 400);
 }
 
-// ===== CATALOG DATA (mirrors catalog.html) =====
-const CATALOG = {
-    'Побутовий одяг': {
-        items: [
-            { name: 'Куртка / пальто',   price: 280 },
-            { name: 'Светр / кофта',      price: 150 },
-            { name: 'Штани / джинси',     price: 130 },
-            { name: 'Сукня / спідниця',   price: 160 },
-            { name: 'Сорочка / блуза',    price: 100 },
-        ],
-        services: [
-            { name: 'Хімчистка',                         price: 150 },
-            { name: 'Прасування',                        price:  60 },
-            { name: 'Виведення плям',                    price:  80 },
-            { name: 'Ремонт тканини',                    price: 120 },
-            { name: 'Водовідштовхувальне просочення',    price: 100 },
-            { name: 'Антистатична обробка',              price:  70 },
-        ]
-    },
-    'Спортивний одяг': {
-        items: [
-            { name: 'Спортивний костюм', price: 200 },
-            { name: 'Футболка / майка',  price:  80 },
-            { name: 'Спортивні штани',   price: 110 },
-            { name: 'Термобілизна',      price: 140 },
-            { name: 'Кросівки / кеди',   price: 180 },
-        ],
-        services: [
-            { name: 'Хімчистка',                   price: 120 },
-            { name: 'Виведення поту',               price:  90 },
-            { name: 'Дезодорація',                  price:  70 },
-            { name: "Виведення трав'яних плям",     price:  85 },
-            { name: 'Відновлення кольору',          price: 150 },
-            { name: 'Антибактеріальна обробка',     price:  80 },
-        ]
-    },
-    'Робочий одяг': {
-        items: [
-            { name: 'Комбінезон / роба',  price: 250 },
-            { name: 'Захисна куртка',     price: 220 },
-            { name: 'Робочі штани',       price: 150 },
-            { name: 'Спецодяг медика',    price: 180 },
-            { name: 'Фартух / жилет',     price: 100 },
-        ],
-        services: [
-            { name: 'Промислова хімчистка',       price: 200 },
-            { name: 'Виведення мастила',           price: 130 },
-            { name: 'Виведення фарби',             price: 150 },
-            { name: 'Дезінфекція',                 price: 100 },
-            { name: 'Ремонт швів',                 price:  90 },
-            { name: 'Вогнезахисне просочення',     price: 180 },
-        ]
-    },
-    'Фірмовий одяг': {
-        items: [
-            { name: 'Діловий костюм',  price: 350 },
-            { name: 'Сорочка / блуза', price: 120 },
-            { name: 'Краватка / шарф', price:  80 },
-            { name: 'Піджак / жакет',  price: 260 },
-            { name: 'Форменний одяг',  price: 200 },
-        ],
-        services: [
-            { name: 'Делікатна хімчистка',   price: 200 },
-            { name: 'Прасування з парою',    price:  90 },
-            { name: 'Виведення плям',        price: 100 },
-            { name: 'Відновлення форми',     price: 160 },
-            { name: 'Чищення підкладки',     price: 120 },
-            { name: 'Нашивка емблеми',       price:  70 },
-        ]
-    }
-};
+// ===== CATALOG DATA — з бекенду (CategoryConfig з БД) =====
+const CATALOG = {{ catalog_json|safe }};
 
 // Find which category an item belongs to
 function findCategoryForItem(itemName) {
@@ -1346,6 +1263,9 @@ function findCategoryForItem(itemName) {
 
 function onEditCategoryChange() {
     const cat = document.getElementById('editCategory').value;
+    const branchSel = document.getElementById('editBranch');
+    const branches = CATALOG[cat]?.branches || ["Нові будинки","Центр","Салтівка","Мотель","П'ятихатки","ХТЗ"];
+    branchSel.innerHTML = branches.map(b => `<option value="${b}">${b}</option>`).join('');
     renderEditItems(cat, '');
     renderEditServices(cat, []);
     recalcEditPrice();
@@ -1365,17 +1285,33 @@ function renderEditItems(cat, selectedItem) {
 }
 
 function renderEditServices(cat, checkedServices) {
+    renderEditServicesWithExtras(cat, checkedServices, []);
+}
+
+// Показує послуги з каталогу + кастомні з замовлення
+function renderEditServicesWithExtras(cat, checkedServices, extraServices) {
     const grid = document.getElementById('editSvcGrid');
     grid.innerHTML = '';
-    (CATALOG[cat]?.services || []).forEach(svc => {
-        const isChecked = checkedServices.includes(svc.name);
+    const normalizedChecked = checkedServices.map(s => s.trim().toLowerCase());
+
+    // Будуємо повний список: послуги з CATALOG + кастомні яких нема в CATALOG
+    const catalogSvcs = CATALOG[cat]?.services || [];
+    const allSvcs = [...catalogSvcs];
+    extraServices.forEach(extraName => {
+        const alreadyIn = allSvcs.some(s => s.name.trim().toLowerCase() === extraName.trim().toLowerCase());
+        if (!alreadyIn) allSvcs.push({ name: extraName, price: 0 });
+    });
+
+    allSvcs.forEach(svc => {
+        const isChecked = normalizedChecked.includes(svc.name.trim().toLowerCase());
+        const priceLabel = svc.price > 0 ? svc.price + ' грн' : '(кастомна)';
         const label = document.createElement('label');
         label.className = 'edit-svc-opt' + (isChecked ? ' checked' : '');
         label.innerHTML = `
             <input type="checkbox" ${isChecked ? 'checked' : ''} data-name="${svc.name}" data-price="${svc.price}">
             <span>
                 <span class="edit-svc-name">${svc.name}</span>
-                <span class="edit-svc-price">${svc.price} грн</span>
+                <span class="edit-svc-price">${priceLabel}</span>
             </span>
         `;
         label.querySelector('input').addEventListener('change', function() {
@@ -1456,20 +1392,189 @@ function openEditModal(d) {
     document.getElementById('editDesiredDate').value = d.date;
     document.getElementById('editDesiredDate').setAttribute('min', new Date().toISOString().split('T')[0]);
 
-    const branchSel = document.getElementById('editBranch');
-    for (let o of branchSel.options) o.selected = (o.value === d.branch);
-
-    // Detect category from item name
+    // Визначаємо категорію за назвою речі
     const cat = findCategoryForItem(d.item);
     document.getElementById('editCategory').value = cat;
+
+    // Заповнюємо філії
+    const branchSel = document.getElementById('editBranch');
+    const branches = CATALOG[cat]?.branches || ["Нові будинки","Центр","Салтівка","Мотель","П'ятихатки","ХТЗ"];
+    branchSel.innerHTML = branches.map(b => `<option value="${b}" ${b === d.branch ? 'selected' : ''}>${b}</option>`).join('');
+
+    // Заповнюємо список речей і вибираємо поточну
     renderEditItems(cat, d.item);
 
-    // Parse existing services
-    const existingServices = d.services ? d.services.split(',').map(s => s.trim()) : [];
-    renderEditServices(cat, existingServices);
+    // Парсимо послуги з замовлення
+    const rawServices = d.services ? d.services.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const allOnValues = rawServices.length > 0 && rawServices.every(s => s.toLowerCase() === 'on');
+
+    if (allOnValues) {
+        // Старі "on,on" — показуємо всі послуги категорії незаповненими + підказку
+        renderEditServicesWithExtras(cat, [], []);
+        setTimeout(() => {
+            const grid = document.getElementById('editSvcGrid');
+            const hint = document.createElement('div');
+            hint.style.cssText = 'grid-column:1/-1;padding:8px 10px;background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);border-radius:8px;font-size:12px;color:#b07030;margin-bottom:4px;';
+            hint.textContent = '⚠ Послуги потребують повторного вибору — оберіть нижче';
+            grid.insertBefore(hint, grid.firstChild);
+        }, 30);
+    } else {
+        // Нормальні дані — показуємо послуги категорії + будь-які кастомні з замовлення (не з каталогу)
+        const catalogSvcNames = (CATALOG[cat]?.services || []).map(s => s.name.trim().toLowerCase());
+        const extraServices = rawServices.filter(s => !catalogSvcNames.includes(s.trim().toLowerCase()));
+        renderEditServicesWithExtras(cat, rawServices, extraServices);
+    }
 
     recalcEditPrice();
     openModal('editModal');
 }
+  // ========== BUBBLE ANIMATION ==========
+(function() {
+    const canvas = document.getElementById('bubble-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, bubbles = [];
+    const COLORS = [
+        'rgba(212,165,116,','rgba(180,130,90,','rgba(240,200,150,',
+        'rgba(200,150,100,','rgba(255,220,170,','rgba(160,110,70,',
+    ];
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+    function mkBubble(scatterY) {
+        const r = 6 + Math.random() * 28;
+        return {
+            x: Math.random() * W,
+            y: scatterY !== undefined ? scatterY : H + r + Math.random() * 80,
+            r,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: -(0.35 + Math.random() * 0.55),
+            wobble: Math.random() * Math.PI * 2,
+            wobbleSpeed: 0.012 + Math.random() * 0.018,
+            wobbleAmp:   0.4  + Math.random() * 1.2,
+            alpha: 0.12 + Math.random() * 0.22,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            pulse: Math.random() * Math.PI * 2,
+            pulseSpeed: 0.02 + Math.random() * 0.03,
+        };
+    }
+
+    function init() {
+        for (let i = 0; i < 42; i++) {
+            const b = mkBubble(); b.y = Math.random() * (H + 200) - 100; bubbles.push(b);
+        }
+    }
+
+    let particles = [];
+
+    function spawnPop(x, y, r, color) {
+        const count = Math.floor(6 + r * 0.5);
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 / count) * i + Math.random() * 0.4;
+            const speed = 1.5 + Math.random() * 3;
+            particles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                r: 1.5 + Math.random() * (r * 0.18),
+                alpha: 0.7 + Math.random() * 0.3,
+                color,
+                life: 1.0,
+                decay: 0.03 + Math.random() * 0.04,
+            });
+        }
+        particles.push({ ring: true, x, y, r: r * 0.3, maxR: r * 1.6, color, alpha: 0.6, life: 1.0, decay: 0.07 });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.life -= p.decay;
+            if (p.life <= 0) { particles.splice(i, 1); continue; }
+            ctx.save();
+            ctx.globalAlpha = p.alpha * p.life;
+            if (p.ring) {
+                p.r += (p.maxR - p.r) * 0.18;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.strokeStyle = p.color + '1)'; ctx.lineWidth = 1.5; ctx.stroke();
+            } else {
+                p.x += p.vx; p.y += p.vy; p.vy += 0.08;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI*2);
+                ctx.fillStyle = p.color + '0.9)'; ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        for (let i = bubbles.length - 1; i >= 0; i--) {
+            const b = bubbles[i];
+            b.wobble += b.wobbleSpeed; b.pulse += b.pulseSpeed;
+            b.x += b.vx + Math.sin(b.wobble) * b.wobbleAmp;
+            b.y += b.vy;
+            const rr = b.r + Math.sin(b.pulse) * b.r * 0.08;
+            if (b.y + rr < -20) { bubbles.splice(i, 1); bubbles.push(mkBubble()); continue; }
+
+            ctx.save();
+            ctx.globalAlpha = b.alpha;
+            ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, Math.PI*2);
+            ctx.strokeStyle = b.color + '0.8)'; ctx.lineWidth = 1.2; ctx.stroke();
+            const g = ctx.createRadialGradient(b.x - rr*.3, b.y - rr*.3, rr*.05, b.x, b.y, rr);
+            g.addColorStop(0, b.color+'0.35)'); g.addColorStop(0.6, b.color+'0.08)'); g.addColorStop(1, b.color+'0)');
+            ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
+            ctx.beginPath(); ctx.arc(b.x - rr*.28, b.y - rr*.28, rr*.22, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fill();
+            ctx.restore();
+        }
+        requestAnimationFrame(draw);
+    }
+
+    canvas.addEventListener('click', function(e) {
+        const mx = e.clientX, my = e.clientY;
+        for (let i = bubbles.length - 1; i >= 0; i--) {
+            const b = bubbles[i];
+            const rr = b.r + Math.sin(b.pulse) * b.r * 0.08;
+            const dx = mx - b.x, dy = my - b.y;
+            if (dx*dx + dy*dy <= rr*rr) {
+                spawnPop(b.x, b.y, rr, b.color);
+                bubbles.splice(i, 1);
+                bubbles.push(mkBubble());
+                break;
+            }
+        }
+    });
+
+    canvas.addEventListener('mousemove', function(e) {
+        const mx = e.clientX, my = e.clientY;
+        let hit = false;
+        for (const b of bubbles) {
+            const rr = b.r + Math.sin(b.pulse) * b.r * 0.08;
+            const dx = mx - b.x, dy = my - b.y;
+            if (dx*dx + dy*dy <= rr*rr) { hit = true; break; }
+        }
+        canvas.style.cursor = hit ? 'pointer' : 'default';
+    });
+
+    window.addEventListener('resize', resize);
+    resize(); init(); draw();
+
+    document.querySelectorAll('.cat-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const rect = card.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                bubbles.push({
+                    x: rect.left + Math.random() * rect.width,
+                    y: rect.bottom + 10,
+                    r: 4 + Math.random() * 12,
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: -(0.7 + Math.random() * 1.0),
+                    wobble: Math.random()*Math.PI*2, wobbleSpeed: 0.018+Math.random()*.022, wobbleAmp: 0.6+Math.random()*1.4,
+                    alpha: 0.2+Math.random()*.25,
+                    color: COLORS[Math.floor(Math.random()*COLORS.length)],
+                    pulse: Math.random()*Math.PI*2, pulseSpeed: 0.025+Math.random()*.03,
+                });
+            }
+        });
+    });
+})();
 </script>
 {% endblock %}

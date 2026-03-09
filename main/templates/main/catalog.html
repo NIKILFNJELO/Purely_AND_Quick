@@ -1,5 +1,5 @@
 {% extends 'main/base.html' %}
-{% block title %}Каталог — Purely&Quick{% endblock %}
+{% block title %}Каталог Purely&Quick{% endblock %}
 
 {% block content %}
 <input type="hidden" id="user-auth" value="{{ user_authenticated|yesno:'true,false' }}">
@@ -80,12 +80,12 @@
 }
 .btn-order-toggle:hover { background: rgba(212,165,116,0.18); transform: translateY(-1px); }
 
-/* Manager edit button */
+/* Кнопка редагування для менеджера*/
 .btn-manager-edit {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(202, 202, 202, 0.75);
+    background: rgba(202,202,202,0.75);
     border: 1px solid rgba(212,165,116,0.4);
     border-radius: 8px;
     color: var(--accent);
@@ -104,7 +104,7 @@
 .btn-manager-edit:hover { background: rgba(212,165,116,0.2); transform: translateY(-1px); }
 .btn-manager-edit svg { width: 13px; height: 13px; }
 
-/* ===== ORDER MODAL ===== */
+/* Модальне вікно замовлення*/
 #orderModal {
     display: none;
     position: fixed;
@@ -240,6 +240,7 @@
 .ps-row:last-child { border-bottom: none; }
 .ps-row.weekend { color: #8b5a2b; }
 .ps-row.urgent  { color: #b07030; }
+.ps-row.discount { color: #2d7a4f; }
 .ps-total { display: flex; justify-content: space-between; padding-top: 10px; margin-top: 4px; font-size: 17px; font-weight: 700; color: #6b4423; border-top: 1px solid rgba(139,90,43,0.15); }
 
 .form-hint {
@@ -279,13 +280,10 @@
     border: 1.5px solid rgba(139,90,43,0.15);
 }
 
-/* ===== DISCOUNT ROW (if has_discount) ===== */
-.ps-row.discount { color: #2d7a4f; }
-
 @media (max-width: 1100px) { .catalog-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px)  { .catalog-grid { grid-template-columns: 1fr; } .svc-grid { grid-template-columns: 1fr; } }
 
-/* ===== MANAGER MODAL ===== */
+/* Модальне вікно менеджера*/
 .mgr-overlay {
     position: fixed;
     inset: 0;
@@ -302,29 +300,28 @@
 .mgr-overlay.open { opacity: 1; pointer-events: all; }
 
 .mgr-modal {
-    background: linear-gradient(145deg, rgba(200, 200, 199, 0.97), rgba(243, 243, 243, 0.97));
-    border: 1.5px solid rgba(250, 249, 248, 0.54);
+    background: linear-gradient(145deg, rgba(200,200,199,0.97), rgba(243,243,243,0.97));
+    border: 1.5px solid rgba(250,249,248,0.54);
     border-radius: 20px;
     padding: 32px;
     width: 680px;
     max-width: 95vw;
     max-height: 88vh;
     overflow-y: auto;
-    box-shadow: 0 30px 80px rgba(206, 206, 206, 0.6), inset 0 1px 0 rgba(212,165,116,0.1);
+    box-shadow: 0 30px 80px rgba(206,206,206,0.6);
     transform: translateY(20px) scale(0.97);
     transition: transform 0.25s ease;
     scrollbar-width: thin;
-    scrollbar-color: rgba(253, 253, 253, 0.3) transparent;
 }
 .mgr-overlay.open .mgr-modal { transform: translateY(0) scale(1); }
 
 .mgr-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
 .mgr-modal-title  { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--accent); }
 .mgr-modal-subtitle { font-size: 13px; color: #888; margin-top: 3px; }
-.mgr-close-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #aaa; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; font-size: 18px; flex-shrink: 0; }
+.mgr-close-btn { background: rgba(200,200,200,0.2); border: 1px solid rgba(180,180,180,0.3); border-radius: 8px; color: #666; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; font-size: 18px; flex-shrink: 0; }
 .mgr-close-btn:hover { background: rgba(220,53,69,0.15); border-color: rgba(220,53,69,0.3); color: var(--danger); }
 
-.mgr-tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0; }
+.mgr-tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid rgba(139,90,43,0.15); padding-bottom: 0; }
 .mgr-tab  { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; background: transparent; border: none; border-bottom: 2px solid transparent; color: #777; padding: 8px 16px; cursor: pointer; transition: all .2s; margin-bottom: -1px; }
 .mgr-tab:hover { color: var(--accent); }
 .mgr-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -332,39 +329,38 @@
 .mgr-section { display: none; }
 .mgr-section.active { display: block; }
 
-.mgr-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 240px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(212,165,116,0.2) transparent; }
-.mgr-list-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px; transition: border-color .2s; }
-.mgr-list-item:hover { border-color: rgba(237, 236, 236, 0.637); }
+.mgr-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 240px; overflow-y: auto; scrollbar-width: thin; }
+.mgr-list-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.6); border: 1px solid rgba(212,165,116,0.2); border-radius: 10px; padding: 10px 14px; transition: border-color .2s; }
 .mgr-item-info { flex: 1; min-width: 0; }
 .mgr-item-name  { font-size: 14px; color: var(--text); font-weight: 500; }
 .mgr-item-price { font-size: 12px; color: var(--accent); margin-top: 2px; }
 .mgr-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .mgr-btn-icon   { width: 30px; height: 30px; border-radius: 7px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; font-size: 13px; }
-.mgr-btn-edit   { background: rgba(217, 216, 214, 0.64); color: var(--accent); }
-.mgr-btn-edit:hover   { background: rgba(239, 198, 154, 0.25); }
+.mgr-btn-edit   { background: rgba(217,216,214,0.64); color: var(--accent); }
+.mgr-btn-edit:hover   { background: rgba(239,198,154,0.25); }
 .mgr-btn-delete { background: rgba(220,53,69,0.08); color: #dc3545; }
 .mgr-btn-delete:hover { background: rgba(220,53,69,0.2); }
 
-.mgr-add-form  { background: rgba(255,255,255,0.02); border: 1px solid rgba(212,165,116,0.15); border-radius: 12px; padding: 16px; }
+.mgr-add-form  { background: rgba(255,255,255,0.5); border: 1px solid rgba(212,165,116,0.2); border-radius: 12px; padding: 16px; }
 .mgr-add-title { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 12px; font-family: 'DM Sans', sans-serif; }
 .mgr-input-row { display: flex; gap: 10px; align-items: flex-end; }
 .mgr-input-group { flex: 1; }
 .mgr-input-group label { font-size: 11px; color: #888; margin-bottom: 4px; display: block; }
-.mgr-input { width: 100%; background: rgba(139,90,43,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color .2s; box-sizing: border-box; }
+.mgr-input { width: 100%; background: #fff; border: 1.5px solid #d4b896; border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color .2s; box-sizing: border-box; }
 .mgr-input:focus { border-color: var(--accent); }
 .mgr-btn-add { background: rgba(212,165,116,0.15); border: 1px solid rgba(212,165,116,0.3); border-radius: 8px; color: var(--accent); font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; padding: 8px 16px; cursor: pointer; transition: all .2s; white-space: nowrap; flex-shrink: 0; }
 .mgr-btn-add:hover { background: rgba(212,165,116,0.28); transform: translateY(-1px); }
 .mgr-empty { text-align: center; padding: 20px; color: #666; font-size: 13px; }
 .mgr-edit-inline { flex: 1; display: flex; gap: 8px; align-items: center; }
-.mgr-edit-inline input { flex: 1; background: rgba(139,90,43,0.08); border: 1.5px solid var(--accent); border-radius: 7px; padding: 5px 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; min-width: 0; }
+.mgr-edit-inline input { flex: 1; background: #fff; border: 1.5px solid var(--accent); border-radius: 7px; padding: 5px 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; min-width: 0; }
 .mgr-edit-inline input.price-field { width: 80px; flex: none; }
 .mgr-btn-save   { background: rgba(40,167,69,0.2); border: 1px solid rgba(40,167,69,0.4); border-radius: 7px; color: #28a745; font-size: 12px; font-family: 'DM Sans',sans-serif; font-weight:600; padding: 5px 10px; cursor: pointer; transition: all .2s; }
 .mgr-btn-save:hover { background: rgba(40,167,69,0.35); }
-.mgr-btn-cancel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #888; font-size: 12px; font-family: 'DM Sans',sans-serif; padding: 5px 10px; cursor: pointer; transition: all .2s; }
-.mgr-btn-cancel:hover { background: rgba(255,255,255,0.1); }
-.mgr-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 20px 0; }
+.mgr-btn-cancel { background: rgba(200,200,200,0.3); border: 1px solid rgba(180,180,180,0.4); border-radius: 7px; color: #666; font-size: 12px; font-family: 'DM Sans',sans-serif; padding: 5px 10px; cursor: pointer; transition: all .2s; }
+.mgr-btn-cancel:hover { background: rgba(200,200,200,0.5); }
+.mgr-divider { border: none; border-top: 1px solid rgba(139,90,43,0.1); margin: 20px 0; }
 
-/* ===== BUBBLE CANVAS ===== */
+/* Анімація бульбашок*/
 #bubble-canvas {
     position: fixed;
     inset: 0;
@@ -373,7 +369,7 @@
 }
 </style>
 
-<!-- Bubble canvas -->
+<!-- Анімація бульбашок -->
 <canvas id="bubble-canvas"></canvas>
 
 <div class="page-header" style="position:relative;z-index:1;">
@@ -383,110 +379,88 @@
 
 <div class="catalog-grid" style="position:relative;z-index:1;">
 
-    <!-- Побутовий одяг -->
+{% for cat in categories %}
     <div class="cat-card"
-        data-category="Побутовий одяг"
-        data-items='[{"name":"Куртка / пальто","price":280},{"name":"Светр / кофта","price":150},{"name":"Штани / джинси","price":130},{"name":"Сукня / спідниця","price":160},{"name":"Сорочка / блуза","price":100}]'
-        data-services='[{"name":"Хімчистка","price":150},{"name":"Прасування","price":60},{"name":"Виведення плям","price":80},{"name":"Ремонт тканини","price":120},{"name":"Водовідштовх. просочення","price":100},{"name":"Антистат. обробка","price":70}]'>
+        data-category="{{ cat.category }}"
+        data-items='{{ cat.items_json }}'
+        data-services='{{ cat.services_json }}'
+        data-branches='{{ cat.branches_json }}'>
         {% if request.user.is_staff %}
         <button class="btn-manager-edit" onclick="openManagerModal(this)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Редагувати
         </button>
         {% endif %}
-        <img class="cat-img" src="https://organic-store.in.ua/images/beauty/beauty-1458.jpg" alt="Побутовий одяг">
+        <img class="cat-img" src="{{ cat.image_url }}" alt="{{ cat.category }}">
         <div class="cat-body">
-            <div class="cat-title">Побутовий одяг</div>
+            <div class="cat-title">{{ cat.category }}</div>
             <div class="price-table" data-price-table>
-                <div class="price-row-new"><span>Куртка / пальто</span><span>280 грн</span></div>
-                <div class="price-row-new"><span>Светр / кофта</span><span>150 грн</span></div>
-                <div class="price-row-new"><span>Штани / джинси</span><span>130 грн</span></div>
-                <div class="price-row-new"><span>Сукня / спідниця</span><span>160 грн</span></div>
-                <div class="price-row-new"><span>Сорочка / блуза</span><span>100 грн</span></div>
+                {% for item in cat.items %}
+                <div class="price-row-new"><span>{{ item.name }}</span><span>{{ item.price }} грн</span></div>
+                {% endfor %}
             </div>
             <button class="btn-order-toggle" type="button">Зробити замовлення</button>
         </div>
     </div>
+{% endfor %}
 
-    <!-- Спортивний одяг -->
-    <div class="cat-card"
-        data-category="Спортивний одяг"
-        data-items='[{"name":"Спортивний костюм","price":200},{"name":"Футболка / майка","price":80},{"name":"Спортивні штани","price":110},{"name":"Термобілизна","price":140},{"name":"Кросівки / кеди","price":180}]'
-        data-services='[{"name":"Хімчистка","price":120},{"name":"Виведення поту","price":90},{"name":"Дезодорація","price":70},{"name":"Виведення трав. плям","price":85},{"name":"Відновлення кольору","price":150},{"name":"Антибакт. обробка","price":80}]'>
-        {% if request.user.is_staff %}
-        <button class="btn-manager-edit" onclick="openManagerModal(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Редагувати
-        </button>
-        {% endif %}
-        <img class="cat-img" src="https://images.prom.ua/4243735384_w640_h640_muzhskoj-sportivnyj-kostyum.jpg" alt="Спортивний одяг">
-        <div class="cat-body">
-            <div class="cat-title">Спортивний одяг</div>
-            <div class="price-table" data-price-table>
-                <div class="price-row-new"><span>Костюм</span><span>200 грн</span></div>
-                <div class="price-row-new"><span>Футболка / майка</span><span>80 грн</span></div>
-                <div class="price-row-new"><span>Спортивні штани</span><span>110 грн</span></div>
-                <div class="price-row-new"><span>Термобілизна</span><span>140 грн</span></div>
-                <div class="price-row-new"><span>Кросівки / кеди</span><span>180 грн</span></div>
+</div>
+
+{% if request.user.is_staff %}
+<div style="display:flex;justify-content:center;margin:24px 0 8px;">
+    <button onclick="openAddCategoryModal()" style="
+        display:flex;align-items:center;gap:8px;
+        background:rgba(212,165,116,0.12);
+        border:1.5px dashed rgba(212,165,116,0.5);
+        color:var(--accent);
+        font-family:'DM Sans',sans-serif;font-size:14px;
+        padding:10px 24px;border-radius:10px;cursor:pointer;
+        transition:all .2s;
+    " onmouseover="this.style.background='rgba(212,165,116,0.22)'"
+       onmouseout="this.style.background='rgba(212,165,116,0.12)'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Додати нову категорію
+    </button>
+</div>
+{% endif %}
+
+
+
+<!-- Модальне вікно категорій-->
+<div id="addCatOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:var(--card);border:1px solid var(--gold-border);border-radius:16px;padding:32px;width:min(480px,95vw);box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--accent);">Нова категорія</div>
+            <button onclick="closeAddCategoryModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;">✕</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+                <label style="font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:block;margin-bottom:6px;">Назва категорії *</label>
+                <input id="newCatName" type="text" placeholder="напр. Весільний одяг"
+                    style="width:100%;padding:10px 14px;background:#fff;color:#1a1510;border:1.5px solid var(--gold-border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;box-sizing:border-box;outline:none;">
             </div>
-            <button class="btn-order-toggle" type="button">Зробити замовлення</button>
+            <div>
+                <label style="font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:block;margin-bottom:6px;">Посилання на зображення</label>
+                <input id="newCatImage" type="text" placeholder="https://..."
+                    style="width:100%;padding:10px 14px;background:#fff;color:#1a1510;border:1.5px solid var(--gold-border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;box-sizing:border-box;outline:none;">
+            </div>
+            <div id="addCatError" style="display:none;color:#c0392b;font-size:13px;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:6px;"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end;">
+            <button onclick="closeAddCategoryModal()"
+                style="padding:9px 20px;background:transparent;border:1.5px solid var(--gold-border);color:var(--muted);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+                Скасувати
+            </button>
+            <button onclick="submitNewCategory()" id="addCatSubmitBtn"
+                style="padding:9px 22px;background:var(--accent);border:none;color:#fff;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">
+                Створити
+            </button>
         </div>
     </div>
-
-    <!-- Робочий одяг -->
-    <div class="cat-card"
-        data-category="Робочий одяг"
-        data-items='[{"name":"Комбінезон / роба","price":250},{"name":"Захисна куртка","price":220},{"name":"Робочі штани","price":150},{"name":"Спецодяг медика","price":180},{"name":"Фартух / жилет","price":100}]'
-        data-services='[{"name":"Промислова хімчистка","price":200},{"name":"Виведення мастила","price":130},{"name":"Виведення фарби","price":150},{"name":"Дезінфекція","price":100},{"name":"Ремонт швів","price":90},{"name":"Вогнезахист. просочення","price":180}]'>
-        {% if request.user.is_staff %}
-        <button class="btn-manager-edit" onclick="openManagerModal(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Редагувати
-        </button>
-        {% endif %}
-        <img class="cat-img" src="https://togtrade.com/image/catalog/jak-organizuvati-reguljarnu-zaminu-specodjagu-na-virobnictvi-2.png" alt="Робочий одяг">
-        <div class="cat-body">
-            <div class="cat-title">Робочий одяг</div>
-            <div class="price-table" data-price-table>
-                <div class="price-row-new"><span>Комбінезон / роба</span><span>250 грн</span></div>
-                <div class="price-row-new"><span>Захисна куртка</span><span>220 грн</span></div>
-                <div class="price-row-new"><span>Робочі штани</span><span>150 грн</span></div>
-                <div class="price-row-new"><span>Спецодяг медика</span><span>180 грн</span></div>
-                <div class="price-row-new"><span>Фартух / жилет</span><span>100 грн</span></div>
-            </div>
-            <button class="btn-order-toggle" type="button">Зробити замовлення</button>
-        </div>
-    </div>
-
-    <!-- Фірмовий одяг -->
-    <div class="cat-card"
-        data-category="Фірмовий одяг"
-        data-items='[{"name":"Діловий костюм","price":350},{"name":"Сорочка / блуза","price":120},{"name":"Краватка / шарф","price":80},{"name":"Піджак / жакет","price":260},{"name":"Форменний одяг","price":200}]'
-        data-services='[{"name":"Делікатна хімчистка","price":200},{"name":"Прасування з парою","price":90},{"name":"Виведення плям","price":100},{"name":"Відновлення форми","price":160},{"name":"Чищення підкладки","price":120},{"name":"Нашивка емблеми","price":70}]'>
-        {% if request.user.is_staff %}
-        <button class="btn-manager-edit" onclick="openManagerModal(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Редагувати
-        </button>
-        {% endif %}
-        <img class="cat-img" src="https://images.unian.net/photos/2022_09/thumb_files/400_0_1662204765-9857.jpg?r=814461" alt="Фірмовий одяг">
-        <div class="cat-body">
-            <div class="cat-title">Фірмовий одяг</div>
-            <div class="price-table" data-price-table>
-                <div class="price-row-new"><span>Діловий костюм</span><span>350 грн</span></div>
-                <div class="price-row-new"><span>Сорочка / блуза</span><span>120 грн</span></div>
-                <div class="price-row-new"><span>Краватка / шарф</span><span>80 грн</span></div>
-                <div class="price-row-new"><span>Піджак / жакет</span><span>260 грн</span></div>
-                <div class="price-row-new"><span>Форменний одяг</span><span>200 грн</span></div>
-            </div>
-            <button class="btn-order-toggle" type="button">Зробити замовлення</button>
-        </div>
-    </div>
-
-</div><!-- /catalog-grid -->
-
-
-<!-- ===== ORDER MODAL (single shared) ===== -->
+</div>
+<!-- Модальне вікно замовлення-->
 <div id="orderModal">
     <div class="order-modal-box">
         <div class="order-modal-header">
@@ -502,14 +476,7 @@
 
                 <div>
                     <label class="field-label">Філія</label>
-                    <select name="branch" class="field-select" id="omBranch">
-                        <option value="Нові будинки">Нові будинки</option>
-                        <option value="Центр">Центр</option>
-                        <option value="Салтівка">Салтівка</option>
-                        <option value="Мотель">Мотель</option>
-                        <option value="П'ятихатки">П'ятихатки</option>
-                        <option value="ХТЗ">ХТЗ</option>
-                    </select>
+                    <select name="branch" class="field-select" id="omBranch"></select>
                 </div>
 
                 <div>
@@ -548,7 +515,7 @@
                     <div class="ps-row weekend" id="omPsWeekendRow" style="display:none"><span>Вихідний (+20%):</span><span id="omPsWeekend">0 грн</span></div>
                     <div class="ps-row urgent"  id="omPsUrgentRow"  style="display:none"><span>Терміновість (+50%):</span><span id="omPsUrgent">0 грн</span></div>
                     {% if has_discount %}
-                    <div class="ps-row discount" id="omPsDiscountRow"><span>Знижка клієнта (3%):</span><span id="omPsDiscount">-0 грн</span></div>
+                    <div class="ps-row discount"><span>Знижка клієнта (3%):</span><span id="omPsDiscount">-0 грн</span></div>
                     {% endif %}
                     <div class="ps-total"><span>Разом:</span><span id="omPsTotal">0 грн</span></div>
                 </div>
@@ -564,7 +531,7 @@
 </div>
 
 
-<!-- ===== MANAGER MODAL ===== -->
+<!-- Модальне вікно для менеджера-->
 <div class="mgr-overlay" id="mgrOverlay">
     <div class="mgr-modal" id="mgrModal">
         <div class="mgr-modal-header">
@@ -572,13 +539,25 @@
                 <div class="mgr-modal-title" id="mgrModalTitle">Редагування категорії</div>
                 <div class="mgr-modal-subtitle">Управління даними картки</div>
             </div>
-            <button class="mgr-close-btn" onclick="closeManagerModal()">✕</button>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button onclick="deleteCurrentCategory()" style="
+                    display:flex;align-items:center;gap:5px;
+                    background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.3);
+                    color:#c0392b;border-radius:7px;padding:6px 12px;cursor:pointer;
+                    font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+                    transition:all .2s;
+                " onmouseover="this.style.background='rgba(192,57,43,0.2)'"
+                   onmouseout="this.style.background='rgba(192,57,43,0.1)'">
+                    🗑 Видалити категорію
+                </button>
+                <button class="mgr-close-btn" onclick="closeManagerModal()">✕</button>
+            </div>
         </div>
 
         <div class="mgr-tabs">
-            <button class="mgr-tab active" onclick="switchTab('branches', this)">Філії</button>
-            <button class="mgr-tab" onclick="switchTab('items', this)">Речі</button>
-            <button class="mgr-tab" onclick="switchTab('services', this)">Послуги</button>
+            <button class="mgr-tab active" onclick="switchTab('branches', this)">🏢 Філії</button>
+            <button class="mgr-tab" onclick="switchTab('items', this)">👔 Речі</button>
+            <button class="mgr-tab" onclick="switchTab('services', this)">✨ Послуги</button>
         </div>
 
         <div class="mgr-section active" id="tab-branches">
@@ -623,7 +602,7 @@
 
 
 <script>
-// ========== BUBBLE ANIMATION ==========
+//Анімація бульбашок
 (function() {
     const canvas = document.getElementById('bubble-canvas');
     const ctx    = canvas.getContext('2d');
@@ -659,8 +638,48 @@
         }
     }
 
+    let particles = [];
+
+    function spawnPop(x, y, r, color) {
+        const count = Math.floor(6 + r * 0.5);
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 / count) * i + Math.random() * 0.4;
+            const speed = 1.5 + Math.random() * 3;
+            particles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                r: 1.5 + Math.random() * (r * 0.18),
+                alpha: 0.7 + Math.random() * 0.3,
+                color,
+                life: 1.0,
+                decay: 0.03 + Math.random() * 0.04,
+            });
+        }
+        particles.push({ ring: true, x, y, r: r * 0.3, maxR: r * 1.6, color, alpha: 0.6, life: 1.0, decay: 0.07 });
+    }
+
     function draw() {
         ctx.clearRect(0, 0, W, H);
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.life -= p.decay;
+            if (p.life <= 0) { particles.splice(i, 1); continue; }
+            ctx.save();
+            ctx.globalAlpha = p.alpha * p.life;
+            if (p.ring) {
+                p.r += (p.maxR - p.r) * 0.18;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.strokeStyle = p.color + '1)'; ctx.lineWidth = 1.5; ctx.stroke();
+            } else {
+                p.x += p.vx; p.y += p.vy; p.vy += 0.08;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI*2);
+                ctx.fillStyle = p.color + '0.9)'; ctx.fill();
+            }
+            ctx.restore();
+        }
+
         for (let i = bubbles.length - 1; i >= 0; i--) {
             const b = bubbles[i];
             b.wobble += b.wobbleSpeed; b.pulse += b.pulseSpeed;
@@ -683,10 +702,35 @@
         requestAnimationFrame(draw);
     }
 
+    canvas.addEventListener('click', function(e) {
+        const mx = e.clientX, my = e.clientY;
+        for (let i = bubbles.length - 1; i >= 0; i--) {
+            const b = bubbles[i];
+            const rr = b.r + Math.sin(b.pulse) * b.r * 0.08;
+            const dx = mx - b.x, dy = my - b.y;
+            if (dx*dx + dy*dy <= rr*rr) {
+                spawnPop(b.x, b.y, rr, b.color);
+                bubbles.splice(i, 1);
+                bubbles.push(mkBubble());
+                break;
+            }
+        }
+    });
+
+    canvas.addEventListener('mousemove', function(e) {
+        const mx = e.clientX, my = e.clientY;
+        let hit = false;
+        for (const b of bubbles) {
+            const rr = b.r + Math.sin(b.pulse) * b.r * 0.08;
+            const dx = mx - b.x, dy = my - b.y;
+            if (dx*dx + dy*dy <= rr*rr) { hit = true; break; }
+        }
+        canvas.style.cursor = hit ? 'pointer' : 'default';
+    });
+
     window.addEventListener('resize', resize);
     resize(); init(); draw();
 
-    // burst on card hover
     document.querySelectorAll('.cat-card').forEach(card => {
         card.addEventListener('mouseenter', function() {
             const rect = card.getBoundingClientRect();
@@ -708,21 +752,21 @@
 })();
 
 
-// ========== ORDER MODAL ==========
-const orderModal   = document.getElementById('orderModal');
-const omItem       = document.getElementById('omItem');
-const omSvcGrid    = document.getElementById('omSvcGrid');
-const omDate       = document.getElementById('omDate');
-const omUrgent     = document.getElementById('omUrgent');
-const omHint       = document.getElementById('omHint');
-const omHintTxt    = document.getElementById('omHintTxt');
-const omSubmitBtn  = document.getElementById('omSubmitBtn');
+// Модуль замовлення
+const orderModal     = document.getElementById('orderModal');
+const omItem         = document.getElementById('omItem');
+const omSvcGrid      = document.getElementById('omSvcGrid');
+const omDate         = document.getElementById('omDate');
+const omUrgent       = document.getElementById('omUrgent');
+const omHint         = document.getElementById('omHint');
+const omHintTxt      = document.getElementById('omHintTxt');
+const omSubmitBtn    = document.getElementById('omSubmitBtn');
 const omPriceSummary = document.getElementById('omPriceSummary');
-let omUserStarted  = false;
+let omUserStarted    = false;
 
 omDate.setAttribute('min', new Date().toISOString().split('T')[0]);
 
-// Open modal when clicking "Зробити замовлення"
+// Відкривається модальне вікно коли натискають "Зробити замовлення"
 document.querySelectorAll('.btn-order-toggle').forEach(btn => {
     btn.addEventListener('click', function() {
         const isAuth = document.getElementById('user-auth').value === 'true';
@@ -731,10 +775,15 @@ document.querySelectorAll('.btn-order-toggle').forEach(btn => {
         const card     = btn.closest('.cat-card');
         const items    = JSON.parse(card.dataset.items);
         const services = JSON.parse(card.dataset.services);
+        const branches = JSON.parse(card.dataset.branches);
 
         document.getElementById('orderModalCat').textContent = card.dataset.category;
 
-        // Fill items
+        // Заповнення гілок
+        const omBranch = document.getElementById('omBranch');
+        omBranch.innerHTML = branches.map(b => `<option value="${b}">${b}</option>`).join('');
+
+        // Заповнення елементів
         omItem.innerHTML = '<option value="">Оберіть річ</option>';
         items.forEach(it => {
             const o = document.createElement('option');
@@ -744,12 +793,12 @@ document.querySelectorAll('.btn-order-toggle').forEach(btn => {
             omItem.appendChild(o);
         });
 
-        // Fill services
+        // Заповнення послуг
         omSvcGrid.innerHTML = '';
         services.forEach(sv => {
             const lbl = document.createElement('label');
             lbl.className = 'svc-opt';
-            lbl.innerHTML = `<input type="checkbox" name="service_type" data-price="${sv.price}"><span><span class="svc-name">${sv.name}</span><span class="svc-price">${sv.price} грн</span></span>`;
+            lbl.innerHTML = `<input type="checkbox" name="service_type" value="${sv.name}" data-price="${sv.price}"><span><span class="svc-name">${sv.name}</span><span class="svc-price">${sv.price} грн</span></span>`;
             lbl.querySelector('input').addEventListener('change', function() {
                 lbl.classList.toggle('checked', this.checked);
                 omUserStarted = true; omCheck();
@@ -757,14 +806,13 @@ document.querySelectorAll('.btn-order-toggle').forEach(btn => {
             omSvcGrid.appendChild(lbl);
         });
 
-        // Reset state
+        // Скидання
         omUserStarted = false;
         omItem.value = ''; omDate.value = ''; omUrgent.value = 'False';
         document.getElementById('omDefect').value = '';
         omPriceSummary.style.display = 'none';
         omHint.classList.remove('show');
         omSubmitBtn.disabled = true;
-        omSubmitBtn.textContent = 'Підтвердити замовлення';
 
         orderModal.classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -779,7 +827,7 @@ document.getElementById('orderModalCloseBtn').addEventListener('click', closeOrd
 orderModal.addEventListener('click', e => { if (e.target === orderModal) closeOrderModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeOrderModal(); closeManagerModal(); } });
 
-// Price calc
+// Розрахунок ціни
 function omCalcPrice() {
     const opt = omItem.options[omItem.selectedIndex];
     const ip  = parseInt(opt?.dataset?.price || '0');
@@ -824,7 +872,7 @@ function omCalcPrice() {
     return total;
 }
 
-// Validate
+// Валідація
 function omCheck() {
     const hi = !!omItem.value;
     const hs = omSvcGrid.querySelectorAll('input:checked').length > 0;
@@ -845,7 +893,6 @@ omItem.addEventListener('change',   () => { omUserStarted = true; omCheck(); });
 omDate.addEventListener('change',   () => { omUserStarted = true; omCheck(); });
 omUrgent.addEventListener('change', () => omCalcPrice());
 
-// Safety net on submit
 document.getElementById('orderModalForm').addEventListener('submit', function(e) {
     const hi = !!omItem.value;
     const hs = omSvcGrid.querySelectorAll('input:checked').length > 0;
@@ -854,7 +901,144 @@ document.getElementById('orderModalForm').addEventListener('submit', function(e)
 });
 
 
-// ========== MANAGER MODAL ==========
+
+
+// Видалення категорій
+async function deleteCurrentCategory() {
+    if (!currentCard) return;
+    const catName = currentCard.getAttribute('data-category');
+    if (!confirm(`Видалити категорію "${catName}"?\nВсі дані категорії будуть видалені з бази.`)) return;
+
+    try {
+        const res = await fetch("{% url 'delete_category_config' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({ category: catName }),
+        });
+        if (res.ok) {
+            closeManagerModal();
+            // Видаляємо картку з DOM
+            currentCard.style.transition = 'opacity .3s, transform .3s';
+            currentCard.style.opacity = '0';
+            currentCard.style.transform = 'scale(0.9)';
+            setTimeout(() => currentCard.remove(), 300);
+        } else {
+            const data = await res.json();
+            alert(data.error || 'Помилка видалення');
+        }
+    } catch(e) {
+        alert('Помилка мережі');
+    }
+}
+
+// Додати нову категорію
+function openAddCategoryModal() {
+    document.getElementById('addCatOverlay').style.display = 'flex';
+    document.getElementById('newCatName').value = '';
+    document.getElementById('newCatImage').value = '';
+    document.getElementById('addCatError').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('newCatName').focus(), 50);
+}
+
+function closeAddCategoryModal() {
+    document.getElementById('addCatOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+document.getElementById('addCatOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeAddCategoryModal();
+});
+
+async function submitNewCategory() {
+    const name  = document.getElementById('newCatName').value.trim();
+    const image = document.getElementById('newCatImage').value.trim();
+    const errEl = document.getElementById('addCatError');
+    const btn   = document.getElementById('addCatSubmitBtn');
+
+    if (!name) {
+        errEl.textContent = 'Введіть назву категорії';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    // Перевіряємо чи вже існує
+    const existing = [...document.querySelectorAll('.cat-card')]
+        .map(c => c.dataset.category.trim().toLowerCase());
+    if (existing.includes(name.toLowerCase())) {
+        errEl.textContent = 'Категорія з такою назвою вже існує';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    btn.textContent = 'Зберігаємо...';
+    btn.disabled = true;
+    errEl.style.display = 'none';
+
+    try {
+        const res = await fetch("{% url 'save_category_config' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({
+                category: name,
+                items: [],
+                services: [],
+                branches: [],
+                image_url: image || '',
+            }),
+        });
+        if (res.ok) {
+            closeAddCategoryModal();
+            // Додаємо нову картку в DOM без перезавантаження
+            const grid = document.querySelector('.catalog-grid');
+            const card = document.createElement('div');
+            card.className = 'cat-card';
+            card.dataset.category = name;
+            card.dataset.items    = '[]';
+            card.dataset.services = '[]';
+            card.dataset.branches = '[]';
+            card.innerHTML = `
+                <button class="btn-manager-edit" onclick="openManagerModal(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Редагувати
+                </button>
+                ${image ? `<img class="cat-img" src="${image}" alt="${name}">` : `<div class="cat-img" style="background:rgba(212,165,116,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;">📦</div>`}
+                <div class="cat-body">
+                    <div class="cat-title">${name}</div>
+                    <div class="price-table" data-price-table>
+                        <div style="color:var(--muted);font-size:13px;padding:8px 0;">Ще немає речей — натисніть Редагувати</div>
+                    </div>
+                    <button class="btn-order-toggle" type="button">Зробити замовлення</button>
+                </div>
+            `;
+            
+            card.querySelector('.btn-order-toggle').addEventListener('click', function() {
+                openOrderModalForCard(card);
+            });
+            grid.appendChild(card);
+
+            // Ефект спалаху
+            card.style.outline = '2px solid var(--accent)';
+            setTimeout(() => card.style.outline = '', 2000);
+        } else {
+            const data = await res.json();
+            errEl.textContent = data.error || 'Помилка збереження';
+            errEl.style.display = 'block';
+        }
+    } catch(e) {
+        errEl.textContent = 'Помилка мережі';
+        errEl.style.display = 'block';
+    }
+    btn.textContent = 'Створити';
+    btn.disabled = false;
+}
+// Модальне вікно менеджера
 let currentCard = null;
 
 function openManagerModal(btn) {
@@ -884,19 +1068,25 @@ function switchTab(name, tabBtn) {
     document.getElementById('tab-' + name).classList.add('active');
 }
 
-function getBranches() {
-    if (!currentCard) return [];
-    // For manager modal we still read from a hidden select stored on card, or use a data store
-    return (currentCard._branches || ['Нові будинки','Центр','Салтівка','Мотель',"П'ятихатки",'ХТЗ']);
+async function saveToServer(category, payload) {
+    try {
+        const res = await fetch("{% url 'save_category_config' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({ category, ...payload }),
+        });
+        if (!res.ok) console.error('Save failed', await res.text());
+    } catch(e) {
+        console.error('Save error', e);
+    }
 }
-function getItems() {
-    if (!currentCard) return [];
-    return JSON.parse(currentCard.dataset.items);
-}
-function getServices() {
-    if (!currentCard) return [];
-    return JSON.parse(currentCard.dataset.services);
-}
+
+function getBranches() { return currentCard ? JSON.parse(currentCard.dataset.branches) : []; }
+function getItems()    { return currentCard ? JSON.parse(currentCard.dataset.items)    : []; }
+function getServices() { return currentCard ? JSON.parse(currentCard.dataset.services) : []; }
 
 function renderAll() { renderBranches(); renderItems(); renderServices(); }
 
@@ -946,13 +1136,15 @@ function addBranch() {
     const input = document.getElementById('new-branch-name');
     const name = input.value.trim();
     if (!name) { input.focus(); input.style.borderColor='var(--danger)'; setTimeout(()=>input.style.borderColor='',1500); return; }
-    if (!currentCard._branches) currentCard._branches = getBranches().slice();
-    currentCard._branches.push(name);
+    const branches = getBranches(); branches.push(name);
+    currentCard.dataset.branches = JSON.stringify(branches);
+    saveToServer(currentCard.dataset.category, { branches });
     input.value = ''; renderBranches();
 }
 function deleteBranch(idx) {
-    if (!currentCard._branches) currentCard._branches = getBranches().slice();
-    currentCard._branches.splice(idx, 1); renderBranches();
+    const branches = getBranches(); branches.splice(idx, 1);
+    currentCard.dataset.branches = JSON.stringify(branches);
+    saveToServer(currentCard.dataset.category, { branches }); renderBranches();
 }
 function editBranch(idx) {
     const list = document.getElementById('branch-list'); const item = list.children[idx]; const cur = getBranches()[idx];
@@ -961,8 +1153,9 @@ function editBranch(idx) {
 }
 function saveBranch(idx) {
     const v = document.getElementById('edit-branch-val').value.trim(); if (!v) return;
-    if (!currentCard._branches) currentCard._branches = getBranches().slice();
-    currentCard._branches[idx] = v; renderBranches();
+    const branches = getBranches(); branches[idx] = v;
+    currentCard.dataset.branches = JSON.stringify(branches);
+    saveToServer(currentCard.dataset.category, { branches }); renderBranches();
 }
 
 function addItem() {
@@ -971,6 +1164,7 @@ function addItem() {
     if (!name||!price||price<1) { if(!name){ni.style.borderColor='var(--danger)';setTimeout(()=>ni.style.borderColor='',1500);} if(!price){pi.style.borderColor='var(--danger)';setTimeout(()=>pi.style.borderColor='',1500);} return; }
     const items = JSON.parse(currentCard.dataset.items); items.push({name, price});
     currentCard.dataset.items = JSON.stringify(items);
+    saveToServer(currentCard.dataset.category, { items });
     const pt = currentCard.querySelector('[data-price-table]');
     if (pt) { const row=document.createElement('div'); row.className='price-row-new'; row.innerHTML=`<span>${name}</span><span>${price} грн</span>`; pt.appendChild(row); }
     ni.value=''; pi.value=''; renderItems();
@@ -978,6 +1172,7 @@ function addItem() {
 function deleteItem(idx) {
     const items = JSON.parse(currentCard.dataset.items); items.splice(idx,1);
     currentCard.dataset.items = JSON.stringify(items);
+    saveToServer(currentCard.dataset.category, { items });
     const pt = currentCard.querySelector('[data-price-table]'); if(pt&&pt.children[idx]) pt.children[idx].remove();
     renderItems();
 }
@@ -989,6 +1184,7 @@ function editItem(idx) {
 function saveItem(idx) {
     const n=document.getElementById('edit-item-name').value.trim(); const p=parseInt(document.getElementById('edit-item-price').value); if(!n||!p) return;
     const items=JSON.parse(currentCard.dataset.items); items[idx]={name:n,price:p}; currentCard.dataset.items=JSON.stringify(items);
+    saveToServer(currentCard.dataset.category, { items });
     const pt=currentCard.querySelector('[data-price-table]'); if(pt&&pt.children[idx]) pt.children[idx].innerHTML=`<span>${n}</span><span>${p} грн</span>`;
     renderItems();
 }
@@ -998,10 +1194,12 @@ function addService() {
     const name=ni.value.trim(); const price=parseInt(pi.value);
     if(!name||!price||price<1) { if(!name){ni.style.borderColor='var(--danger)';setTimeout(()=>ni.style.borderColor='',1500);} if(!price){pi.style.borderColor='var(--danger)';setTimeout(()=>pi.style.borderColor='',1500);} return; }
     const svcs=JSON.parse(currentCard.dataset.services); svcs.push({name,price}); currentCard.dataset.services=JSON.stringify(svcs);
+    saveToServer(currentCard.dataset.category, { services: svcs });
     ni.value=''; pi.value=''; renderServices();
 }
 function deleteService(idx) {
-    const svcs=JSON.parse(currentCard.dataset.services); svcs.splice(idx,1); currentCard.dataset.services=JSON.stringify(svcs); renderServices();
+    const svcs=JSON.parse(currentCard.dataset.services); svcs.splice(idx,1); currentCard.dataset.services=JSON.stringify(svcs);
+    saveToServer(currentCard.dataset.category, { services: svcs }); renderServices();
 }
 function editService(idx) {
     const list=document.getElementById('service-list'); const item=list.children[idx]; const cur=getServices()[idx];
@@ -1010,7 +1208,8 @@ function editService(idx) {
 }
 function saveService(idx) {
     const n=document.getElementById('edit-svc-name').value.trim(); const p=parseInt(document.getElementById('edit-svc-price').value); if(!n||!p) return;
-    const svcs=JSON.parse(currentCard.dataset.services); svcs[idx]={name:n,price:p}; currentCard.dataset.services=JSON.stringify(svcs); renderServices();
+    const svcs=JSON.parse(currentCard.dataset.services); svcs[idx]={name:n,price:p}; currentCard.dataset.services=JSON.stringify(svcs);
+    saveToServer(currentCard.dataset.category, { services: svcs }); renderServices();
 }
 </script>
 
