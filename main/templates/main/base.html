@@ -52,7 +52,7 @@ body {
     min-height: 100vh;
 }
 
-/* ── Navbar ── */
+/* Навігаційне меню*/
 .navbar {
     position: sticky;
     top: 0;
@@ -86,7 +86,7 @@ body {
     flex-shrink: 0;
 }
 
-/* ── Desktop nav links ── */
+/* навігаційне меню для десктопної версії*/
 .navbar-nav {
     display: flex;
     align-items: center;
@@ -110,7 +110,7 @@ body {
 .navbar-nav a:hover  { color: var(--accent); border-bottom-color: var(--accent); }
 .navbar-nav a.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 
-/* ── Desktop auth buttons ── */
+/* кнопки авторизації для десктопу*/
 .nav-auth {
     display: flex;
     align-items: center;
@@ -150,7 +150,7 @@ body {
 }
 .nav-register:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139,90,43,0.35); }
 
-/* ── Hamburger ── */
+/*Гамбургер*/
 .hamburger {
     display: none;
     background: transparent;
@@ -165,9 +165,9 @@ body {
 }
 .hamburger:hover { border-color: var(--accent); background: rgba(139,90,43,0.08); }
 
-/* ── Mobile dropdown ── */
+/* Випадаючий список для мобільних пристроїв*/
 .nav-dropdown {
-    display: none; /* прихований за замовчуванням ЗАВЖДИ */
+    display: none; 
     position: absolute;
     top: 68px;
     left: 0;
@@ -179,7 +179,6 @@ body {
     flex-direction: column;
     padding: 8px 0 16px;
     z-index: 999;
-    /* анімація */
     transform-origin: top;
     animation: none;
 }
@@ -228,11 +227,10 @@ body {
 .nav-dropdown .nav-auth-mobile .nav-login   { flex: 1; text-align: center; }
 .nav-dropdown .nav-auth-mobile .nav-register { flex: 1; text-align: center; }
 
-/* ── Responsive ── */
+/* Адаптивність*/
 @media (max-width: 900px) {
     .navbar { padding: 0 20px; height: 68px; }
     .hamburger { display: flex; align-items: center; }
-    /* ховаємо desktop nav і auth */
     .navbar-nav { display: none; }
     .nav-auth   { display: none; }
     .logo { font-size: 22px; }
@@ -244,7 +242,7 @@ body {
     .nav-dropdown { top: 64px; }
 }
 
-/* ── Content ── */
+/* Контент*/
 .container {
     flex: 1;
     padding: 48px 40px 60px;
@@ -346,7 +344,7 @@ footer { border-top: 2px solid rgba(255,255,255,0.3); padding: 40px; background:
     <div class="container-fluid">
         <a class="logo" href="{% url 'home' %}">Purely<span>&</span>Quick</a>
 
-        <!-- Desktop: links + auth -->
+        <!-- Десктоп:посилання+авторизація-->
         <ul class="navbar-nav">
             <li><a href="{% url 'catalog' %}"   class="{% if request.resolver_match.url_name == 'catalog'   %}active{% endif %}">Каталог</a></li>
             <li><a href="{% url 'reviews' %}"   class="{% if request.resolver_match.url_name == 'reviews'   %}active{% endif %}">Відгуки</a></li>
@@ -364,14 +362,14 @@ footer { border-top: 2px solid rgba(255,255,255,0.3); padding: 40px; background:
             {% endif %}
         </div>
 
-        <!-- Mobile: hamburger -->
+        <!-- Гамбургер для мобільних пристроїв-->
         <button class="hamburger" onclick="toggleMenu()" aria-label="Меню">
             <i class="fas fa-bars" id="hamburger-icon"></i>
         </button>
     </div>
 </nav>
 
-<!-- Mobile dropdown (окремо від navbar) -->
+<!-- Випадаючий список для мобільних пристроїв (окремо від navbar) -->
 <div class="nav-dropdown" id="nav-dropdown">
     <a href="{% url 'catalog' %}"   class="nav-link-item {% if request.resolver_match.url_name == 'catalog'   %}active{% endif %}" onclick="closeMenu()">Каталог</a>
     <a href="{% url 'reviews' %}"   class="nav-link-item {% if request.resolver_match.url_name == 'reviews'   %}active{% endif %}" onclick="closeMenu()">Відгуки</a>
@@ -411,7 +409,7 @@ function toggleMenu() {
         closeMenu();
     } else {
         dropdown.classList.add('open');
-        icon.className = 'fas fa-times'; // ✕ коли відкрито
+        icon.className = 'fas fa-times'; 
     }
 }
 
@@ -447,60 +445,6 @@ function showPopup(message, level = 'info') {
     popup.style.display     = 'block';
     setTimeout(() => popup.style.display = 'none', 5000);
 }
-
-// Блокування DevTools
-(function() {
-    // Блокування клавіш
-    document.addEventListener('keydown', (e) => {
-        if (
-            e.key === 'F12' ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'K' || e.key === 'k')) ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'E' || e.key === 'e')) ||
-            (e.ctrlKey && (e.key === 'U' || e.key === 'u')) ||
-            (e.ctrlKey && (e.key === 'S' || e.key === 's')) ||
-            (e.ctrlKey && (e.key === 'A' || e.key === 'a')) ||
-            e.key === 'F5'
-        ) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-    });
-
-    // Блокування правої кнопки
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    // Виявлення відкритих DevTools через розмір вікна
-    const threshold = 160;
-    setInterval(() => {
-        if (
-            window.outerWidth - window.innerWidth > threshold ||
-            window.outerHeight - window.innerHeight > threshold
-        ) {
-            document.body.innerHTML = '';
-            window.location.href = '/';
-        }
-    }, 1000);
-
-    // Виявлення через debugger
-    setInterval(() => {
-        const start = performance.now();
-        debugger;
-        if (performance.now() - start > 100) {
-            document.body.innerHTML = '';
-            window.location.href = '/';
-        }
-    }, 3000);
-
-    // Блокування виділення тексту
-    document.addEventListener('selectstart', (e) => e.preventDefault());
-
-    // Блокування drag
-    document.addEventListener('dragstart', (e) => e.preventDefault());
-})();
 </script>
 
 {% if messages %}

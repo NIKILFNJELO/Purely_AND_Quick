@@ -23,7 +23,7 @@ class ProposalsView(TemplateView):
     template_name = 'main/proposals.html'
 
 
-# ── Дефолтні дані категорій ──────────────────────────────────────────────────
+#Дефолтні дані категорій 
 _DEFAULT_BRANCHES = ["Нові будинки", "Центр", "Салтівка", "Мотель", "П'ятихатки", "ХТЗ"]
 
 _CATEGORY_DEFAULTS = {
@@ -115,7 +115,7 @@ def _get_or_create_category(cat_name):
             }
         )
     else:
-        # Нова категорія додана менеджером — просто get або create порожнім
+        # Нова категорія додана менеджером 
         obj, _ = CategoryConfig.objects.get_or_create(
             category=cat_name,
             defaults={"items": [], "services": [], "branches": _DEFAULT_BRANCHES}
@@ -123,7 +123,7 @@ def _get_or_create_category(cat_name):
     return obj
 
 
-# ── Views ────────────────────────────────────────────────────────────────────
+# Views 
 
 def catalog(request):
     has_discount = False
@@ -131,7 +131,7 @@ def catalog(request):
         profile, _ = Profile.objects.get_or_create(user=request.user, defaults={"phone": ""})
         has_discount = profile.paid_orders_count >= 3
 
-    # Спочатку ensure всі дефолтні категорії є в БД
+    # Спочатку перевіряємо чи всі дефолтні категорії є в БД
     for cat_name in _CATEGORY_DEFAULTS:
         _get_or_create_category(cat_name)
     # Підтягуємо ВСІ категорії з БД (включаючи додані менеджером)
@@ -201,10 +201,10 @@ def profile(request):
 
     orders_until_discount = max(0, 3 - request.user.profile.paid_orders_count)
 
-    # Ensure дефолтні є в БД
+    # Перевіряємо,що дефолтні категорії є в БД
     for cat_name in _CATEGORY_DEFAULTS:
         _get_or_create_category(cat_name)
-    # catalog_data — всі категорії з БД для JS (edit modal)
+    
     catalog_data = {}
     for obj in CategoryConfig.objects.all():
         catalog_data[obj.category] = {
@@ -237,7 +237,7 @@ def create_order(request):
     defect       = request.POST.get("defect_description", "").strip()
     urgent       = request.POST.get("urgent") == "True"
 
-    # ✅ getlist — отримує ВСІ вибрані чекбокси
+    #getlist — отримує ВСІ вибрані чекбокси
     service_list = request.POST.getlist("service_type")
     service_type = ", ".join(s.strip() for s in service_list if s.strip())
 
@@ -267,7 +267,7 @@ def create_order(request):
 @login_required
 @require_http_methods(["GET", "POST"])
 def edit_order(request, order_id):
-    # ✅ ЄДИНА версія edit_order — без дублювання
+    
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if order.is_paid:
@@ -281,10 +281,9 @@ def edit_order(request, order_id):
         defect       = request.POST.get("defect_description", "").strip()
         urgent       = request.POST.get("urgent") == "True"
 
-        # З profile.html приходить hidden input з готовим рядком "Послуга1, Послуга2"
-        # зібраним JS перед submit. getlist поверне список з одного елемента.
+        
         service_raw  = request.POST.get("service_type", "").strip()
-        service_type = service_raw  # вже готовий рядок
+        service_type = service_raw  
 
         try:
             total_price = int(request.POST.get("total_price", "0"))
@@ -339,7 +338,7 @@ def order_detail(request, order_id):
 
 
 
-# ── Manager dashboard ────────────────────────────────────────────────────────
+# Панель керування Менеджера
 
 @login_required
 def manager_dashboard(request):
@@ -351,7 +350,7 @@ def manager_dashboard(request):
     if not request.user.is_staff:
         return redirect("profile")
 
-    # ── Date filter ──
+    #Фільтрація дати
     date_from_str = request.GET.get("from", "")
     date_to_str   = request.GET.get("to", "")
     today = date.today()
@@ -371,7 +370,7 @@ def manager_dashboard(request):
     if date_to:
         qs = qs.filter(order_date__lte=date_to)
 
-    # ── KPI ──
+    #КПІ
     total_orders  = qs.count()
     paid_orders   = qs.filter(is_paid=True).count()
     unpaid_orders = qs.filter(is_paid=False).count()
@@ -384,12 +383,12 @@ def manager_dashboard(request):
     total_clients = User.objects.filter(is_staff=False).count()
     loyal_clients = Profile.objects.filter(paid_orders_count__gte=3).count()
 
-    # ── Branch stats ──
+    #Статистика філій
     BRANCH_COLORS_MAP = [
         "#d4a574","#3dba72","#5ca8e0","#ffb347",
         "#a87adb","#e05c6a","#4ecdc4","#f7dc6f",
     ]
-    # Філії з БД (CategoryConfig) — об'єднуємо всі унікальні
+    
     all_configs = {obj.category: obj for obj in CategoryConfig.objects.all()}
     db_branches = []
     seen = set()
@@ -427,7 +426,7 @@ def manager_dashboard(request):
             "color":   BRANCH_COLORS_MAP[i % len(BRANCH_COLORS_MAP)],
         })
 
-    # ── Top services ──
+    #Найкращі послуги
     service_counter = Counter()
     for svc_str in qs.values_list("service_type", flat=True):
         for s in svc_str.split(","):
@@ -437,7 +436,7 @@ def manager_dashboard(request):
 
     top_services = [{"name": k, "count": v} for k, v in service_counter.most_common(7)]
 
-    # ── Clients ──
+    #Клієнти
     clients_raw = (
         User.objects.filter(is_staff=False)
             .annotate(
@@ -457,7 +456,7 @@ def manager_dashboard(request):
             "is_loyal":    getattr(getattr(c, "profile", None), "paid_orders_count", 0) >= 3,
         })
 
-    # ── Category guess helper — з БД ──
+    
     ITEM_TO_CAT = {}
     for cat_name, obj in all_configs.items():
         for item in (obj.items or []):
@@ -472,10 +471,10 @@ def manager_dashboard(request):
     for o in all_orders:
         o.category_guess = ITEM_TO_CAT.get(o.item_name, "")
 
-    # ── Unique branches for filter dropdown ──
+    # Унікальні гілки для випадаючого списку фільтрів
     branches = sorted(set(o.branch for o in all_orders if o.branch))
 
-    # ── Catalog summary з БД для відображення в дашборді ──
+    # Зміст каталогу з БД для відображення в дашборді 
     catalog_summary = []
     for cat_name in _CATEGORY_DEFAULTS:
         obj = all_configs.get(cat_name)
@@ -515,7 +514,7 @@ def manager_dashboard(request):
     })
 
 
-# ── Excel Export ─────────────────────────────────────────────────────────────
+# Експорт в ексель
 
 @login_required
 def export_orders_excel(request):
@@ -531,7 +530,7 @@ def export_orders_excel(request):
     if not request.user.is_staff:
         return redirect("profile")
 
-    # ── Date filter ──
+    #Фільтрація дати
     date_from_str = request.GET.get("from", "")
     date_to_str   = request.GET.get("to", "")
     try:
@@ -564,10 +563,10 @@ def export_orders_excel(request):
     if not db_branches_export:
         db_branches_export = _DEFAULT_BRANCHES
 
-    # ── Workbook setup ──
+    
     wb = Workbook()
 
-    # ═══ STYLES ═══
+    #Стилі
     GOLD      = "D4A574"
     DARK      = "3B2A1A"
     LIGHT_BG  = "FDF6EE"
@@ -595,14 +594,12 @@ def export_orders_excel(request):
     def left():
         return Alignment(horizontal="left", vertical="center", wrap_text=True)
 
-    # ═══════════════════════════════════════════════
-    # SHEET 1 — Всі замовлення
-    # ═══════════════════════════════════════════════
+    
     ws1 = wb.active
     ws1.title = "Всі замовлення"
     ws1.sheet_view.showGridLines = False
 
-    # Title row
+    #Рядок заголовка
     ws1.merge_cells("A1:I1")
     title_cell = ws1["A1"]
     period = ""
@@ -614,7 +611,7 @@ def export_orders_excel(request):
     title_cell.alignment = center()
     ws1.row_dimensions[1].height = 28
 
-    # Generated date
+    # Формування дати
     ws1.merge_cells("A2:I2")
     gen_cell = ws1["A2"]
     gen_cell.value = f"Сформовано: {date.today().strftime('%d.%m.%Y')}"
@@ -623,10 +620,10 @@ def export_orders_excel(request):
     gen_cell.alignment = Alignment(horizontal="right", vertical="center")
     ws1.row_dimensions[2].height = 16
 
-    # Headers
+    # Хедери
     headers = ["#", "Клієнт", "Річ", "Послуги", "Філія",
                "Дата прийому", "Бажана дата", "Терміново", "Вартість (грн)", "Статус"]
-    ws1.append([])  # row 3 empty
+    ws1.append([])  
     ws1.row_dimensions[3].height = 6
 
     hdr_row = 4
@@ -638,7 +635,7 @@ def export_orders_excel(request):
         cell.border = border()
     ws1.row_dimensions[hdr_row].height = 22
 
-    # Data rows
+    # Рядки дати
     for i, order in enumerate(orders, 1):
         row_num = hdr_row + i
         is_alt = (i % 2 == 0)
@@ -664,18 +661,18 @@ def export_orders_excel(request):
             cell.border = border()
             cell.alignment = left()
 
-            if col_idx == 1:  # #
+            if col_idx == 1:  
                 cell.alignment = center()
                 cell.font = cell_font(bold=True, color=HDR_BG)
-            elif col_idx == 9:  # price
+            elif col_idx == 9:  
                 cell.number_format = "#,##0.00"
                 cell.font = cell_font(bold=True, color="6B4423")
                 cell.alignment = center()
-            elif col_idx == 8:  # urgent
+            elif col_idx == 8:  
                 cell.alignment = center()
                 if val == "Так":
                     cell.font = cell_font(bold=True, color="C0392B")
-            elif col_idx == 10:  # status
+            elif col_idx == 10:  
                 cell.alignment = center()
                 if order.is_paid:
                     cell.font = cell_font(bold=True, color="27AE60")
@@ -683,13 +680,13 @@ def export_orders_excel(request):
                 elif order.urgent:
                     cell.font = cell_font(bold=True, color="C0392B")
                     cell.fill = fill(RED_BG)
-            elif col_idx in (6, 7):  # dates
+            elif col_idx in (6, 7):  
                 cell.number_format = "DD.MM.YYYY"
                 cell.alignment = center()
 
         ws1.row_dimensions[row_num].height = 18
 
-    # Totals row
+    # Загальні рядки
     total_row = hdr_row + len(orders) + 1
     ws1.merge_cells(f"A{total_row}:H{total_row}")
     tot_label = ws1.cell(row=total_row, column=1, value="РАЗОМ")
@@ -714,17 +711,15 @@ def export_orders_excel(request):
     tot_status.border = border()
     ws1.row_dimensions[total_row].height = 22
 
-    # Column widths
+    # Ширина колонок
     col_widths = [5, 28, 22, 38, 18, 14, 14, 11, 16, 14]
     for i, w in enumerate(col_widths, 1):
         ws1.column_dimensions[get_column_letter(i)].width = w
 
-    # Freeze header
+    # Заморозити заголовок
     ws1.freeze_panes = f"A{hdr_row+1}"
 
-    # ═══════════════════════════════════════════════
-    # SHEET 2 — Звіт по філіях
-    # ═══════════════════════════════════════════════
+    
     ws2 = wb.create_sheet("Звіт по філіях")
     ws2.sheet_view.showGridLines = False
 
@@ -799,7 +794,7 @@ def export_orders_excel(request):
                 cell.font = cell_font(color="27AE60")
         ws2.row_dimensions[row_num].height = 18
 
-    # Branch totals
+    # Загальні філії
     tot2 = 3 + len(branch_list) + 1
     ws2.cell(row=tot2, column=1, value="РАЗОМ").font = hdr_font()
     ws2.cell(row=tot2, column=1).fill = fill(HDR_BG)
@@ -824,9 +819,7 @@ def export_orders_excel(request):
         ws2.column_dimensions[get_column_letter(i)].width = w
     ws2.freeze_panes = "A4"
 
-    # ═══════════════════════════════════════════════
-    # SHEET 3 — Клієнти
-    # ═══════════════════════════════════════════════
+    
     ws3 = wb.create_sheet("Клієнти")
     ws3.sheet_view.showGridLines = False
 
@@ -891,9 +884,7 @@ def export_orders_excel(request):
         ws3.column_dimensions[get_column_letter(i)].width = w
     ws3.freeze_panes = "A4"
 
-    # ═══════════════════════════════════════════════
-    # SHEET 4 — Каталог (філії, речі, послуги з БД)
-    # ═══════════════════════════════════════════════
+    
     ws4 = wb.create_sheet("Каталог послуг")
     ws4.sheet_view.showGridLines = False
 
@@ -918,7 +909,7 @@ def export_orders_excel(request):
         services_list = obj.services if obj else _CATEGORY_DEFAULTS[cat_name]["services"]
         branches_list = obj.branches if obj else _DEFAULT_BRANCHES
 
-        # Category header
+        # Хедер категорій
         ws4.merge_cells(f"A{current_row}:D{current_row}")
         cat_cell = ws4.cell(row=current_row, column=1, value=f"  {cat_name}")
         cat_cell.font = Font(name="Arial", size=12, bold=True, color="FFFFFF")
@@ -928,7 +919,7 @@ def export_orders_excel(request):
         ws4.row_dimensions[current_row].height = 22
         current_row += 1
 
-        # Sub-headers
+        # Підхедери
         sub_headers = ["Назва речі / послуги", "Ціна (грн)", "Тип", "Філія"]
         for col_idx, h in enumerate(sub_headers, 1):
             cell = ws4.cell(row=current_row, column=col_idx, value=h)
@@ -939,7 +930,7 @@ def export_orders_excel(request):
         ws4.row_dimensions[current_row].height = 18
         current_row += 1
 
-        # Items
+        # Елементи
         for item in items_list:
             rf = fill("FFFFFF")
             ws4.cell(row=current_row, column=1, value=item["name"]).font = cell_font()
@@ -964,7 +955,7 @@ def export_orders_excel(request):
             ws4.row_dimensions[current_row].height = 16
             current_row += 1
 
-        # Services
+        # Послуги
         for i, svc in enumerate(services_list):
             rf = fill(ALT_ROW) if i % 2 == 0 else fill("FFFFFF")
             ws4.cell(row=current_row, column=1, value=svc["name"]).font = cell_font()
@@ -989,7 +980,7 @@ def export_orders_excel(request):
             ws4.row_dimensions[current_row].height = 16
             current_row += 1
 
-        # Branches row
+        # Рядок філій
         branches_str = ", ".join(branches_list)
         ws4.merge_cells(f"A{current_row}:D{current_row}")
         br_cell = ws4.cell(row=current_row, column=1, value=f"Філії: {branches_str}")
@@ -998,7 +989,7 @@ def export_orders_excel(request):
         br_cell.border = border()
         br_cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
         ws4.row_dimensions[current_row].height = 16
-        current_row += 2  # gap between categories
+        current_row += 2  
 
     ws4.column_dimensions["A"].width = 35
     ws4.column_dimensions["B"].width = 14
@@ -1006,7 +997,7 @@ def export_orders_excel(request):
     ws4.column_dimensions["D"].width = 14
     ws4.freeze_panes = "A4"
 
-    # ── Response ──
+    
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
